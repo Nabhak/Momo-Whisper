@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whisper — Changelog</title>
+<meta name="description" content="What's new in Whisper — every release, every change.">
+<meta name="theme-color" content="#cd6f4d">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://gamezxz.github.io/WhisperApp/changelog">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f2ea; --bg-2: #efece1; --fg: #1c1b17; --muted: #6f6b60;
+    --line: #e0dccf; --accent: #cd6f4d; --accent-ink: #b85c3b;
+    --accent-soft: rgba(205, 111, 77, 0.12); --hover-bg: #ebe7da;
+    --grain-opacity: 0.04; --max: 760px;
+    --serif: "Fraunces", Georgia, serif;
+    --sans: "Hanken Grotesk", -apple-system, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1e1c18; --bg-2: #24221d; --fg: #ece7da; --muted: #9c9587;
+      --line: #36332b; --accent: #e1875f; --accent-ink: #ec9978;
+      --accent-soft: rgba(225, 135, 95, 0.14); --hover-bg: #28251f;
+      --grain-opacity: 0.06;
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: var(--sans); font-size: 16px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased; position: relative; overflow-x: hidden;
+  }
+  body::before {
+    content: ""; position: fixed; top: -10%; left: 50%;
+    width: 120vw; height: 50vh; transform: translateX(-50%);
+    background: radial-gradient(ellipse at center, var(--accent-soft) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a { color: var(--accent-ink); }
+  main {
+    position: relative; z-index: 2;
+    max-width: var(--max); margin: 0 auto;
+    padding: 8vh 24px 64px;
+  }
+  .back { font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+  h1 {
+    font-family: var(--serif); font-size: clamp(2.2rem, 6vw, 2.8rem);
+    font-weight: 600; letter-spacing: -0.02em; margin: 12px 0 6px;
+  }
+  .lede { color: var(--muted); margin: 0 0 8px; font-size: 1.05rem; }
+  .release {
+    border: 1px solid var(--line); border-radius: 16px;
+    background: var(--bg-2); padding: 24px 28px; margin-top: 22px;
+  }
+  .release.latest { border-color: var(--accent); box-shadow: 0 6px 22px var(--accent-soft); }
+  .release .head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .release .ver {
+    font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--accent-ink);
+  }
+  .release .date { font-family: var(--mono); font-size: .78rem; color: var(--muted); }
+  .badge {
+    font-family: var(--mono); font-size: .68rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .08em;
+    background: var(--accent); color: #fff; padding: 2px 9px; border-radius: 20px;
+  }
+  .release ul { margin: 14px 0 0; padding-left: 20px; }
+  .release li { margin: 7px 0; }
+  .release li strong { color: var(--fg); }
+  .release li code {
+    font-family: var(--mono); font-size: .85em;
+    background: var(--bg); border: 1px solid var(--line);
+    padding: 1px 6px; border-radius: 5px;
+  }
+  footer {
+    position: relative; z-index: 2; max-width: var(--max);
+    margin: 0 auto; padding: 30px 24px 48px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: .78rem; color: var(--muted);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="https://gamezxz.github.io/WhisperApp/">← back to Whisper</a>
+  <h1>Changelog</h1>
+  <p class="lede">Everything new in Whisper. The app checks for updates automatically — this page is the full history.</p>
+
+  <!--
+    Add new releases at the TOP. make_release.sh writes a stub here, then you fill in
+    the bullet points. Keep the Sparkle appcast <description> in sync with the top entry.
+  -->
+
+  <article class="release latest">
+    <div class="head">
+      <span class="ver">1.2.5</span>
+      <span class="badge">Latest</span>
+      <span class="date">2026-07-07</span>
+    </div>
+    <ul>
+      <li><strong>Notarization fix</strong> — the app bundle (and Sparkle framework) are now fully signed and notarized. Gatekeeper no longer shows the "Apple could not verify…" warning on other Macs.</li>
+    </ul>
+  </article>
+
+  <article class="release">
+    <div class="head">
+      <span class="ver">1.2.4</span>
+      <span class="badge">Prerelease</span>
+      <span class="date">2026-07-07</span>
+    </div>
+    <ul>
+      <li><em>Pulled — built without notarization (Developer agreement had expired). Replaced by 1.2.5.</em></li>
+    </ul>
+  </article>
+
+  <article class="release">
+    <div class="head">
+      <span class="ver">1.2.3</span>
+      <span class="date">2026-07-07</span>
+    </div>
+    <ul>
+      <li><strong>Custom Dictionary</strong> — fix words the STT keeps mis-transcribing. Add/remove rules in a dedicated window; they apply before paste and as a hint to the AI correction. <code>~/.whisperapp/dictionary.txt</code></li>
+      <li><strong>16 languages</strong> — Thai, English, Chinese, Japanese, Korean, Vietnamese, Indonesian, Malay, Spanish, French, German, Italian, Portuguese, Russian, Arabic, Hindi, plus Auto-detect</li>
+      <li><strong>Auto-update</strong> — Whisper now checks for new versions on its own and installs them automatically (via Sparkle, signed with EdDSA)</li>
+      <li><strong>What's New menu</strong> — open this changelog straight from the menu bar</li>
+      <li>Dictionary is now its own window (separate from Settings)</li>
+      <li>App bundle renamed to <strong>Whisper.app</strong> (shows as "Whisper" in Applications)</li>
+      <li>About window shows the paper-cut mic logo</li>
+      <li>Menu items now have icons</li>
+      <li>UI is fully English</li>
+    </ul>
+  </article>
+
+  <article class="release">
+    <div class="head">
+      <span class="ver">1.2</span>
+      <span class="date">2026-07-05</span>
+    </div>
+    <ul>
+      <li>App renamed to <strong>Whisper</strong></li>
+      <li>New superellipse logo (Claude-style cream/clay paper-cut mic)</li>
+      <li>English promotional site with full SEO</li>
+    </ul>
+  </article>
+
+  <article class="release">
+    <div class="head">
+      <span class="ver">1.1</span>
+      <span class="date">2026-07-04</span>
+    </div>
+    <ul>
+      <li>Hold-to-talk default hotkey (Fn)</li>
+      <li>Groq single-key provider (STT + AI correction)</li>
+    </ul>
+  </article>
+
+  <article class="release">
+    <div class="head">
+      <span class="ver">1.0</span>
+      <span class="date">2026-06-17</span>
+    </div>
+    <ul>
+      <li>Initial release — menu-bar dictation, cloud STT, AI correction, auto-paste</li>
+    </ul>
+  </article>
+</main>
+<footer>
+  <span>whisper — by <a href="https://cointh.com">gamezxz</a></span>
+  <span><a href="https://github.com/Gamezxz/WhisperApp/releases">releases</a></span>
+</footer>
+</body>
+</html>
