@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  ============================================================================
+  MOMO WHISPER — v2 LANDING PAGE — DESIGN PLAN
+  ============================================================================
+  STATUS: preview only. Not linked from index.html. noindex until approved.
+
+  PALETTE — confirmed, evolved not replaced
+    Same warm "paper-cut" cream + clay tokens as v1 (light #f6f3ea/#cd6f4d,
+    dark #1c1a16/#e1875f). Added: --success (sage green, desaturated to sit
+    quietly next to clay) for the Grammar "looks great" state only — the one
+    net-new semantic color the app itself needs (a real product state).
+    Paper grain + warm radial glow overlays carried forward unchanged.
+
+  TYPE SCALE
+    Display: Fraunces, italic for the accent word in every headline.
+      Hero H1    clamp(3rem, 8.5vw, 5.4rem) / 0.96, weight 600
+      Section H1 clamp(2rem, 5vw, 3rem) / 1.02, weight 600 (new "lead" size —
+                  v1 only had mono eyebrows as headers; v2 sections get a
+                  real serif statement so it reads as chapters, not a list)
+    Eyebrow/label/kbd: mono (ui-monospace/SF Mono), unchanged from v1.
+    Body: Hanken Grotesk, unchanged.
+    Icons: upgraded from v1's emoji to a small custom stroke-icon set
+      (currentColor, 1.8px stroke) so the feature grid reads as one drawn
+      system instead of mixed platform emoji glyphs.
+
+  SECTION ORDER
+    1. Topbar                       — brand, GitHub, theme toggle
+    2. Hero                         — thesis headline + orchestrated load
+    3. "The moment it clicks"       — SIGNATURE MOTION: before → after demo
+    4. "Why talk beats type"        — speed/effort comparison bars
+    5. "What Momo adds"             — 3-col feature grid, stroke icons
+    6. "Highlight anything."        — Translate/Grammar/Rewrite popup demo
+    7. "Meet Momo"                  — mascot moment (click-to-play kitten)
+    8. "How to install"             — carried from v1, tightened copy
+    9. "Why Momo, not another one"  — differentiation block (no fake quotes —
+                                       honest claims only, nothing fabricated)
+   10. Final CTA                    — repeat thesis + download
+   11. Footer
+
+  THE ONE SIGNATURE MOTION MOMENT
+    Section 3's before → after transform: a messy, spoken-sounding line
+    (fillers, false starts) types itself out phrase-by-phrase in a rough
+    monospace "raw take" panel, a paw-shaped beat pulses in the middle, then
+    the clean/translated line fold-reveals into a serif "final take" panel —
+    like a page turning over. Cycles through THA→EN, rambly-EN→Slack-EN, and
+    JA→EN pairs. Pauses on hover/focus. Every other looping animation in the
+    page (mascot idle breathing, speed bars, blinking) is secondary to this;
+    under prefers-reduced-motion the transform snaps to its resolved end
+    state with no loop, no cycling.
+
+  MASCOT (section 7)
+    Built as inline SVG (no image asset) in the existing paper-cut language:
+    solid accent-colored silhouette, cut-out bg-colored eyes, same visual
+    grammar as the paw icon already on the page. States: idle (breathing +
+    ambient blink), hop, glance, ball-bat, nap (auto after ~26s idle). Click
+    the cat (or press Enter/Space on it) to cycle a state + a random
+    encouraging speech-bubble line. Fully inert under reduced-motion except
+    for the click-triggered line change.
+  ============================================================================
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Progressive-enhancement flag + early theme restore — runs before first paint to avoid flash */
+  (function () {
+    var d = document.documentElement;
+    d.classList.add('js');
+    try {
+      var saved = localStorage.getItem('momo-whisper-theme');
+      if (saved === 'light' || saved === 'dark') d.setAttribute('data-theme', saved);
+    } catch (e) {}
+  })();
+</script>
+<title>Momo Whisper — Talk messy. Type perfect.</title>
+<meta name="description" content="Momo Whisper — a macOS menu-bar app. Hold Fn to dictate, Fn+Shift to translate; highlight any text to translate, grammar-fix, or rewrite it in place. Thai ⇄ English + 16 languages, via Groq.">
+<meta name="theme-color" content="#cd6f4d">
+<meta name="color-scheme" content="light dark">
+<meta name="author" content="Nabhak">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+
+<!-- Open Graph (preview build — kept consistent with v1's assets) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Momo Whisper">
+<meta property="og:title" content="Momo Whisper — Talk messy. Type perfect.">
+<meta property="og:description" content="Hold Fn to dictate, Fn+Shift to translate; highlight any text to translate, fix, or rewrite it in place. Thai ⇄ English + 16 languages. Free & open source.">
+<meta property="og:image" content="og.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,500;1,9..144,600&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Warm paper-cut palette — cream + clay (unchanged from v1) */
+    --bg: #f6f3ea;
+    --bg-2: #efece1;
+    --bg-3: #e9e4d4;
+    --fg: #1c1b17;
+    --muted: #6f6b60;
+    --line: #e0dccf;
+    --line-strong: #d3cdba;
+    --accent: #cd6f4d;
+    --accent-ink: #b85c3b;
+    --accent-soft: rgba(205, 111, 77, 0.12);
+    --accent-soft-2: rgba(205, 111, 77, 0.2);
+    --accent-soft-3: rgba(205, 111, 77, 0.07);
+    --hover-bg: #ebe7da;
+    --shadow: rgba(28, 27, 23, 0.14);
+    --grain-opacity: 0.045;
+    /* new for v2: sage success — used only for the Grammar "looks great" state */
+    --success: #6f8f5c;
+    --success-soft: rgba(111, 143, 92, 0.14);
+    --max: 1080px;
+    --r-sm: 10px;
+    --r-md: 16px;
+    --r-lg: 24px;
+    --r-xl: 30px;
+    --serif: "Fraunces", Georgia, "Times New Roman", serif;
+    --sans: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+    --paw: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='66' rx='26' ry='22'/%3E%3Cellipse cx='20' cy='40' rx='11' ry='14' transform='rotate(-20 20 40)'/%3E%3Cellipse cx='40' cy='18' rx='11' ry='14' transform='rotate(-6 40 18)'/%3E%3Cellipse cx='62' cy='18' rx='11' ry='14' transform='rotate(6 62 18)'/%3E%3Cellipse cx='82' cy='40' rx='11' ry='14' transform='rotate(20 82 40)'/%3E%3C/svg%3E");
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1a16;
+      --bg-2: #232019;
+      --bg-3: #2a271f;
+      --fg: #ede8db;
+      --muted: #9c9587;
+      --line: #34312a;
+      --line-strong: #423e33;
+      --accent: #e1875f;
+      --accent-ink: #f0a17e;
+      --accent-soft: rgba(225, 135, 95, 0.14);
+      --accent-soft-2: rgba(225, 135, 95, 0.22);
+      --accent-soft-3: rgba(225, 135, 95, 0.09);
+      --hover-bg: #282419;
+      --shadow: rgba(0, 0, 0, 0.5);
+      --grain-opacity: 0.07;
+      --success: #8fbf7a;
+      --success-soft: rgba(143, 191, 122, 0.16);
+    }
+  }
+  /* manual theme toggle — persisted in localStorage, wins over OS preference */
+  :root[data-theme="dark"] {
+    --bg: #1c1a16; --bg-2: #232019; --bg-3: #2a271f;
+    --fg: #ede8db; --muted: #9c9587;
+    --line: #34312a; --line-strong: #423e33;
+    --accent: #e1875f; --accent-ink: #f0a17e;
+    --accent-soft: rgba(225, 135, 95, 0.14);
+    --accent-soft-2: rgba(225, 135, 95, 0.22);
+    --accent-soft-3: rgba(225, 135, 95, 0.09);
+    --hover-bg: #282419; --shadow: rgba(0, 0, 0, 0.5); --grain-opacity: 0.07;
+    --success: #8fbf7a; --success-soft: rgba(143, 191, 122, 0.16);
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f3ea; --bg-2: #efece1; --bg-3: #e9e4d4;
+    --fg: #1c1b17; --muted: #6f6b60;
+    --line: #e0dccf; --line-strong: #d3cdba;
+    --accent: #cd6f4d; --accent-ink: #b85c3b;
+    --accent-soft: rgba(205, 111, 77, 0.12);
+    --accent-soft-2: rgba(205, 111, 77, 0.2);
+    --accent-soft-3: rgba(205, 111, 77, 0.07);
+    --hover-bg: #ebe7da; --shadow: rgba(28, 27, 23, 0.14); --grain-opacity: 0.045;
+    --success: #6f8f5c; --success-soft: rgba(111, 143, 92, 0.14);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 24px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    overflow-x: hidden;
+    transition: background-color .3s ease, color .3s ease;
+  }
+  /* warm radial glow behind the header */
+  body::before {
+    content: "";
+    position: fixed;
+    top: -14%; left: 50%;
+    width: 130vw; height: 62vh;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse at center, var(--accent-soft) 0%, transparent 62%);
+    pointer-events: none; z-index: 0;
+  }
+  /* paper grain overlay */
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 1;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a { color: inherit; text-decoration: none; }
+  a:focus-visible, button:focus-visible, .btn:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  img { max-width: 100%; display: block; }
+  main {
+    position: relative; z-index: 2;
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 6vh 24px 64px;
+    overflow-x: clip;
+  }
+
+  /* ---- paw motif ---- */
+  .paw-icon {
+    display: inline-block;
+    width: 1em; height: 1em;
+    background: currentColor;
+    -webkit-mask: var(--paw) center / contain no-repeat;
+            mask: var(--paw) center / contain no-repeat;
+    flex: none;
+  }
+  .paw-trail { display: flex; justify-content: center; gap: clamp(20px, 6vw, 40px); margin: 8px 0; }
+  .paw-trail span {
+    width: 18px; height: 18px;
+    background: var(--accent);
+    -webkit-mask: var(--paw) center / contain no-repeat;
+            mask: var(--paw) center / contain no-repeat;
+  }
+  .paw-trail span:nth-child(1) { opacity: .28; transform: rotate(-16deg) translateY(6px); }
+  .paw-trail span:nth-child(2) { opacity: .48; transform: rotate(10deg) translateY(-5px); }
+  .paw-trail span:nth-child(3) { opacity: .62; transform: rotate(-8deg) translateY(4px); }
+  .paw-trail span:nth-child(4) { opacity: .4; transform: rotate(14deg) translateY(-3px); }
+  .paw-trail span:nth-child(5) { opacity: .22; transform: rotate(-4deg) translateY(5px); }
+
+  /* ---- topbar ---- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 7vh;
+    font-family: var(--mono); font-size: .8rem;
+  }
+  .topbar .brand {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--muted); letter-spacing: .01em;
+  }
+  .topbar .brand .paw-icon { color: var(--accent-ink); }
+  .topbar-right { display: flex; align-items: center; gap: 14px; }
+  .topbar-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--muted);
+    padding: 6px 4px;
+    transition: color .15s ease, transform .15s ease;
+  }
+  .topbar-link:hover { color: var(--accent-ink); transform: translateX(2px); }
+  .topbar-link svg { width: 15px; height: 15px; }
+  .theme-toggle {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--bg-2);
+    color: var(--muted);
+    cursor: pointer;
+    padding: 0;
+    transition: transform .3s cubic-bezier(.2,.8,.2,1), background .2s ease, border-color .2s ease, color .2s ease;
+  }
+  .theme-toggle svg { width: 15px; height: 15px; }
+  .theme-toggle:hover { color: var(--accent-ink); border-color: var(--accent); transform: rotate(-10deg) scale(1.08); }
+  .theme-toggle:active { transform: scale(.9); }
+
+  /* ---- Hero ---- */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.15fr auto;
+    align-items: center;
+    gap: 40px;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin: 0 0 18px;
+    padding: 6px 14px 6px 11px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg-2);
+    font-family: var(--mono);
+    font-size: .74rem;
+    letter-spacing: .03em;
+    color: var(--muted);
+  }
+  .eyebrow .paw-icon { color: var(--accent-ink); }
+  .hero h1 {
+    font-family: var(--serif);
+    font-optical-sizing: auto;
+    font-size: clamp(3rem, 8.5vw, 5.4rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 0.96;
+    margin: 0;
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--accent-ink);
+    position: relative;
+    white-space: nowrap;
+  }
+  .hero h1 em::after {
+    content: "";
+    position: absolute;
+    left: -2%; right: -3%; bottom: .04em;
+    height: .2em;
+    background: var(--accent-soft-2);
+    z-index: -1;
+    border-radius: 3px;
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: underline-sweep .7s .9s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes underline-sweep { to { transform: scaleX(1); } }
+  .tagline {
+    margin: 26px 0 0;
+    font-size: 1.28rem;
+    line-height: 1.6;
+    max-width: 46ch;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-style: italic;
+  }
+  .tagline strong { font-style: normal; font-weight: 600; color: var(--accent-ink); }
+
+  .btns { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 13px 24px;
+    border-radius: 13px;
+    font-weight: 600; font-size: .98rem;
+    border: 1.5px solid transparent;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: translateY(0) scale(.97); }
+  .btn svg { flex: none; }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 8px 26px var(--accent-soft);
+  }
+  .btn-primary:hover { background: var(--accent-ink); box-shadow: 0 12px 30px var(--accent-soft-2); }
+  .btn-primary::after {
+    content: "";
+    position: absolute; top: 0; left: -60%;
+    width: 40%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,.35), transparent);
+    transform: skewX(-18deg);
+    transition: left .5s ease;
+  }
+  .btn-primary:hover::after { left: 130%; }
+  .btn-ghost { border-color: var(--line); background: var(--bg-2); color: var(--fg); }
+  .btn-ghost:hover { background: var(--hover-bg); border-color: var(--accent); }
+
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin: 20px 0 0; padding: 0; list-style: none;
+  }
+  .meta .fact {
+    font-family: var(--mono); font-size: .74rem; color: var(--muted);
+    padding: 5px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg-2);
+  }
+
+  /* ---- hero art ---- */
+  .hero-art {
+    position: relative;
+    display: flex; align-items: center; justify-content: center; gap: clamp(6px, 1.6vw, 16px);
+    padding: 20px;
+  }
+  .art-glow {
+    position: absolute; inset: -20px;
+    background: radial-gradient(circle, var(--accent-soft) 0%, transparent 68%);
+    filter: blur(4px);
+    z-index: 0; pointer-events: none;
+  }
+  .hero-art::before {
+    content: "";
+    position: absolute;
+    width: clamp(120px, 24vw, 190px);
+    height: clamp(120px, 24vw, 190px);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 34px;
+    transform: rotate(7deg);
+    z-index: 0;
+  }
+  .hero .logo {
+    position: relative; z-index: 1;
+    flex-shrink: 0;
+    width: clamp(112px, 20vw, 164px);
+    height: clamp(112px, 20vw, 164px);
+    border-radius: 30px;
+    box-shadow: 0 20px 40px var(--shadow), 0 4px 14px rgba(0,0,0,.14);
+    transition: transform .4s cubic-bezier(.2,.8,.2,1);
+  }
+  .hero .logo:hover { transform: scale(1.045) rotate(-2deg); }
+  .hero-peek {
+    position: absolute;
+    z-index: 2;
+    bottom: -8px; right: -14px;
+    width: clamp(46px, 9vw, 66px);
+    height: clamp(46px, 9vw, 66px);
+    opacity: 0;
+    transform: translateY(14px) scale(.7);
+    animation: peek-in .5s 1.7s cubic-bezier(.3,1.4,.4,1) forwards;
+  }
+  @media (max-width: 560px) { .hero-peek { right: 6%; } }
+  @keyframes peek-in { to { opacity: 1; transform: none; } }
+
+  /* ---- hero live demo: dictate → translate ---- */
+  .demo-card {
+    margin-top: 30px;
+    display: inline-flex; flex-direction: column; gap: 9px;
+    padding: 14px 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--bg-2);
+    max-width: 48ch;
+    width: 100%;
+    transition: border-color .2s ease, background .2s ease, transform .2s ease, box-shadow .2s ease;
+  }
+  .demo-card:hover { border-color: var(--accent); background: var(--hover-bg); transform: translateY(-2px); box-shadow: 0 10px 24px var(--shadow); }
+  .demo-head {
+    display: flex; align-items: center; gap: 7px;
+    font-family: var(--mono); font-size: .7rem;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .demo-head .paw-icon { width: .85em; height: .85em; color: var(--accent-ink); }
+  .demo-wave { display: inline-flex; align-items: center; gap: 2px; height: 13px; margin-left: auto; opacity: 0; transition: opacity .2s ease; }
+  .demo-wave.on { opacity: 1; }
+  .demo-wave i {
+    width: 2.5px; height: 4px; border-radius: 2px; background: var(--accent);
+    animation: demobar .7s ease-in-out infinite;
+  }
+  .demo-wave i:nth-child(2) { animation-delay: .12s; }
+  .demo-wave i:nth-child(3) { animation-delay: .24s; }
+  .demo-wave i:nth-child(4) { animation-delay: .36s; }
+  .demo-wave i:nth-child(5) { animation-delay: .48s; }
+  @keyframes demobar { 0%, 100% { height: 3px; } 50% { height: 13px; } }
+  .demo-line {
+    margin: 0;
+    font-family: var(--mono); font-size: 1rem; line-height: 1.5;
+    height: 3em;
+    color: var(--fg);
+    word-break: break-word;
+    overflow: hidden;
+  }
+  html:not(.js) .demo-line { height: auto; overflow: visible; }
+  .demo-lang {
+    color: var(--accent-ink); font-weight: 700; font-size: .82em;
+    margin-right: 8px;
+    letter-spacing: .02em;
+  }
+  .demo-cursor {
+    display: inline-block;
+    width: .4ch; height: 1em;
+    margin-left: 2px;
+    background: var(--accent);
+    vertical-align: -2px;
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  @media (max-width: 760px) { .demo-card { max-width: none; } }
+
+  /* staggered reveal (hero load sequence) */
+  .reveal { opacity: 0; transform: translateY(14px); animation: rise .7s cubic-bezier(.2,.7,.2,1) forwards; }
+  .d1 { animation-delay: .05s; }
+  .d3 { animation-delay: .3s; }
+  .d4 { animation-delay: .46s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .hero-peek, .hero h1 em::after { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .cursor, .demo-cursor { animation: none; }
+    .demo-wave i { animation: none; height: 8px; }
+    .btn-primary::after { display: none; }
+    .io-reveal,
+    .grid .card, .timeline .step, .install-box li, .feat-row { opacity: 1 !important; transform: none !important; transition: none !important; }
+    .demo-line { height: auto; overflow: visible; }
+    body { transition: none; }
+  }
+
+  /* ---- scroll-triggered reveals ---- */
+  .js .io-reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);
+  }
+  .js .io-reveal.is-visible { opacity: 1; transform: none; }
+  .js .grid .card { opacity: 0; transition: opacity .6s cubic-bezier(.2,.7,.2,1); }
+  .js .grid.is-visible .card { opacity: 1; }
+  .js .timeline .step,
+  .js .install-box li,
+  .js .diff-grid .diff-item {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);
+  }
+  .js .timeline.is-visible .step,
+  .js .install-box.is-visible li,
+  .js .diff-grid.is-visible .diff-item { opacity: 1; transform: none; }
+  .js .grid .card:nth-child(1), .js .timeline .step:nth-child(1), .js .install-box li:nth-child(1), .js .diff-grid .diff-item:nth-child(1) { transition-delay: 0ms; }
+  .js .grid .card:nth-child(2), .js .timeline .step:nth-child(2), .js .install-box li:nth-child(2), .js .diff-grid .diff-item:nth-child(2) { transition-delay: 70ms; }
+  .js .grid .card:nth-child(3), .js .timeline .step:nth-child(3), .js .install-box li:nth-child(3), .js .diff-grid .diff-item:nth-child(3) { transition-delay: 140ms; }
+  .js .grid .card:nth-child(4), .js .timeline .step:nth-child(4), .js .install-box li:nth-child(4), .js .diff-grid .diff-item:nth-child(4) { transition-delay: 210ms; }
+  .js .grid .card:nth-child(5) { transition-delay: 280ms; }
+  .js .grid .card:nth-child(6) { transition-delay: 350ms; }
+
+  /* ---- Sections ---- */
+  section { margin-top: 108px; }
+  .sec-head { margin: 0 0 40px; }
+  h2.eyebrow-h {
+    font-family: var(--mono);
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2.eyebrow-h .paw-icon { color: var(--accent-ink); opacity: .8; }
+  h2.eyebrow-h::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .sec-head .lead {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 3.4vw, 2.3rem);
+    font-weight: 500;
+    line-height: 1.22;
+    letter-spacing: -0.01em;
+    margin: 0;
+    max-width: 30ch;
+  }
+  .sec-head .lead em { font-style: italic; color: var(--accent-ink); font-weight: 500; }
+  .sec-head p.sub { margin: 14px 0 0; color: var(--muted); max-width: 52ch; font-size: 1.02rem; }
+
+  /* ---- SIGNATURE MOMENT: before → after transform demo ---- */
+  .transform-demo {
+    border: 1px solid var(--line);
+    border-radius: var(--r-xl);
+    background: var(--bg-2);
+    padding: clamp(22px, 4vw, 40px);
+    position: relative;
+    overflow: hidden;
+  }
+  .transform-demo::before {
+    content: "";
+    position: absolute; top: -30%; right: -10%;
+    width: 50%; height: 90%;
+    background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .transform-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .04em;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    border-radius: 999px;
+    padding: 4px 12px;
+    margin-bottom: 22px;
+    position: relative; z-index: 1;
+  }
+  .flip-stage {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: stretch;
+    gap: 22px;
+  }
+  @media (max-width: 780px) {
+    .flip-stage { grid-template-columns: 1fr; }
+    .flip-arrow { transform: rotate(90deg); margin: 0 auto; }
+  }
+  .say-panel, .type-panel {
+    border-radius: var(--r-md);
+    padding: 20px 22px;
+    min-height: 168px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .say-panel {
+    background: var(--bg);
+    border: 1px dashed var(--line-strong);
+  }
+  .type-panel {
+    background: var(--bg);
+    border: 1px solid var(--line);
+  }
+  .panel-label {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .panel-label .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex: none; }
+  .say-panel .panel-label .dot { background: var(--accent); animation: pulse-dot 1.8s ease-in-out infinite; }
+  @keyframes pulse-dot { 0%, 100% { opacity: .35; transform: scale(.85); } 50% { opacity: 1; transform: scale(1); } }
+  .say-text {
+    font-family: var(--mono); font-size: 1rem; line-height: 1.6;
+    color: var(--muted);
+    flex: 1;
+  }
+  .say-text .heard { color: var(--fg); }
+  .type-text {
+    font-family: var(--serif); font-size: 1.2rem; line-height: 1.5; font-weight: 500;
+    color: var(--fg);
+    flex: 1;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity .4s ease, transform .4s ease;
+  }
+  .type-text.is-in { opacity: 1; transform: none; }
+  .type-text .accent-run { color: var(--accent-ink); }
+  .type-check {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: .72rem; color: var(--success);
+    opacity: 0; transition: opacity .3s ease .1s;
+  }
+  .type-check.is-in { opacity: 1; }
+  .type-check svg { width: 13px; height: 13px; }
+  .flip-arrow {
+    align-self: center;
+    flex: none;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent-ink);
+    transition: transform .3s cubic-bezier(.2,.8,.2,1), border-color .2s ease;
+  }
+  .flip-arrow.is-active { transform: scale(1.15) rotate(180deg); border-color: var(--accent); }
+  @media (max-width: 780px) { .flip-arrow.is-active { transform: scale(1.15) rotate(270deg); } }
+  .flip-arrow svg { width: 18px; height: 18px; }
+  .demo-tonechip {
+    position: relative; z-index: 1;
+    margin-top: 18px;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: .72rem; color: var(--muted);
+  }
+  .demo-tonechip strong { color: var(--accent-ink); font-weight: 600; }
+  .demo-progress { position: relative; z-index: 1; display: flex; gap: 6px; margin-top: 20px; }
+  .demo-progress span { flex: 1; height: 3px; border-radius: 2px; background: var(--line); overflow: hidden; }
+  .demo-progress span i { display: block; height: 100%; width: 0; background: var(--accent); transform-origin: left; }
+  .demo-progress span.is-done i { width: 100%; }
+  .demo-progress span.is-active i { animation: progress-fill 3.6s linear forwards; }
+  @keyframes progress-fill { to { width: 100%; } }
+  @media (prefers-reduced-motion: reduce) {
+    .demo-progress span.is-active i { animation: none; width: 100%; }
+  }
+
+  /* ---- speed / effort comparison ---- */
+  .speed-compare {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--bg-2);
+    padding: clamp(22px, 4vw, 36px);
+  }
+  .speed-row { display: flex; align-items: center; gap: 18px; margin-bottom: 20px; }
+  .speed-row:last-of-type { margin-bottom: 0; }
+  .speed-label {
+    flex: 0 0 128px;
+    font-family: var(--mono); font-size: .82rem; color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .speed-label svg { width: 16px; height: 16px; flex: none; color: var(--accent-ink); }
+  .speed-track {
+    flex: 1;
+    height: 30px;
+    border-radius: 9px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    position: relative;
+  }
+  .speed-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--accent-soft-2), var(--accent));
+    transition: width 1.4s cubic-bezier(.2,.8,.2,1);
+  }
+  .speed-row.type .speed-fill { background: linear-gradient(90deg, var(--line-strong), var(--muted)); }
+  .speed-time {
+    flex: 0 0 56px;
+    text-align: right;
+    font-family: var(--mono); font-weight: 700; font-size: .92rem;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .speed-caption {
+    margin: 24px 0 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: .98rem;
+    color: var(--muted);
+  }
+  .speed-caption strong { color: var(--accent-ink); font-weight: 700; }
+  @media (max-width: 620px) {
+    .speed-label { flex-basis: 100px; font-size: .74rem; }
+    .speed-time { flex-basis: 44px; }
+  }
+
+  /* ---- how it works timeline ---- */
+  .timeline { position: relative; }
+  .timeline::before {
+    content: "";
+    position: absolute; left: 20px; top: 6px; bottom: 6px;
+    width: 2px;
+    background: linear-gradient(var(--line-strong), transparent 96%);
+  }
+  .step { position: relative; display: flex; gap: 20px; padding: 16px 0; }
+  .step-num {
+    position: relative; z-index: 1;
+    flex: none;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--bg-2);
+    border: 1.5px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif);
+    font-size: 1.15rem; font-weight: 600;
+    color: var(--accent-ink);
+    transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+  }
+  .step:hover .step-num { background: var(--accent); border-color: var(--accent); color: #fff; transform: scale(1.08); }
+  .step:hover .kbd { border-color: var(--accent); color: var(--accent-ink); }
+  .kbd { transition: border-color .2s ease, color .2s ease; }
+  .step-body { padding-top: 8px; border-bottom: 1px solid var(--line); padding-bottom: 18px; flex: 1; }
+  .step:last-child .step-body { border-bottom: none; }
+  .step-body p { margin: 0; }
+  .kbd {
+    display: inline-block; padding: 2px 9px; border-radius: 7px;
+    border: 1px solid var(--line); border-bottom-width: 2.5px;
+    background: var(--bg-2); font-family: var(--mono); font-size: .85rem;
+  }
+
+  /* ---- features ---- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+  .card {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--bg-2);
+    padding: 26px 24px 24px;
+    isolation: isolate;
+    transition: transform .22s cubic-bezier(.2,.8,.2,1), border-color .2s ease, background .2s ease;
+  }
+  .card:nth-child(odd) { transform: rotate(-.4deg); }
+  .card:nth-child(even) { transform: rotate(.35deg); }
+  .card:hover { transform: translateY(-4px) rotate(0deg); background: var(--hover-bg); box-shadow: 0 16px 32px var(--shadow); }
+  .card .icon {
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 14px;
+    background: var(--accent-soft);
+    margin: 0 0 16px;
+    color: var(--accent-ink);
+    transition: transform .25s ease, background .25s ease;
+  }
+  .card .icon svg { width: 22px; height: 22px; }
+  .card:nth-child(3n+2) .icon { background: var(--accent-soft-2); }
+  .card:nth-child(3n+3) .icon { background: var(--accent-soft-3); }
+  .card:hover .icon { transform: scale(1.08) rotate(-4deg); }
+  .card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin: 0 0 8px; letter-spacing: -.005em; }
+  .card p { margin: 0; color: var(--muted); font-size: .93rem; }
+
+  /* ---- highlight-popup demo ---- */
+  .popup-demo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 820px) { .popup-demo { grid-template-columns: 1fr; } }
+  .popup-doc {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--bg-2);
+    padding: 26px 26px 24px;
+    font-size: .98rem;
+    color: var(--muted);
+    line-height: 1.75;
+    position: relative;
+  }
+  .popup-doc .doc-chrome {
+    display: flex; gap: 6px; margin-bottom: 16px;
+  }
+  .popup-doc .doc-chrome span { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }
+  .popup-highlight {
+    background: var(--accent-soft-2);
+    border-radius: 4px;
+    padding: 1px 3px;
+    color: var(--fg);
+    cursor: pointer;
+    box-shadow: 0 0 0 1px var(--accent-soft-2);
+  }
+  .popup-card {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--bg-2);
+    box-shadow: 0 18px 40px var(--shadow);
+    overflow: hidden;
+  }
+  .popup-tabs { display: flex; border-bottom: 1px solid var(--line); }
+  .popup-tab {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 14px 10px;
+    font-family: var(--sans); font-weight: 600; font-size: .88rem;
+    color: var(--muted);
+    background: none; border: none; cursor: pointer;
+    position: relative;
+    transition: color .2s ease;
+  }
+  .popup-tab svg { width: 15px; height: 15px; }
+  .popup-tab::after {
+    content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px;
+    background: var(--accent); transform: scaleX(0); transition: transform .25s ease;
+  }
+  .popup-tab[aria-selected="true"] { color: var(--accent-ink); }
+  .popup-tab[aria-selected="true"]::after { transform: scaleX(1); }
+  .popup-tab:hover { color: var(--fg); }
+  .popup-panels { padding: 22px 24px 26px; min-height: 200px; }
+  .popup-panel { display: none; }
+  .popup-panel.is-active { display: block; animation: rise .35s cubic-bezier(.2,.7,.2,1); }
+  @media (prefers-reduced-motion: reduce) { .popup-panel.is-active { animation: none; } }
+  .dict-word { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .dict-word strong { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; }
+  .dict-pron { font-family: var(--mono); font-size: .82rem; color: var(--muted); }
+  .dict-pos { font-style: italic; color: var(--muted); font-size: .88rem; margin: 0 0 10px; }
+  .dict-sense { margin: 0 0 8px; font-size: .95rem; }
+  .dict-sense b { color: var(--accent-ink); font-weight: 700; margin-right: 4px; }
+  .dict-example { margin: 10px 0 0; padding: 10px 14px; background: var(--bg); border-radius: var(--r-sm); font-size: .88rem; color: var(--muted); font-style: italic; }
+  .fix-line { display: flex; align-items: flex-start; gap: 10px; font-size: .95rem; padding: 10px 0; }
+  .fix-line svg { width: 16px; height: 16px; flex: none; margin-top: 3px; }
+  .fix-before { color: var(--muted); }
+  .fix-before del { color: var(--muted); text-decoration-color: var(--accent-ink); }
+  .fix-after { color: var(--fg); font-weight: 500; }
+  .fix-after ins { text-decoration: none; color: var(--success); background: var(--success-soft); border-radius: 3px; padding: 0 2px; }
+  .fix-divider { border: none; border-top: 1px solid var(--line); margin: 14px 0; }
+  .fix-good { display: flex; align-items: center; gap: 8px; color: var(--success); font-weight: 600; font-size: .92rem; }
+  .fix-good svg { width: 16px; height: 16px; }
+  .tone-row { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .tone-chip {
+    font-family: var(--mono); font-size: .72rem; padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--muted); background: var(--bg);
+  }
+  .tone-chip.is-target { border-color: var(--accent); color: var(--accent-ink); background: var(--accent-soft); font-weight: 600; }
+  .tone-arrow { color: var(--muted); font-size: .8rem; }
+
+  /* ---- meet momo ---- */
+  .momo-section {
+    display: grid;
+    grid-template-columns: minmax(240px, 360px) 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+  @media (max-width: 780px) { .momo-section { grid-template-columns: 1fr; justify-items: center; text-align: center; } }
+  .momo-stage-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .momo-stage {
+    position: relative;
+    width: clamp(200px, 30vw, 280px);
+    height: clamp(200px, 30vw, 280px);
+    border-radius: var(--r-xl);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .momo-stage:hover { background: var(--hover-bg); }
+  .momo-stage svg { width: 68%; height: 68%; overflow: visible; }
+  .momo-hint {
+    font-family: var(--mono); font-size: .72rem; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .momo-hint svg { width: 13px; height: 13px; color: var(--accent-ink); }
+
+  /* SVG cat parts */
+  #momoCat { transform-box: fill-box; transform-origin: 50% 100%; }
+  .momo-body-group { transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+  .m-tail { transform-box: fill-box; transform-origin: 100% 60%; animation: tail-flick 3.4s ease-in-out infinite; }
+  .m-eye-l, .m-eye-r { transform-box: fill-box; transform-origin: 50% 50%; animation: blink 4.6s ease-in-out infinite; }
+  .m-eye-r { animation-delay: .05s; }
+  .m-pupil-l, .m-pupil-r { transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+  .m-ball { opacity: 0; transform-box: fill-box; transform-origin: 50% 50%; }
+  .m-paw-front { transform-box: fill-box; transform-origin: 20% 20%; transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+  .m-zzz { opacity: 0; transition: opacity .3s ease; font-family: var(--serif); font-style: italic; font-weight: 600; fill: var(--muted); }
+
+  @keyframes tail-flick { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-9deg); } }
+  @keyframes blink-eye { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
+  .m-eye-l, .m-eye-r { animation-name: blink-eye; }
+  @keyframes breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.015); } }
+  .momo-stage[data-state="idle"] .momo-body-group { animation: breathe 3.2s ease-in-out infinite; }
+
+  .momo-stage[data-state="hop"] .momo-body-group { animation: hop .55s cubic-bezier(.3,1.6,.4,1) 2; }
+  @keyframes hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-16px); } 60% { transform: translateY(-16px); } }
+
+  .momo-stage[data-state="glance"] .m-pupil-l,
+  .momo-stage[data-state="glance"] .m-pupil-r { animation: glance 1.1s ease-in-out 1; }
+  @keyframes glance { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-2.5px); } 70% { transform: translateX(2.5px); } }
+
+  .momo-stage[data-state="nap"] .m-eye-l,
+  .momo-stage[data-state="nap"] .m-eye-r { animation: none; transform: scaleY(.08); }
+  .momo-stage[data-state="nap"] .momo-body-group { animation: sleep-breathe 3.6s ease-in-out infinite; transform: rotate(-4deg); }
+  .momo-stage[data-state="nap"] .m-zzz { opacity: 1; }
+  @keyframes sleep-breathe { 0%, 100% { transform: rotate(-4deg) scaleY(1); } 50% { transform: rotate(-4deg) scaleY(1.03); } }
+
+  .momo-stage[data-state="ball"] .m-ball { opacity: 1; animation: ball-bounce 1.1s ease-in-out 1; }
+  .momo-stage[data-state="ball"] .m-paw-front { animation: paw-bat .55s ease-in-out 2; }
+  @keyframes ball-bounce { 0% { transform: translate(0,0); } 30% { transform: translate(14px,-18px) rotate(90deg); } 60% { transform: translate(22px,0) rotate(180deg); } 100% { transform: translate(0,0) rotate(300deg); } }
+  @keyframes paw-bat { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-28deg); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .m-tail, .m-eye-l, .m-eye-r, .momo-body-group,
+    .momo-stage[data-state] .momo-body-group,
+    .momo-stage[data-state] .m-pupil-l, .momo-stage[data-state] .m-pupil-r,
+    .momo-stage[data-state] .m-ball, .momo-stage[data-state] .m-paw-front {
+      animation: none !important;
+    }
+    .momo-stage[data-state="nap"] .momo-body-group { transform: rotate(-4deg); }
+    .momo-stage[data-state="nap"] .m-eye-l, .momo-stage[data-state="nap"] .m-eye-r { transform: scaleY(.08); }
+    .momo-stage[data-state="ball"] .m-ball { opacity: 1; transform: translate(18px,-6px) rotate(200deg); }
+  }
+
+  .speech-bubble {
+    position: relative;
+    max-width: 240px;
+    padding: 10px 16px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: .95rem;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(6px) scale(.96);
+    transition: opacity .3s ease, transform .3s ease;
+    pointer-events: none;
+  }
+  .speech-bubble.is-visible { opacity: 1; transform: none; }
+  .speech-bubble::before {
+    content: "";
+    position: absolute; top: -7px; left: 50%; transform: translateX(-50%) rotate(45deg);
+    width: 12px; height: 12px;
+    background: var(--bg);
+    border-left: 1px solid var(--line); border-top: 1px solid var(--line);
+  }
+
+  .momo-moods { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .momo-moods li { display: flex; align-items: flex-start; gap: 12px; }
+  .momo-moods .m-icon {
+    flex: none; width: 30px; height: 30px; border-radius: 9px;
+    background: var(--accent-soft); color: var(--accent-ink);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .momo-moods .m-icon svg { width: 15px; height: 15px; }
+  .momo-moods p { margin: 0; padding-top: 4px; font-size: .96rem; }
+  .momo-moods strong { color: var(--fg); }
+  @media (max-width: 780px) { .momo-moods li { text-align: left; } }
+
+  /* ---- install ---- */
+  .install-box { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-2); padding: 30px 32px; }
+  .install-box > ol { list-style: none; counter-reset: step; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 22px; }
+  .install-box > ol > li { counter-increment: step; position: relative; padding-left: 46px; color: var(--muted); }
+  .install-box > ol > li::before {
+    content: counter(step); position: absolute; left: 0; top: -3px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--bg); border: 1.5px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: .8rem; font-weight: 600; color: var(--accent-ink);
+  }
+  .install-box strong { color: var(--fg); }
+  .install-box a { color: var(--accent-ink); border-bottom: 1px solid var(--accent-soft); }
+  .install-box a strong { color: inherit; }
+  code { font-family: var(--mono); font-size: .85em; background: var(--bg); border: 1px solid var(--line); padding: 2px 7px; border-radius: 6px; }
+  .substeps { margin: 14px 0 2px; padding: 16px 20px 18px; background: var(--bg); border-radius: var(--r-md); }
+  .substeps ol { list-style: none; counter-reset: sub; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+  .substeps li { counter-increment: sub; position: relative; padding-left: 30px; color: var(--muted); font-size: .95rem; }
+  .substeps li::before {
+    content: counter(sub, lower-alpha); position: absolute; left: 0; top: 0;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--bg-2); border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: .68rem; font-weight: 600; color: var(--accent-ink);
+  }
+  .substeps .or { margin: 16px 0 8px; font-size: .78rem; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: .1em; }
+  .codeblock {
+    display: block; font-family: var(--mono); font-size: .82rem;
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-sm);
+    padding: 12px 14px; color: var(--fg); overflow-x: auto; white-space: pre;
+  }
+
+  /* ---- why momo (differentiation) ---- */
+  .diff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 4px; border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; background: var(--line); }
+  .diff-item { background: var(--bg-2); padding: 26px 24px; display: flex; flex-direction: column; gap: 10px; }
+  .diff-item .diff-icon { color: var(--accent-ink); }
+  .diff-item .diff-icon svg { width: 24px; height: 24px; }
+  .diff-item h3 { margin: 0; font-family: var(--serif); font-size: 1.08rem; font-weight: 600; }
+  .diff-item p { margin: 0; color: var(--muted); font-size: .92rem; }
+
+  /* ---- final CTA ---- */
+  .final-cta {
+    text-align: center;
+    padding: 64px 24px;
+    border-radius: var(--r-xl);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+  }
+  .final-cta::before {
+    content: "";
+    position: absolute; top: -40%; left: 50%; transform: translateX(-50%);
+    width: 80%; height: 120%;
+    background: radial-gradient(ellipse at center, var(--accent-soft) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .final-cta h2 {
+    position: relative; z-index: 1;
+    font-family: var(--serif); font-weight: 600;
+    font-size: clamp(2rem, 5.5vw, 3.2rem);
+    line-height: 1.05; letter-spacing: -0.01em;
+    margin: 0 0 16px;
+  }
+  .final-cta h2 em { font-style: italic; color: var(--accent-ink); font-weight: 500; }
+  .final-cta p { position: relative; z-index: 1; color: var(--muted); max-width: 46ch; margin: 0 auto 28px; font-size: 1.05rem; }
+  .final-cta .btns { justify-content: center; position: relative; z-index: 1; }
+
+  footer {
+    position: relative; z-index: 2;
+    max-width: var(--max); margin: 0 auto; padding: 34px 24px 48px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: .78rem; color: var(--muted);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  }
+  footer .credit { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+  footer .credit .paw-icon { color: var(--accent-ink); opacity: .8; }
+  footer a { color: var(--accent-ink); }
+  footer a:hover { text-decoration: underline; }
+
+  /* ---- responsive ---- */
+  @media (max-width: 760px) {
+    main { padding-top: 5vh; }
+    .topbar { margin-bottom: 6vh; }
+    .hero { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 30px; }
+    .hero h1 { font-size: clamp(2.5rem, 11vw, 3.2rem); }
+    .tagline { max-width: 46ch; margin-left: auto; margin-right: auto; }
+    .btns, .meta { justify-content: center; }
+    .step, .step-body { text-align: left; }
+    section { margin-top: 84px; }
+  }
+  @media (max-width: 480px) {
+    .install-box { padding: 24px 20px; }
+    .eyebrow { font-size: .68rem; }
+    .speed-label { flex-basis: 84px; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <div class="topbar reveal">
+    <span class="brand"><span class="paw-icon" aria-hidden="true"></span>momo whisper <span style="opacity:.5">· v2 preview</span></span>
+    <div class="topbar-right">
+      <a class="topbar-link" href="https://github.com/Nabhak/Momo-Whisper">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <header class="hero reveal d1">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="paw-icon" aria-hidden="true"></span>macOS menu bar · dictate, translate, tidy up</p>
+      <h1>Talk messy.<br><em>Type perfect.</em></h1>
+      <p class="tagline">Hold <strong>Fn</strong> and just talk. Momo Whisper turns your rambling into clean, on-point text — translated if you need it — typed straight into whatever app you're using.</p>
+      <div class="btns">
+        <a class="btn btn-primary" href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip"
+           data-goatcounter-click="download-macos" data-goatcounter-title="Download for macOS">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 21h16"/></svg>
+          Download for macOS
+        </a>
+        <a class="btn btn-ghost" href="#moment">See it in action</a>
+      </div>
+      <p class="meta">
+        <span class="fact">macOS 13+</span>
+        <span class="fact">Free &amp; open source</span>
+        <span class="fact">Bring your own Groq key</span>
+      </p>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="art-glow"></div>
+      <img class="logo" src="logo.png" alt="">
+      <svg class="hero-peek" viewBox="0 0 100 100" aria-hidden="true">
+        <ellipse cx="50" cy="70" rx="34" ry="28" fill="var(--accent)"/>
+        <path d="M22 46 L34 18 L44 40 Z" fill="var(--accent)"/>
+        <path d="M78 46 L66 18 L56 40 Z" fill="var(--accent)"/>
+        <ellipse cx="38" cy="58" rx="6" ry="7" fill="var(--bg-2)"/>
+        <ellipse cx="62" cy="58" rx="6" ry="7" fill="var(--bg-2)"/>
+        <path d="M46 68 L54 68 L50 74 Z" fill="var(--accent-ink)"/>
+      </svg>
+    </div>
+  </header>
+
+  <div class="demo-card reveal d3" id="demoCard" aria-hidden="true">
+    <div class="demo-head">
+      <span class="paw-icon" aria-hidden="true"></span>
+      <span id="demoStatus">live demo</span>
+      <span class="demo-wave" id="demoWave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    </div>
+    <p class="demo-line">
+      <span class="demo-lang" id="demoLang">TH → EN</span><span id="demoText">ประชุมพรุ่งนี้เลื่อนเป็นบ่ายสองนะครับ  —  Tomorrow&rsquo;s meeting moved to 2pm.</span><span class="demo-cursor"></span>
+    </p>
+  </div>
+
+  <div class="paw-trail reveal d4" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <!-- ============ SIGNATURE MOMENT: before → after ============ -->
+  <section id="moment">
+    <div class="sec-head">
+      <h2 class="eyebrow-h io-reveal"><span class="paw-icon" aria-hidden="true"></span>The signature move</h2>
+      <h3 class="lead io-reveal">This is what happens<br>between your mouth<br>and the screen — <em>watch.</em></h3>
+      <p class="sub io-reveal">A real take, fillers and all, going in on the left. What actually lands in your document on the right. Hover to pause it.</p>
+    </div>
+    <div class="transform-demo io-reveal" id="transformDemo">
+      <span class="transform-chip" id="demoModeChip"><span class="paw-icon" aria-hidden="true"></span>thai → english</span>
+      <div class="flip-stage">
+        <div class="say-panel">
+          <div class="panel-label"><span class="dot"></span>you said</div>
+          <p class="say-text" id="sayText"></p>
+        </div>
+        <div class="flip-arrow" id="flipArrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        </div>
+        <div class="type-panel">
+          <div class="panel-label"><span class="dot"></span>momo typed</div>
+          <p class="type-text" id="typeText"></p>
+          <span class="type-check" id="typeCheck">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            typed &amp; translated
+          </span>
+        </div>
+      </div>
+      <p class="demo-tonechip"><span class="paw-icon" aria-hidden="true"></span>tone: <strong id="demoTone">casual → professional</strong></p>
+      <div class="demo-progress" id="demoProgress" aria-hidden="true">
+        <span><i></i></span><span><i></i></span><span><i></i></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ speed / effort comparison ============ -->
+  <section>
+    <div class="sec-head">
+      <h2 class="eyebrow-h io-reveal"><span class="paw-icon" aria-hidden="true"></span>Why talk beats type</h2>
+      <h3 class="lead io-reveal">Same sentence.<br>Two ways to get it<br>on the page.</h3>
+    </div>
+    <div class="speed-compare io-reveal" id="speedCompare">
+      <div class="speed-row type">
+        <div class="speed-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9 14h6"/></svg>
+          Typing
+        </div>
+        <div class="speed-track"><div class="speed-fill" id="fillType"></div></div>
+        <div class="speed-time" id="timeType">0:00</div>
+      </div>
+      <div class="speed-row talk">
+        <div class="speed-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 19v3"/></svg>
+          Speaking
+        </div>
+        <div class="speed-track"><div class="speed-fill" id="fillTalk"></div></div>
+        <div class="speed-time" id="timeTalk">0:00</div>
+      </div>
+      <p class="speed-caption">That's not a typo — talking really does run about <strong>3–4× faster</strong> than typing the same sentence, and Momo cleans up the rambling on the way in.</p>
+    </div>
+  </section>
+
+  <!-- ============ how it works ============ -->
+  <section>
+    <div class="sec-head">
+      <h2 class="eyebrow-h io-reveal"><span class="paw-icon" aria-hidden="true"></span>How it works</h2>
+    </div>
+    <div class="timeline">
+      <div class="step">
+        <span class="step-num">1</span>
+        <div class="step-body"><p>Hold <span class="kbd">Fn</span> and speak — released, it's transcribed by <strong>Whisper</strong> and typed into the app you're in.</p></div>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span>
+        <div class="step-body"><p>Hold <span class="kbd">Fn</span>+<span class="kbd">⇧</span> instead — your speech is <strong>translated</strong> into your chosen language and typed out.</p></div>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span>
+        <div class="step-body"><p>Or highlight text in any app — a floating popup offers to <strong>translate, fix, or rewrite</strong> it right there.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ feature grid ============ -->
+  <section>
+    <div class="sec-head">
+      <h2 class="eyebrow-h io-reveal"><span class="paw-icon" aria-hidden="true"></span>What Momo adds</h2>
+      <h3 class="lead io-reveal">More than <em>dictation.</em><br>A whole writing sidekick.</h3>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h1a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M14 8h1a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-1"/><path d="M4 10v2a2 2 0 0 0 2 2h1"/><path d="M3 20l4-1 12-12" opacity="0"/><path d="M12 20l7-7-2-2-7 7v2z"/></svg></div>
+        <h3>Speak to Translate</h3>
+        <p>Hold Fn+Shift and talk — your words come out translated into any of 16 languages, with the source auto-detected.</p>
+      </div>
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h9M4 5v14M4 5l7 14M13 5l7 14M20 5v14M20 5h-9"/></svg></div>
+        <h3>Highlight to Fix</h3>
+        <p>Select text anywhere and a floating popup offers Translate, Grammar, or Rewrite — the result lands right in place.</p>
+      </div>
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="15" cy="6" r="2" fill="currentColor" stroke="none"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="8" cy="12" r="2" fill="currentColor" stroke="none"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="17" cy="18" r="2" fill="currentColor" stroke="none"/></svg></div>
+        <h3>Tone Control</h3>
+        <p>Six tones for Thai &amp; English — Email, Professional, Workplace Chat, Casual, AI-prompt, No-filter — so the wording fits the moment.</p>
+      </div>
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <h3>Learns Your Words</h3>
+        <p>A custom dictionary fixes names and jargon the recognizer keeps missing — teach it once, it catches the mis-hears forever.</p>
+      </div>
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg></div>
+        <h3>Fast with Groq</h3>
+        <p>whisper-large-v3 for speech, gpt-oss-120b for translation — one Groq key powers it all, generous free tier included.</p>
+      </div>
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>Light &amp; Private</h3>
+        <p>Pure Swift, no Electron. Your key stays on your Mac and your audio/text only ever go to the Groq call you configured.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ highlight popup demo ============ -->
+  <section>
+    <div class="sec-head">
+      <h2 class="eyebrow-h io-reveal"><span class="paw-icon" aria-hidden="true"></span>Highlight anything</h2>
+      <h3 class="lead io-reveal">Select text. Pick a mode.<br><em>Done.</em></h3>
+      <p class="sub io-reveal">Highlight the word or sentence below to see what each mode does — this is exactly the popup you'll get in any app.</p>
+    </div>
+    <div class="popup-demo io-reveal">
+      <div class="popup-doc">
+        <div class="doc-chrome"><span></span><span></span><span></span></div>
+        <p>Hey team, sry for the late reply — I was ยุ่งมาก this week. Can we <span class="popup-highlight" data-tab="grammar">move the meeting to tommorow</span> instead? Also, quick word check: what's the natural way to translate <span class="popup-highlight" data-tab="translate">"เกรงใจ"</span> for a client email? Actually — <span class="popup-highlight" data-tab="rewrite">let's just push it, no big deal, whatever works for you</span>, happy to adjust either way.</p>
+      </div>
+      <div class="popup-card">
+        <div class="popup-tabs" role="tablist">
+          <button class="popup-tab" role="tab" id="tabTranslate" aria-selected="true" data-panel="panelTranslate">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h9M9 5v3M13 8a12 12 0 0 1-4 6M6 15c1.5 1 3 1 4-1"/><path d="M14 21l4-9 4 9M15.5 18h5"/></svg>
+            Translate
+          </button>
+          <button class="popup-tab" role="tab" id="tabGrammar" aria-selected="false" data-panel="panelGrammar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            Grammar
+          </button>
+          <button class="popup-tab" role="tab" id="tabRewrite" aria-selected="false" data-panel="panelRewrite">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Rewrite
+          </button>
+        </div>
+        <div class="popup-panels">
+          <div class="popup-panel is-active" id="panelTranslate" role="tabpanel">
+            <div class="dict-word"><strong>เกรงใจ</strong><span class="dict-pron">/greng-jai/</span></div>
+            <p class="dict-pos">noun / feeling — no single-word English equivalent</p>
+            <p class="dict-sense"><b>1</b> A reluctance to impose on or trouble someone, even at your own cost.</p>
+            <p class="dict-sense"><b>2</b> In business Thai: polite deference that softens a request or refusal.</p>
+            <p class="dict-example">"I don't want to <em>เกรงใจ</em> you" → <strong>"I don't want to be an imposition"</strong> reads more natural in a client email than any literal translation.</p>
+          </div>
+          <div class="popup-panel" id="panelGrammar" role="tabpanel">
+            <div class="fix-line">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9L2.5 17a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+              <span class="fix-before">move the meeting to <del>tommorow</del></span>
+            </div>
+            <hr class="fix-divider">
+            <div class="fix-line">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              <span class="fix-after">move the meeting to <ins>tomorrow</ins></span>
+            </div>
+            <hr class="fix-divider">
+            <p class="fix-good">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              rest of the sentence looks great
+            </p>
+          </div>
+          <div class="popup-panel" id="panelRewrite" role="tabpanel">
+            <div class="tone-row">
+              <span class="tone-chip">Casual</span>
+              <span class="tone-arrow">→</span>
+              <span class="tone-chip is-target">Professional</span>
+            </div>
+            <p class="fix-before" style="margin:0 0 10px">"let's just push it, no big deal, whatever works for you"</p>
+            <p class="fix-after" style="margin:0">"Happy to move it back — whichever time works best on your end."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ meet momo ============ -->
+  <section>
+    <div class="sec-head">
+      <h2 class="eyebrow-h io-reveal"><span class="paw-icon" aria-hidden="true"></span>Meet Momo</h2>
+      <h3 class="lead io-reveal">A paper-cut kitten<br>who lives in your<br><em>menu bar.</em></h3>
+      <p class="sub io-reveal">Momo hops while you dictate, naps when you wander off, and occasionally has an opinion. Give her a poke.</p>
+    </div>
+    <div class="momo-section io-reveal">
+      <div class="momo-stage-wrap">
+        <div class="speech-bubble" id="momoBubble" aria-live="polite"></div>
+        <div class="momo-stage" id="momoStage" data-state="idle" role="button" tabindex="0" aria-label="Poke Momo the mascot">
+          <svg id="momoCat" viewBox="0 0 200 200" aria-hidden="true">
+            <ellipse cx="100" cy="176" rx="52" ry="8" fill="var(--shadow)" opacity="0.5"/>
+            <g class="momo-body-group">
+              <path class="m-tail" d="M150 150 C 180 150, 186 110, 164 96 C 178 108, 176 138, 150 142 Z" fill="var(--accent)"/>
+              <ellipse cx="100" cy="140" rx="54" ry="42" fill="var(--accent)"/>
+              <ellipse class="m-paw-front" cx="76" cy="172" rx="14" ry="10" fill="var(--accent)"/>
+              <ellipse cx="124" cy="172" rx="14" ry="10" fill="var(--accent)"/>
+              <path d="M60 82 L46 34 L84 62 Z" fill="var(--accent)"/>
+              <path d="M140 82 L154 34 L116 62 Z" fill="var(--accent)"/>
+              <path d="M63 76 L54 48 L78 66 Z" fill="var(--bg-2)"/>
+              <path d="M137 76 L146 48 L122 66 Z" fill="var(--bg-2)"/>
+              <circle cx="100" cy="98" r="48" fill="var(--accent)"/>
+              <g class="m-eye-l">
+                <ellipse cx="80" cy="96" rx="9" ry="11" fill="var(--bg-2)"/>
+                <circle class="m-pupil-l" cx="81" cy="98" r="4.5" fill="var(--fg)"/>
+              </g>
+              <g class="m-eye-r">
+                <ellipse cx="120" cy="96" rx="9" ry="11" fill="var(--bg-2)"/>
+                <circle class="m-pupil-r" cx="119" cy="98" r="4.5" fill="var(--fg)"/>
+              </g>
+              <path d="M94 112 L106 112 L100 120 Z" fill="var(--accent-ink)"/>
+              <path d="M96 122 Q100 126 104 122" stroke="var(--accent-ink)" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <g stroke="var(--line-strong)" stroke-width="1.4" stroke-linecap="round" opacity="0.8">
+                <line x1="58" y1="108" x2="30" y2="104"/>
+                <line x1="58" y1="116" x2="30" y2="118"/>
+                <line x1="142" y1="108" x2="170" y2="104"/>
+                <line x1="142" y1="116" x2="170" y2="118"/>
+              </g>
+            </g>
+            <text class="m-zzz" x="140" y="50" font-size="20">Zzz</text>
+            <circle class="m-ball" cx="70" cy="168" r="9" fill="var(--accent-ink)"/>
+          </svg>
+        </div>
+        <p class="momo-hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11.5a3 3 0 1 1 6 0c0 2-3 2-3 5"/><path d="M12 19h.01"/></svg>
+          click momo
+        </p>
+      </div>
+      <ul class="momo-moods">
+        <li>
+          <span class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v4M12 4l-3 2M12 4l3 2"/><path d="M6 20c0-4 3-6 6-6s6 2 6 6"/></svg></span>
+          <p><strong>Hops</strong> in the menu bar while you're dictating, so you always know she's listening.</p>
+        </li>
+        <li>
+          <span class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></span>
+          <p><strong>Naps</strong> after a while of quiet, and blinks and glances around the rest of the time.</p>
+        </li>
+        <li>
+          <span class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12a4 4 0 0 1 8 0"/></svg></span>
+          <p><strong>Bats a little ball</strong> whenever an update is waiting for you to install.</p>
+        </li>
+        <li>
+          <span class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 20l1-4.5a8.38 8.38 0 0 1-1-4A8.5 8.5 0 0 1 11.5 3a8.38 8.38 0 0 1 8.5 8.5z"/></svg></span>
+          <p><strong>Cheers you on</strong> with a one-liner in a speech bubble every now and then. Try clicking her.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ install ============ -->
+  <section id="install">
+    <div class="sec-head">
+      <h2 class="eyebrow-h io-reveal"><span class="paw-icon" aria-hidden="true"></span>How to install</h2>
+    </div>
+    <div class="install-box">
+      <ol>
+        <li><a href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip">Download Momo Whisper</a>, unzip, and drag <strong>Momo Whisper</strong> into your Applications folder.</li>
+
+        <li>
+          <strong>First launch.</strong> macOS blocks it once with <em>“Apple could not verify…”</em> — expected on any app that isn't paid-notarized. Do this one time and it opens normally forever after:
+          <div class="substeps">
+            <ol>
+              <li>Double-click the app → on the warning, click <strong>Done</strong>.</li>
+              <li><a href="x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension">Open <strong>Privacy &amp; Security</strong></a> (or open System Settings → Privacy &amp; Security yourself).</li>
+              <li>Scroll down to <em>“Momo Whisper was blocked…”</em> and click <strong>Open Anyway</strong>.</li>
+              <li>Enter your password, then click <strong>Open</strong>.</li>
+            </ol>
+            <p class="or">— or, in Terminal —</p>
+            <code class="codeblock">xattr -dr com.apple.quarantine "/Applications/Momo Whisper.app"</code>
+          </div>
+        </li>
+
+        <li>
+          <strong>Set it up.</strong> On first run the app asks for two macOS permissions and your API key:
+          <div class="substeps">
+            <ol>
+              <li>Allow <a href="x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"><strong>Microphone</strong></a> — so it can hear you dictate.</li>
+              <li>Allow <a href="x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"><strong>Accessibility</strong></a> — so it can type the result into other apps.</li>
+              <li>Get a free key at <a href="https://console.groq.com">console.groq.com</a> and paste it in <strong>Settings</strong> (or set <code>GROQ_API_KEY</code> in <code>~/.zshrc</code>).</li>
+            </ol>
+          </div>
+        </li>
+
+        <li><strong>Use it.</strong> Hold <strong>Fn</strong> to dictate · <strong>Fn+Shift</strong> to translate · or highlight any text and pick a mode.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ why momo ============ -->
+  <section>
+    <div class="sec-head">
+      <h2 class="eyebrow-h io-reveal"><span class="paw-icon" aria-hidden="true"></span>Why Momo, not just another one</h2>
+    </div>
+    <div class="diff-grid io-reveal">
+      <div class="diff-item">
+        <div class="diff-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h3>You hold the key</h3>
+        <p>Bring your own Groq API key — no middleman subscription siphoning your dictation through someone else's server.</p>
+      </div>
+      <div class="diff-item">
+        <div class="diff-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></div>
+        <h3>Actually open source</h3>
+        <p>Free, and the code is right there to read. Forked from Gamezxz's Whisper, credited and linked, not hidden.</p>
+      </div>
+      <div class="diff-item">
+        <div class="diff-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h.01M15 9h.01M9 15h6"/></svg></div>
+        <h3>Menu bar, nothing else</h3>
+        <p>No Dock icon, no separate window to manage, no onboarding funnel. It sits quietly until you hold Fn.</p>
+      </div>
+      <div class="diff-item">
+        <div class="diff-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg></div>
+        <h3>Made by one person and a cat</h3>
+        <p>No funding round, no growth team — a solo Thai designer/dev building the tool she wished existed.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ final CTA ============ -->
+  <section>
+    <div class="final-cta io-reveal">
+      <h2>Stop typing.<br><em>Start talking.</em></h2>
+      <p>Free, open source, and already living in the menu bar of every Mac that installs it. Momo's waiting.</p>
+      <div class="btns">
+        <a class="btn btn-primary" href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip"
+           data-goatcounter-click="download-macos-footer" data-goatcounter-title="Download for macOS (footer)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 21h16"/></svg>
+          Download for macOS
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/Nabhak/Momo-Whisper">View on GitHub</a>
+      </div>
+      <div class="paw-trail" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </section>
+
+</main>
+<script>
+(function () {
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- manual theme toggle ---------- */
+  var root = document.documentElement;
+  var toggleBtn = document.getElementById('themeToggle');
+  var ICON_SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>';
+  var ICON_MOON = '<path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/>';
+
+  function currentTheme() {
+    var attr = root.getAttribute('data-theme');
+    if (attr === 'light' || attr === 'dark') return attr;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function paintToggle() {
+    if (!toggleBtn) return;
+    var t = currentTheme();
+    var icon = t === 'dark' ? ICON_MOON : ICON_SUN;
+    toggleBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + icon + '</svg>';
+    toggleBtn.setAttribute('aria-label', t === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+  }
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function () {
+      var next = currentTheme() === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('momo-whisper-theme', next); } catch (e) {}
+      paintToggle();
+    });
+    paintToggle();
+  }
+
+  /* ---------- scroll-triggered reveals ---------- */
+  var revealTargets = document.querySelectorAll('.io-reveal, .timeline, .grid, .install-box, .diff-grid');
+  if (reduceMotion || !('IntersectionObserver' in window)) {
+    revealTargets.forEach(function (el) { el.classList.add('is-visible'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+    revealTargets.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ---------- hero mini demo: dictate → translate (same pattern as v1) ---------- */
+  if (!reduceMotion) {
+    var demoText = document.getElementById('demoText');
+    var demoLang = document.getElementById('demoLang');
+    var demoCard = document.getElementById('demoCard');
+    if (demoText && demoLang) {
+      var demoStatus = document.getElementById('demoStatus');
+      var demoWave = document.getElementById('demoWave');
+      var pairs = [
+        { lang: 'TH', src: ['ประชุมพรุ่งนี้ ', 'เลื่อนเป็นบ่ายสอง'], en: 'Tomorrow’s meeting is moved to 2pm.' },
+        { lang: 'JA', src: ['明日の会議は', '2時に変更です'], en: 'The meeting is moved to 2pm tomorrow.' },
+        { lang: 'ZH', src: ['明天的会议', '改到下午两点'], en: 'Tomorrow’s meeting is moved to 2pm.' },
+        { lang: 'KO', src: ['내일 회의는 ', '2시로 변경됐어요'], en: 'The meeting is moved to 2pm tomorrow.' }
+      ];
+      var paused = false, pairIndex = 0;
+      function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+      function waitWhilePaused() { return new Promise(function (resolve) { (function check() { paused ? setTimeout(check, 150) : resolve(); })(); }); }
+      function setStatus(s) { if (demoStatus) demoStatus.textContent = s; }
+      function wave(on) { if (demoWave) demoWave.classList.toggle('on', on); }
+      function speak(chunks, lang) {
+        demoLang.textContent = lang; demoText.style.opacity = '1'; demoText.textContent = '';
+        setStatus('listening…'); wave(true);
+        var i = 0, out = '';
+        return new Promise(function (resolve) {
+          (function next() {
+            if (paused) { setTimeout(next, 150); return; }
+            if (i < chunks.length) { out += chunks[i]; demoText.textContent = out; i++; setTimeout(next, 520); }
+            else { wave(false); resolve(); }
+          })();
+        });
+      }
+      function morphTo(en, lang) {
+        setStatus('translating…');
+        return new Promise(function (resolve) {
+          demoText.style.transition = 'opacity .26s ease';
+          demoLang.textContent = lang + ' → EN';
+          demoText.style.opacity = '0';
+          setTimeout(function () {
+            demoLang.textContent = 'EN'; demoText.textContent = en; demoText.style.opacity = '1';
+            setStatus('translated'); setTimeout(resolve, 300);
+          }, 280);
+        });
+      }
+      (async function loop() {
+        demoText.textContent = '';
+        while (true) {
+          var pair = pairs[pairIndex % pairs.length];
+          await waitWhilePaused();
+          await speak(pair.src, pair.lang);
+          await wait(700);
+          await morphTo(pair.en, pair.lang);
+          await wait(2000);
+          demoText.textContent = '';
+          demoLang.textContent = pairs[(pairIndex + 1) % pairs.length].lang;
+          setStatus('live demo');
+          await wait(400);
+          pairIndex++;
+        }
+      })();
+      if (demoCard) {
+        demoCard.addEventListener('mouseenter', function () { paused = true; });
+        demoCard.addEventListener('mouseleave', function () { paused = false; });
+      }
+      document.addEventListener('visibilitychange', function () { paused = document.hidden; });
+    }
+  }
+
+  /* ---------- SIGNATURE MOMENT: before → after transform demo ---------- */
+  (function () {
+    var stage = document.getElementById('transformDemo');
+    var sayText = document.getElementById('sayText');
+    var typeText = document.getElementById('typeText');
+    var typeCheck = document.getElementById('typeCheck');
+    var flipArrow = document.getElementById('flipArrow');
+    var modeChip = document.getElementById('demoModeChip');
+    var toneEl = document.getElementById('demoTone');
+    var progress = document.getElementById('demoProgress');
+    if (!stage || !sayText || !typeText) return;
+
+    var takes = [
+      {
+        mode: 'thai → english', tone: 'casual → professional',
+        raw: ['เอ่อ...', 'พรุ่งนี้', 'ประชุมทีมนะ', 'เอ่อ ขอเลื่อน', 'เป็นบ่ายสองได้ไหม', 'เกรงใจเหมือนกันนะ'],
+        clean: 'Could we move tomorrow’s team meeting to 2pm? Apologies for the short notice.'
+      },
+      {
+        mode: 'rambly english → slack message', tone: 'casual → workplace chat',
+        raw: ['okay so uh', 'basically the, the build is', 'still failing on', 'main I think? um', 'someone should probably look at it'],
+        clean: 'Heads up — the build is still failing on main, could someone take a look?'
+      },
+      {
+        mode: 'japanese → english', tone: 'casual → email',
+        raw: ['あの、', '来週なんですけど', 'ちょっと予定が', '変わっちゃって', 'また連絡しますね'],
+        clean: 'My schedule for next week has changed slightly — I’ll follow up with the new details soon.'
+      }
+    ];
+    var idx = 0, paused = false, running = false;
+    function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+    function waitWhilePaused() { return new Promise(function (resolve) { (function c() { paused ? setTimeout(c, 150) : resolve(); })(); }); }
+
+    function setProgress(active) {
+      var kids = progress.children;
+      for (var i = 0; i < kids.length; i++) {
+        kids[i].classList.remove('is-active', 'is-done');
+        if (i < active) kids[i].classList.add('is-done');
+        if (i === active) kids[i].classList.add('is-active');
+      }
+    }
+
+    async function playTake(take, animated) {
+      modeChip.lastChild.textContent = ' ' + take.mode;
+      toneEl.textContent = take.tone;
+      sayText.innerHTML = '';
+      typeText.classList.remove('is-in');
+      typeCheck.classList.remove('is-in');
+      flipArrow.classList.remove('is-active');
+      typeText.textContent = '';
+
+      if (!animated) {
+        sayText.innerHTML = '<span class="heard">' + take.raw.join(' ') + '</span>';
+        typeText.textContent = take.clean;
+        typeText.classList.add('is-in');
+        typeCheck.classList.add('is-in');
+        return;
+      }
+
+      setProgress(0);
+      var said = '';
+      for (var i = 0; i < take.raw.length; i++) {
+        await waitWhilePaused();
+        said += (i ? ' ' : '') + take.raw[i];
+        sayText.innerHTML = '<span class="heard">' + said + '</span>';
+        await wait(360);
+      }
+      setProgress(1);
+      await wait(350);
+      flipArrow.classList.add('is-active');
+      await wait(300);
+      setProgress(2);
+      typeText.textContent = take.clean;
+      typeText.classList.add('is-in');
+      await wait(200);
+      typeCheck.classList.add('is-in');
+    }
+
+    async function loop() {
+      if (running) return;
+      running = true;
+      while (true) {
+        await waitWhilePaused();
+        await playTake(takes[idx % takes.length], true);
+        await wait(3200);
+        idx++;
+      }
+    }
+
+    if (reduceMotion) {
+      playTake(takes[0], false);
+    } else {
+      loop();
+      stage.addEventListener('mouseenter', function () { paused = true; });
+      stage.addEventListener('mouseleave', function () { paused = false; });
+      stage.addEventListener('focusin', function () { paused = true; });
+      stage.addEventListener('focusout', function () { paused = false; });
+    }
+  })();
+
+  /* ---------- speed / effort comparison ---------- */
+  (function () {
+    var wrap = document.getElementById('speedCompare');
+    var fillType = document.getElementById('fillType');
+    var fillTalk = document.getElementById('fillTalk');
+    var timeType = document.getElementById('timeType');
+    var timeTalk = document.getElementById('timeTalk');
+    if (!wrap) return;
+    var TYPE_SECONDS = 14, TALK_SECONDS = 4;
+    function formatTime(s) { return '0:' + (s < 10 ? '0' : '') + s; }
+    function runCountUp(el, target, duration) {
+      if (reduceMotion) { el.textContent = formatTime(target); return; }
+      var start = null;
+      function step(ts) {
+        if (!start) start = ts;
+        var p = Math.min((ts - start) / duration, 1);
+        el.textContent = formatTime(Math.round(p * target));
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    function play() {
+      fillType.style.width = '100%';
+      fillTalk.style.width = (TALK_SECONDS / TYPE_SECONDS * 100) + '%';
+      runCountUp(timeType, TYPE_SECONDS, reduceMotion ? 0 : 1400);
+      runCountUp(timeTalk, TALK_SECONDS, reduceMotion ? 0 : 1400);
+    }
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+      play();
+    } else {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) { play(); io.unobserve(e.target); } });
+      }, { threshold: 0.4 });
+      io.observe(wrap);
+    }
+  })();
+
+  /* ---------- highlight popup demo: tabs ---------- */
+  (function () {
+    var tabs = document.querySelectorAll('.popup-tab');
+    var highlights = document.querySelectorAll('.popup-highlight');
+    function activate(panelId) {
+      tabs.forEach(function (t) {
+        var on = t.dataset.panel === panelId;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.popup-panel').forEach(function (p) {
+        p.classList.toggle('is-active', p.id === panelId);
+      });
+    }
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () { activate(tab.dataset.panel); });
+    });
+    highlights.forEach(function (h) {
+      h.addEventListener('click', function () {
+        var map = { translate: 'panelTranslate', grammar: 'panelGrammar', rewrite: 'panelRewrite' };
+        var target = map[h.dataset.tab];
+        if (target) {
+          activate(target);
+          document.querySelector('.popup-card').scrollIntoView({ block: 'nearest', behavior: reduceMotion ? 'auto' : 'smooth' });
+        }
+      });
+    });
+  })();
+
+  /* ---------- meet momo: click-to-play mascot ---------- */
+  (function () {
+    var stage = document.getElementById('momoStage');
+    var bubble = document.getElementById('momoBubble');
+    if (!stage || !bubble) return;
+
+    var lines = [
+      'Talk to me!', 'Nice one.', 'Purr-fectly typed.', 'Got it, boss.',
+      'That was fast.', 'Zzz… oh, hi!', 'Let’s dictate something.',
+      'Ball! Wait, work first.', 'Fn is my favorite key too.', 'Onwards!'
+    ];
+    var states = ['hop', 'ball', 'glance'];
+    var bubbleTimer = null, idleTimer = null, revertTimer = null;
+
+    function showBubble(text) {
+      bubble.textContent = text;
+      bubble.classList.add('is-visible');
+      clearTimeout(bubbleTimer);
+      bubbleTimer = setTimeout(function () { bubble.classList.remove('is-visible'); }, 2600);
+    }
+
+    function setState(state, autoRevertMs) {
+      stage.setAttribute('data-state', state);
+      clearTimeout(revertTimer);
+      if (autoRevertMs) {
+        revertTimer = setTimeout(function () { stage.setAttribute('data-state', 'idle'); }, autoRevertMs);
+      }
+    }
+
+    function armIdleWatcher() {
+      clearTimeout(idleTimer);
+      if (reduceMotion) return; // don't auto-loop a state change users didn't ask for under reduced motion
+      idleTimer = setTimeout(function () {
+        if (stage.getAttribute('data-state') === 'idle') setState('nap', 0);
+      }, 26000);
+    }
+
+    function poke() {
+      var current = stage.getAttribute('data-state');
+      var next = states[Math.floor(Math.random() * states.length)];
+      // waking from a nap always reads as "glance" first — feels more alive
+      if (current === 'nap') next = 'glance';
+      setState(next, reduceMotion ? 0 : (next === 'ball' ? 2000 : next === 'hop' ? 1300 : 1200));
+      showBubble(lines[Math.floor(Math.random() * lines.length)]);
+      armIdleWatcher();
+    }
+
+    stage.addEventListener('click', poke);
+    stage.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); poke(); }
+    });
+    armIdleWatcher();
+
+    // a one-time hello shortly after the page settles — ties the mascot into the hero moment
+    if (!reduceMotion) {
+      setTimeout(function () { showBubble('Hi, I’m Momo!'); }, 2600);
+    }
+  })();
+})();
+</script>
+<footer>
+  <span class="credit"><span class="paw-icon" aria-hidden="true"></span>momo whisper — by <a href="https://github.com/Nabhak">nabhak</a> · built on <a href="https://github.com/Gamezxz/WhisperApp">whisper</a> by gamezxz</span>
+  <span><a href="https://github.com/Nabhak/Momo-Whisper">github</a> · <a href="https://github.com/Nabhak/Momo-Whisper/releases">releases</a></span>
+</footer>
+</body>
+</html>
