@@ -1,0 +1,40 @@
+# Momo Whisper
+
+> Momo Whisper (formerly Whisper Momo) is a free macOS menu-bar app for voice dictation and translation. Hold Fn to dictate into any app, hold Fn+Shift to speak one language and have it typed in another (for example, speak Thai and type English), or highlight any text to translate it in place. It was made by a Thai designer for Thai speakers who work in English, and it supports 16 languages. It runs on Groq with your own free Groq API key.
+
+Key facts:
+
+- **What it does:** press-and-hold voice typing for the Mac. Speak, release, and the cleaned-up text is typed right where your cursor is, in any app (browser, chat, email, docs).
+- **Who it's for:** Thai speakers on a Mac who write in English at work, and anyone who wants dictation plus translation in one menu-bar app.
+- **Three modes:**
+  - Hold **Fn**: dictate in the language you speak.
+  - Hold **Fn+Shift**: speak and get it typed translated into the target language you picked. The source language is auto-detected.
+  - **Highlight to translate:** select text in any app, click the floating button, and the translation appears next to it. Pick any of the 16 target languages in the popup.
+- **Languages (16):** Thai, English, Japanese, Chinese, Korean, Spanish, French, German, Portuguese, Italian, Vietnamese, Bahasa, Hindi, Arabic, Russian, Turkish.
+- **Tone control:** six tones for Thai and English: Email, Professional, Workplace Chat, Casual, AI-prompt, No-filter. Other languages translate in a clean, natural style.
+- **Personal dictionary:** teach it names and jargon the recognizer keeps missing (product names, teammates, Thai nicknames), and it fixes the mis-spellings from then on.
+- **Hotkey:** Fn hold-to-talk by default, rebindable to any modifier or combo. Menu bar only, no Dock icon.
+- **Engine:** Groq. whisper-large-v3 for speech, gpt-oss-120b for translation, with quota-aware fallback.
+- **Price:** free. You bring your own free Groq API key from console.groq.com; Groq's free tier is generous for everyday dictation.
+- **Privacy:** pure Swift, no Electron. The API key is stored locally, and audio and text go only to the Groq call you configured. Optional on-device Speech Recognition keeps that audio on the Mac.
+- **Requirements:** macOS 13 or later. Permissions: Microphone (to hear you) and Accessibility (to type into other apps); Speech Recognition is optional.
+- **Install:** download the zip, unzip, and drag Momo Whisper into Applications. The app is not Apple-notarized, so the first launch shows "Apple could not verify…". Right-click the app and choose Open (or use System Settings → Privacy & Security → Open Anyway, or run `xattr -dr com.apple.quarantine "/Applications/Momo Whisper.app"`). This is needed only once. Then grant permissions and paste your Groq key in Settings.
+- **Compared with other Mac dictation apps (such as Superwhisper or Wispr Flow):** Momo Whisper is a small, free app focused on translation: speak-to-translate, highlight-to-translate in any app, and Thai/English tones, running on your own Groq key.
+- **Credit:** built on the open-source WhisperApp by Gamezxz (MIT license).
+
+## Pages
+
+- [Home](https://nabhak.github.io/Momo-Whisper/): features, demos, and FAQ
+- [How to install](https://nabhak.github.io/Momo-Whisper/install.html): six-step, beginner-friendly setup guide, including the first-open warning and the Groq key
+- [Story](https://nabhak.github.io/Momo-Whisper/story.html): why it was made, and why macOS shows a first-open warning (Apple's $99/year notarization)
+
+## Download
+
+- [Latest release (zip)](https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip): always the newest version
+- [All releases](https://github.com/Nabhak/Momo-Whisper/releases)
+- [GitHub](https://github.com/Nabhak/Momo-Whisper)
+
+## Optional
+
+- [Original WhisperApp by Gamezxz](https://github.com/Gamezxz/WhisperApp): the MIT-licensed app Momo Whisper is built on
+- [Groq console](https://console.groq.com): where to get the free API key
