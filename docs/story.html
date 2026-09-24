@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--
+  ============================================================================
+  MOMO WHISPER — "Momo story" page (origin story + support). SINGLE self-contained
+  file (inline CSS + JS, no build step). Edit here, then open in a browser to test.
+
+  HOW TO FIND THINGS (grep the MARKER):
+    SECTION          MARKER (grep)          CSS block            JS
+    ----------------------------------------------------------------------------------
+    Nav              <nav ... id="nav"      .nav                 sticky-border observer (#nav-sentinel)
+    Hero             class="install-hero"   .install-hero        (static; scroll reveals via .rv)
+    Story blocks     class="istep-plain"    .istep / .istep-plain  (static prose cards, no number badge)
+    Support CTA      grep: closing CTA      .cta / .flow-*        flow-band (flowSvgs + .flow-chip cycler);
+                     (class="cta")                                primary btn -> buymeacoffee.com/momoplugin
+    Footer           <footer                footer               —
+
+  NOTES: reduced-motion + mobile (<=640px) at the bottom of <style>. The flow-band CTA is copied from
+  index.html and shares the same class names / JS.
+  ============================================================================
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Momo story — why I made Momo Whisper</title>
+<meta name="description" content="The story behind Momo Whisper: built by a Thai designer at an international company to get past the English barrier, shared free with friends, and why macOS shows a first-open warning (Apple's $99/year notarization) — plus how to support it.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<link rel="canonical" href="https://nabhak.github.io/Momo-Whisper/story.html">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://nabhak.github.io/Momo-Whisper/story.html">
+<meta property="og:site_name" content="Momo Whisper">
+<meta property="og:title" content="Momo story — why I made Momo Whisper">
+<meta property="og:description" content="Built by a Thai designer at an international company to get past the English barrier, shared free with friends — and why macOS shows a first-open warning.">
+<meta property="og:image" content="https://nabhak.github.io/Momo-Whisper/og.png?v=5">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Momo story">
+<meta name="twitter:description" content="The little tale behind Momo Whisper — and how you can help.">
+<meta name="twitter:image" content="https://nabhak.github.io/Momo-Whisper/og.png?v=5">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>document.documentElement.classList.add('js');</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --ink: #121212;
+  --body: #474645;
+  --body-70: rgba(71, 70, 69, .7);
+  --muted: #848281;
+  --accent: #0072e8;
+  --accent-dark: #005fc2;
+  --accent-soft: rgba(0, 114, 232, .08);
+  --accent-sel: rgba(0, 114, 232, .18);
+  --pill: #f2f4f7;
+  --pill-hover: #e8ebf0;
+  --tint: #f7f9fb;
+  --hairline: rgba(18, 18, 18, .08);
+  --display: "Space Grotesk", -apple-system, "system-ui", "Segoe UI", Helvetica, Arial, sans-serif;
+  --sans: "Inter", -apple-system, "system-ui", "Segoe UI", Helvetica, Arial, sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-fam: cubic-bezier(0.19, 1, 0.22, 1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body { background: #fff; }
+body { font-family: var(--sans); font-size: 16px; color: var(--body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--accent-sel); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.container { max-width: 1072px; margin: 0 auto; padding: 0 24px; }
+
+.h-section { font-family: var(--display); font-weight: 500; font-size: clamp(30px, 4.6vw, 44px); letter-spacing: -0.03em; line-height: 1.09; color: var(--ink); }
+
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 24px; border-radius: 32px; font-family: var(--sans); font-size: 17px; font-weight: 500; letter-spacing: -0.22px; white-space: nowrap; cursor: pointer; border: 0; transition: background-color 100ms ease, transform 160ms var(--ease-out); }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-secondary { background: var(--pill); color: #121212; }
+.btn-secondary:hover { background: var(--pill-hover); }
+.btn-sm { height: 32px; padding: 0 14px; font-size: 15px; letter-spacing: -0.09px; }
+
+/* nav */
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(255,255,255,.6); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid transparent; transition: border-color 200ms ease, background-color 200ms ease; }
+.nav.scrolled { border-bottom-color: var(--hairline); }
+.nav-inner { display: flex; align-items: center; height: 72px; gap: 32px; }
+.nav-brand { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; font-family: var(--display); font-weight: 600; font-size: 17px; letter-spacing: -0.02em; color: var(--ink); }
+.nav-brand img { width: 28px; height: 28px; border-radius: 7px; transition: transform 260ms var(--ease-fam); }
+@media (hover: hover) and (pointer: fine) { .nav-brand:hover img { transform: rotate(-6deg) scale(1.06); } }
+.nav-links { display: flex; gap: 26px; font-size: 15px; font-weight: 500; letter-spacing: -0.09px; color: var(--body); }
+.nav-links a { transition: color 140ms ease; padding: 6px 0; }
+.nav-links a:hover { color: var(--ink); }
+.nav-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+/* hamburger (mobile only) + a Home link that only appears inside the mobile menu */
+.nav-burger { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 38px; height: 38px; padding: 0; background: var(--pill); border: 0; border-radius: 10px; cursor: pointer; }
+.nav-burger span { display: block; width: 16px; height: 2px; border-radius: 2px; background: var(--ink); transition: transform .2s ease, opacity .2s ease; }
+.nav-burger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-burger.open span:nth-child(2) { opacity: 0; }
+.nav-burger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.home-link { display: none; }
+
+/* page header */
+.install-hero { padding: 168px 0 64px; text-align: center; }
+.install-hero .eyebrow { font-size: 16px; font-weight: 600; letter-spacing: -0.13px; color: var(--accent); margin-bottom: 12px; }
+.install-hero .h-section { font-size: clamp(34px, 5.4vw, 52px); letter-spacing: -0.03em; max-width: 720px; margin: 0 auto 16px; }
+.install-hero .intro { max-width: 540px; margin: 0 auto; font-size: 17px; line-height: 26px; letter-spacing: -0.22px; color: var(--body-70); }
+
+/* stepper */
+.install { padding: 48px 0 40px; }
+.step-list { max-width: 760px; margin: 0 auto; display: grid; gap: 14px; }
+.istep { position: relative; background: var(--tint); border-radius: 20px; padding: 26px 30px 28px 82px; transition: transform 220ms var(--ease-fam); }
+.istep-plain { padding-left: 30px; }   /* story blocks: no number badge, so no left gutter */
+@media (hover: hover) and (pointer: fine) { .istep:hover { transform: translateY(-3px); } }
+.istep h3 { font-family: var(--display); font-weight: 500; font-size: 20px; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 8px; }
+.istep p { font-size: 15px; line-height: 23px; letter-spacing: -0.13px; color: var(--body-70); }
+.istep p + p { margin-top: 10px; }
+.istep strong { color: var(--ink); font-weight: 600; }
+.istep code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; background: #fff; border: 1px solid var(--hairline); border-radius: 6px; padding: 1px 6px; color: var(--ink); }
+.istep a { color: var(--accent); font-weight: 500; }
+.istep a:hover { text-decoration: underline; }
+
+.reassure { display: flex; align-items: center; gap: 10px; margin-top: 16px; background: var(--accent-soft); border-radius: 12px; padding: 12px 15px; font-size: 13.5px; line-height: 20px; color: var(--accent-dark); }
+.reassure svg { flex: none; }
+
+/* closing CTA — streaming flow-band showcase (brought over from the home page) */
+.cta { background: var(--tint); padding: 96px 0 124px; text-align: center; margin-top: 56px; }
+.cta-showcase { margin: 0 auto 48px; }
+.cta .h-section { margin-bottom: 18px; }
+.cta .copy { max-width: 380px; margin: 0 auto 44px; font-size: 17px; line-height: 26px; letter-spacing: -0.22px; color: var(--body-70); }
+.cta-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+/* flow-band: source languages stream into the icon, English streams out */
+.flow-stage { position: relative; max-width: 940px; margin: 0 auto; height: 224px; }
+.flow-svg {
+  width: 100%; height: 100%; display: block;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.flow-svg .curve { fill: none; stroke: none; }
+.flow-text { font-family: var(--sans); font-size: 21px; font-weight: 500; letter-spacing: -0.2px; }
+.flow-text.raw { fill: #9aa3ad; }
+.flow-text.clean { fill: #0072e8; opacity: .34; }
+.flow-icon { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; gap: 20px; z-index: 2; }
+.flow-icon::before { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 420px; height: 210px; background: radial-gradient(closest-side, var(--tint) 52%, rgba(247, 249, 251, 0) 100%); z-index: -1; }
+@keyframes flowBar { 0%, 100% { height: calc(var(--h, 24px) * .3); } 50% { height: var(--h, 24px); } }
+
+/* language chip above the icon */
+.flow-chip { position: absolute; left: 50%; top: calc(50% - 128px); transform: translateX(-50%); background: #fff; border: 1px solid var(--hairline); border-radius: 30px; padding: 6px 15px; font-size: 13.5px; font-weight: 500; letter-spacing: -0.09px; color: var(--ink); white-space: nowrap; box-shadow: 0 12px 30px rgba(18, 30, 50, .13), 0 1px 3px rgba(18, 30, 50, .06); z-index: 2; animation: chipFloat 4.5s ease-in-out infinite; }
+.flow-chip .fc-src, .flow-chip .fc-tgt { display: inline-block; min-width: 58px; text-align: center; transition: opacity 280ms ease; }
+.flow-chip .fc-src.fade, .flow-chip .fc-tgt.fade { opacity: 0; }
+.flow-chip .fc-arrow, .flow-chip .fc-tgt { color: var(--accent); font-weight: 600; }
+@keyframes chipFloat { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-5px); } }
+
+/* central icon assembly — stacked layers + mirrored equalizer bars */
+.icon-stack { position: relative; width: 148px; height: 148px; flex: none; }
+.icon-stack .tile { position: relative; z-index: 3; display: flex; align-items: center; justify-content: center; width: 148px; height: 148px; background: #fff; border-radius: 34px; border: 1px solid rgba(18, 30, 50, .05); box-shadow: 0 18px 40px rgba(0, 78, 168, .18), 0 4px 12px rgba(18, 30, 50, .12); }
+.icon-stack img { width: 84px; height: 84px; border-radius: 20px; display: block; }
+.icon-stack .layer { position: absolute; left: 50%; top: 0; width: 148px; height: 148px; border-radius: 34px; background: #fff; border: 1px solid rgba(18, 30, 50, .05); }
+.icon-stack .layer-1 { z-index: 2; transform: translate(-50%, 10px) scale(.955); box-shadow: 0 14px 30px rgba(0, 78, 168, .10); }
+.icon-stack .layer-2 { z-index: 1; transform: translate(-50%, 20px) scale(.90); background: #eef3fb; box-shadow: 0 20px 38px rgba(0, 78, 168, .08); }
+.eq { display: flex; align-items: center; gap: 5px; height: 80px; flex: none; }
+.eq-left { flex-direction: row-reverse; }
+.eq i { width: 5px; border-radius: 999px; background: var(--accent); height: var(--h, 24px); animation: flowBar 1s ease-in-out infinite; }
+.eq i:nth-child(1) { --h: 46px; animation-duration: 1.15s; animation-delay: 0ms; }
+.eq i:nth-child(2) { --h: 34px; animation-duration: .9s;  animation-delay: 140ms; }
+.eq i:nth-child(3) { --h: 25px; animation-duration: 1.2s; animation-delay: 80ms; }
+.eq i:nth-child(4) { --h: 18px; animation-duration: .95s; animation-delay: 220ms; }
+.eq i:nth-child(5) { --h: 12px; animation-duration: 1.05s; animation-delay: 160ms; }
+
+/* footer */
+footer { padding: 60px 0 80px; margin-top: 40px; }
+.footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; font-size: 14px; letter-spacing: -0.09px; color: var(--muted); }
+.footer-inner a { color: var(--body); font-weight: 500; transition: color 140ms ease; }
+.footer-inner a:hover { color: var(--accent); }
+.footer-links { display: flex; gap: 20px; }
+
+/* reveal */
+html.js .rv { opacity: 0; transform: translateY(22px); transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out); }
+html.js .rv.in { opacity: 1; transform: none; }
+.rv-d1 { transition-delay: 80ms; }
+.rv-d2 { transition-delay: 160ms; }
+.rv-d3 { transition-delay: 240ms; }
+
+/* responsive */
+@media (max-width: 640px) {
+  .nav-inner { gap: 10px; }
+  .nav-home { display: none; }
+  .nav-burger { display: inline-flex; }
+  .nav-links {
+    position: absolute; top: 72px; left: 0; right: 0;
+    flex-direction: column; gap: 0;
+    background: rgba(255, 255, 255, .98);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--hairline);
+    padding: 6px 24px 14px;
+    transform: translateY(-8px); opacity: 0; pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  .nav-links.open { transform: none; opacity: 1; pointer-events: auto; }
+  .nav-links a { padding: 13px 2px; font-size: 16px; border-bottom: 1px solid var(--hairline); }
+  .nav-links a:last-child { border-bottom: 0; }
+  .nav-links .home-link { display: block; }
+  .install-hero { padding: 128px 0 44px; }
+  .footer-inner { flex-direction: column; align-items: flex-start; }
+  .cta { padding: 84px 0 96px; }
+  .cta-showcase { margin-bottom: 36px; }
+  .flow-stage { height: 200px; }
+  .flow-text { font-size: 17px; }
+  .flow-icon { gap: 14px; }
+  .flow-chip { font-size: 12px; padding: 5px 12px; top: calc(50% - 118px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .rv { opacity: 1; transform: none; transition: none; }
+  .btn, .istep, .nav-brand img { transition: none; }
+  .cta img, .flow-chip, .eq i { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!--NAV:START-->
+<nav class="nav" id="nav" aria-label="Main">
+  <div class="container nav-inner">
+    <a class="nav-brand" href="index.html">
+      <img src="logo.png" alt="Momo Whisper" width="28" height="28">
+      <span class="brand-name">Momo Whisper</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#features">Features</a>
+      <a href="index.html#faq">FAQ</a>
+      <a href="story.html">Story</a>
+      <a class="home-link" href="install.html">How to install</a>
+    </div>
+    <div class="nav-actions">
+      <a class="btn btn-secondary btn-sm nav-home" href="install.html">How to install</a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip" target="_blank" rel="noopener">Download</a>
+      <button class="nav-burger" id="navBurger" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<!--NAV:END-->
+
+<span id="top" aria-hidden="true"></span>
+<div id="nav-sentinel" aria-hidden="true" style="position:absolute;top:8px;height:1px;width:1px;"></div>
+
+<main>
+  <header class="install-hero">
+    <div class="container">
+      <p class="eyebrow rv">Momo story</p>
+      <h1 class="h-section rv">Made for me first,<br>shared with friends.</h1>
+      <p class="intro rv rv-d1">The little tale behind Momo — why it exists, why your Mac frowns at it the first time, and how you can help. 🐾</p>
+    </div>
+  </header>
+
+  <section class="install">
+    <div class="container">
+      <div class="step-list">
+
+        <div class="istep istep-plain rv">
+          <h3>It started with my own English 😅</h3>
+          <p>I work at an international company, but English has never been my strong suit. A short Slack message or a quick email could eat half my morning — second-guessing every other word.</p>
+          <p>So I built a tiny menu-bar helper for myself: hold a key, <strong>speak in Thai</strong>, and clean English lands right where my cursor is. Highlight any text to translate it in place. Work suddenly felt a lot lighter.</p>
+        </div>
+
+        <div class="istep istep-plain rv">
+          <h3>Then I wanted to share it with friends</h3>
+          <p>Turns out I wasn't the only one in that boat — friends kept asking to try it. So Momo grew from a personal little hack into something I'm happy to give away: <strong>free and open</strong>, built on top of the lovely open-source Whisper app by <a href="https://github.com/Gamezxz/WhisperApp" target="_blank" rel="noopener">gamezxz</a>.</p>
+        </div>
+
+        <div class="istep istep-plain rv">
+          <h3>Why your Mac shows a scary warning 🙈</h3>
+          <p>The first time you open Momo, macOS says something like <em>“Apple could not verify Momo is free of malware.”</em> Nothing is wrong — it says that about <strong>every</strong> little indie app that hasn't paid Apple's toll.</p>
+          <p>To make that warning go away for good, a developer has to join the <strong>Apple Developer Program — $99 every year</strong> — so Apple can notarize the app. Momo is a free, one-person project, so it hasn't paid that yearly fee <em>yet</em>. The app is safe and its code is out in the open; you just click past the warning once (the <a href="install.html">install guide</a> walks you through it).</p>
+          <div class="reassure">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            One click the first time, then Momo opens normally forever after.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- closing CTA — the home page's streaming flow-band showcase, brought here -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta-showcase rv" aria-hidden="true">
+        <div class="flow-stage">
+          <svg class="flow-svg" id="flowSvg" viewBox="0 0 980 168" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="presentation">
+            <defs>
+              <path id="curveIn" class="curve" d="M -160 90 L 490 90"/>
+              <path id="curveOut" class="curve" d="M 490 90 L 1140 90"/>
+            </defs>
+            <text class="flow-text raw">
+              <textPath id="tpIn" href="#curveIn" xlink:href="#curveIn" startOffset="0">明日の会議は午後2時からです　·　오늘 안에 파일 보내 주세요　·　这个版本明天就能上线　·　¿Me mandas el informe esta tarde?　·　明日の会議は午後2時からです　·　오늘 안에 파일 보내 주세요　·　这个版本明天就能上线　·　¿Me mandas el informe esta tarde?　·
+                <animate id="animIn" attributeName="startOffset" from="0" to="0" dur="40s" repeatCount="indefinite" calcMode="linear"/>
+              </textPath>
+            </text>
+            <text class="flow-text clean">
+              <textPath id="tpOut" href="#curveOut" xlink:href="#curveOut" startOffset="0">Tomorrow's meeting starts at 2pm.　·　กรุณาส่งไฟล์ภายในวันนี้　·　Esta versión se puede lanzar mañana.　·　今日の午後に報告書を送ってくれますか？　·　Tomorrow's meeting starts at 2pm.　·　กรุณาส่งไฟล์ภายในวันนี้　·　Esta versión se puede lanzar mañana.　·　今日の午後に報告書を送ってくれますか？　·
+                <animate id="animOut" attributeName="startOffset" from="0" to="0" dur="40s" repeatCount="indefinite" calcMode="linear"/>
+              </textPath>
+            </text>
+          </svg>
+          <div class="flow-chip"><span class="fc-src">日本語</span><span class="fc-arrow"> → </span><span class="fc-tgt">English</span></div>
+          <div class="flow-icon">
+            <span class="eq eq-left"><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="icon-stack">
+              <span class="layer layer-2"></span>
+              <span class="layer layer-1"></span>
+              <span class="tile"><img src="logo.png" alt="" width="84" height="84"></span>
+            </span>
+            <span class="eq eq-right"><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+        </div>
+      </div>
+      <h2 class="h-section rv rv-d1">Fancy buying Momo a&nbsp;coffee? ☕</h2>
+      <p class="copy rv rv-d2">If Momo saves you a few awkward English moments, you can chip in toward that yearly Apple fee (and a little coffee for the cat). Totally optional — Momo stays free either way. 💙</p>
+      <div class="cta-actions rv rv-d3">
+        <a class="btn btn-primary" href="https://buymeacoffee.com/momoplugin" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a3 3 0 0 1 0 6h-1"/><path d="M4 8h14v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8z"/><path d="M6 2v2M10 2v2M14 2v2"/></svg>
+          Buy Momo a coffee
+        </a>
+        <a class="btn btn-secondary" href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip" target="_blank" rel="noopener">Download Momo</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <span>momo whisper, by <a href="https://github.com/Nabhak" target="_blank" rel="noopener">nabhak</a> · built on <a href="https://github.com/Gamezxz/WhisperApp" target="_blank" rel="noopener">whisper</a> by gamezxz</span>
+    <span class="footer-links">
+      <a href="index.html">home</a>
+      <a href="install.html">how to install</a>
+      <a href="story.html">story</a>
+      <a href="https://github.com/Nabhak/Momo-Whisper" target="_blank" rel="noopener">github</a>
+      <a href="https://github.com/Nabhak/Momo-Whisper/releases" target="_blank" rel="noopener">releases</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* sticky nav border */
+  var nav = document.getElementById('nav');
+  var sentinel = document.getElementById('nav-sentinel');
+  if (nav && sentinel && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (e) { nav.classList.toggle('scrolled', !e[0].isIntersecting); }).observe(sentinel);
+  }
+
+  /* mobile hamburger — toggle the nav-links dropdown */
+  var burger = document.getElementById('navBurger');
+  var navLinks = document.getElementById('navLinks');
+  if (burger && navLinks) {
+    burger.addEventListener('click', function () {
+      var open = navLinks.classList.toggle('open');
+      burger.classList.toggle('open', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    navLinks.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A') { navLinks.classList.remove('open'); burger.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); }
+    });
+  }
+
+  /* scroll reveals */
+  var targets = document.querySelectorAll('.rv:not(.in)');
+  if (reduceMotion || !('IntersectionObserver' in window)) {
+    targets.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+    targets.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ---------- streaming flow-band (CTA showcase) ----------
+     Shift startOffset by exactly ONE repeated copy so the loop is seamless. Runs for
+     every .flow-svg, keyed off each svg's own textPaths (no shared ids). */
+  var flowSvgs = Array.prototype.slice.call(document.querySelectorAll('.flow-svg'));
+  if (flowSvgs.length) {
+    var COPIES = 2;
+    function setupPath(tp) {
+      if (!tp) return;
+      var anim = tp.querySelector('animate');
+      if (!anim) return;
+      var total = 0;
+      try { total = tp.getComputedTextLength(); } catch (e) { total = 0; }
+      if (!total) return;
+      var one = total / COPIES;
+      tp.setAttribute('startOffset', -one);
+      anim.setAttribute('from', -one);
+      anim.setAttribute('to', 0);
+    }
+    function initOneFlow(svg) {
+      Array.prototype.slice.call(svg.querySelectorAll('textPath')).forEach(setupPath);
+      try { svg.setCurrentTime(0); } catch (e) {}
+      if (reduceMotion) { try { svg.setCurrentTime(6); svg.pauseAnimations(); } catch (e) {} }
+    }
+    function initFlow() { flowSvgs.forEach(initOneFlow); }
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(initFlow);
+      setTimeout(initFlow, 1200);
+    } else {
+      setTimeout(initFlow, 300);
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (reduceMotion) return;
+      flowSvgs.forEach(function (svg) {
+        try { document.hidden ? svg.pauseAnimations() : svg.unpauseAnimations(); } catch (e) {}
+      });
+    });
+  }
+
+  /* language chip above the flow-band icon: cycles source + target (not always English) */
+  Array.prototype.slice.call(document.querySelectorAll('.flow-chip')).forEach(function (chip) {
+    var fcSrc = chip.querySelector('.fc-src');
+    var fcTgt = chip.querySelector('.fc-tgt');
+    if (!fcSrc || !fcTgt || reduceMotion) return;
+    var fcPairs = [
+      { src: '日本語',   tgt: 'English' },
+      { src: '한국어',   tgt: 'ไทย' },
+      { src: '中文',     tgt: 'Español' },
+      { src: 'Español',  tgt: '日本語' }
+    ];
+    var fcIdx = 0;
+    setInterval(function () {
+      if (document.hidden) return;
+      fcIdx = (fcIdx + 1) % fcPairs.length;
+      fcSrc.classList.add('fade');
+      fcTgt.classList.add('fade');
+      setTimeout(function () {
+        fcSrc.textContent = fcPairs[fcIdx].src;
+        fcTgt.textContent = fcPairs[fcIdx].tgt;
+        fcSrc.classList.remove('fade');
+        fcTgt.classList.remove('fade');
+      }, 300);
+    }, 3600);
+  });
+})();
+</script>
+<!-- GoatCounter — privacy-friendly analytics (page views + download/coffee clicks) -->
+<script data-goatcounter="https://nabhak.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script>
+  /* count Download + "buy a coffee" button clicks as GoatCounter events */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[href*="releases/latest/download"], a[href*="buymeacoffee"]') : null;
+    if (!a || !window.goatcounter || !window.goatcounter.count) return;
+    var coffee = a.href.indexOf('buymeacoffee') > -1;
+    var page = (location.pathname.split('/').pop() || 'index').replace('.html', '') || 'index';
+    window.goatcounter.count({
+      path: (coffee ? 'coffee-' : 'download-') + page,
+      title: coffee ? 'Buy a coffee click' : 'Download click',
+      event: true
+    });
+  });
+</script>
+</body>
+</html>
