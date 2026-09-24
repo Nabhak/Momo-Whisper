@@ -1,0 +1,2489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--
+  ============================================================================
+  MOMO WHISPER — landing page.  SINGLE self-contained file (inline CSS + JS,
+  no build step). Edit here, then just open in a browser to test.
+
+  HOW TO FIND THINGS (grep the MARKER to jump to HTML; CSS + JS use the same names):
+    SECTION            MARKER (grep)            CSS block              JS driver / animated card ids
+    ----------------------------------------------------------------------------------------------
+    Hero               "==== HERO"              .hero / .hero-flow     flow-band: flowSvgs + .flow-chip cycler
+    How it works       "==== HOW IT WORKS"      .how / .mode-show      modeShowcase()  — rotates 3 modes:
+                        (id="how")               .show-pane / .step       #speakCard (Fn, raw dictation),
+                                                                          #xlateHow (⇧Fn translate),
+                                                                          #howHl (Highlight)  — boxes = tabs
+    Speak→Translate    "==== SPLIT A"           .split                 flowDemo('#xlateCard2')
+                        (id="features")
+    Highlight          "==== SPLIT B"           .split .mock-doc       highlightDemo('#hlCard')
+    Feature grid       "==== TINTED FEATURE"    .featgrid              (static)
+    Tone control       "==== SPLIT C"           .split                 flowDemo('#toneCard')
+    Learns your words  "==== SPLIT D"           .split                 dictSettings('#dictCard')
+    Details            "==== DETAILS"           .details               (static)
+    FAQ                "==== FAQ" (id="faq")    .faq                   (static accordion)
+    Closing CTA        "==== CTA"               .cta / .flow-*         flow-band (same as hero: flowSvgs + chip)
+    Footer             "<footer"                footer                 —
+
+  SHARED ANIMATION ENGINES (in the <script> at the bottom):
+    flowDemo(cardId, items, opts) — mic → source words reveal → (opts.raw = verbatim, no output;
+        else translation reveals). opts.manual returns {play,count} for modeShowcase to drive.
+    highlightDemo(cardId, langs, opts) — select → 文A press → panel slides out. opts.manual too.
+    modeShowcase() — the #how orchestrator: auto-rotates the 3 panes on a timer; the 3 .step
+        boxes are clickable tabs; a .tab-prog line shows the countdown.
+    flowSvgs + .flow-chip loops — the streaming flow-band (hero + CTA), class-based (no shared ids).
+
+  CONVENTIONS: reduced-motion + mobile (<=640px) are handled at the bottom of <style>. Keep every
+  demo card a FIXED height so swaps don't jump.
+  ============================================================================
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Momo Whisper — Thai &amp; English voice dictation and translation for Mac</title>
+<meta name="description" content="Free macOS menu-bar app: hold Fn to dictate, Fn+Shift to speak Thai and type English, or highlight any text to translate in place. 16 languages, tone control, powered by Groq.">
+<meta name="theme-color" content="#ffffff">
+<meta name="author" content="Nabhak">
+<meta name="keywords" content="Momo Whisper, macOS dictation, speech to text Mac, voice typing Mac, translate Mac, Thai English translation, Thai voice typing Mac, Thai dictation, menu bar app, Groq, whisper-large-v3, gpt-oss, AI dictation, highlight to translate">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<link rel="canonical" href="https://nabhak.github.io/Momo-Whisper/">
+<link rel="alternate" type="text/plain" href="llms.txt" title="LLM-friendly summary">
+
+<!-- Google Search Console verification (HTML-tag method) -->
+<meta name="google-site-verification" content="uklYQw-L4K3r9sk5_NQpotN2FN0m3Nfv26nWkRSrh7A" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nabhak.github.io/Momo-Whisper/">
+<meta property="og:site_name" content="Momo Whisper">
+<meta property="og:title" content="Momo Whisper — Speak or highlight, and your Mac types &amp; translates">
+<meta property="og:description" content="Hold Fn to dictate, Fn+Shift to translate; highlight any text to translate it in place. Thai ⇄ English, 16 languages in all, tone control. Free & open source.">
+<meta property="og:image" content="https://nabhak.github.io/Momo-Whisper/og.png?v=5">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Momo Whisper — macOS dictation & translation app">
+<meta property="og:locale" content="en_US">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Momo Whisper — dictate & translate on your Mac">
+<meta name="twitter:description" content="Hold Fn to dictate, Fn+Shift to translate; highlight any text to translate in place. Thai ⇄ English, 16 languages in all. Free & open source.">
+<meta name="twitter:image" content="https://nabhak.github.io/Momo-Whisper/og.png?v=5">
+
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Momo Whisper",
+  "alternateName": "Whisper Momo",
+  "description": "A free macOS menu-bar dictation and translation app, made for Thai speakers who work in English. Hold Fn to dictate, hold Fn+Shift to speak one language and type another, or highlight any text to translate it in place. 16 languages including Thai, English, Japanese, Chinese and Korean, six tones for Thai and English, a custom dictionary, powered by Groq.",
+  "url": "https://nabhak.github.io/Momo-Whisper/",
+  "applicationCategory": "UtilitiesApplication",
+  "applicationSubCategory": "Dictation and translation",
+  "operatingSystem": "macOS 13 or later",
+  "softwareRequirements": "macOS 13 or later; a free Groq API key; Microphone and Accessibility permissions",
+  "inLanguage": "en",
+  "downloadUrl": "https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip",
+  "installUrl": "https://nabhak.github.io/Momo-Whisper/install.html",
+  "releaseNotes": "https://github.com/Nabhak/Momo-Whisper/releases",
+  "image": "https://nabhak.github.io/Momo-Whisper/og.png?v=5",
+  "screenshot": "https://nabhak.github.io/Momo-Whisper/og.png?v=5",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "isAccessibleForFree": true,
+  "featureList": [
+    "Hold Fn to dictate into any app",
+    "Hold Fn+Shift to speak and have it typed translated",
+    "Highlight any text to translate it in place",
+    "16 languages with auto-detected source: Thai, English, Japanese, Chinese, Korean, Spanish, French, German, Portuguese, Italian, Vietnamese, Bahasa, Hindi, Arabic, Russian, Turkish",
+    "Six tones for Thai and English: Email, Professional, Workplace Chat, Casual, AI-prompt, No-filter",
+    "Custom dictionary for names and jargon",
+    "Rebindable global hotkey, lives in the menu bar",
+    "Clipboard-safe auto-paste with live waveform overlay",
+    "Pure Swift, no Electron; API key stored locally",
+    "Powered by Groq: whisper-large-v3 for speech, gpt-oss-120b for translation"
+  ],
+  "author": {
+    "@type": "Person",
+    "name": "Nabhak",
+    "url": "https://github.com/Nabhak"
+  },
+  "creator": {
+    "@type": "Person",
+    "name": "Nabhak",
+    "url": "https://github.com/Nabhak"
+  },
+  "sameAs": [
+    "https://github.com/Nabhak/Momo-Whisper"
+  ],
+  "isBasedOn": {
+    "@type": "SoftwareSourceCode",
+    "name": "WhisperApp",
+    "url": "https://github.com/Gamezxz/WhisperApp",
+    "codeRepository": "https://github.com/Gamezxz/WhisperApp",
+    "license": "https://opensource.org/licenses/MIT",
+    "author": {
+      "@type": "Person",
+      "name": "Gamezxz",
+      "url": "https://github.com/Gamezxz"
+    }
+  }
+}
+</script>
+<!-- FAQPage: generated from the visible #faq section; keep the two in sync -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I install it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Download Momo Whisper, unzip, and drag it into your Applications folder. New to installing apps outside the App Store? Follow the full step-by-step install guide."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "macOS says \"Apple could not verify…\". What now?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Expected on any app that isn't paid-notarized. Do this once and it opens normally forever after: Double-click the app, then click Done on the warning. Open System Settings → Privacy & Security. Scroll to \"Momo Whisper was blocked…\" and click Open Anyway. Or in Terminal: xattr -dr com.apple.quarantine \"/Applications/Momo Whisper.app\""
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What permissions does it need?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Microphone so it can hear you dictate, and Accessibility so it can type the result into other apps. Speech Recognition is recommended but optional: it enables faster, more accurate on-device transcription, and that audio stays on your Mac."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need an API key?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, one free Groq key powers everything. Get it at console.groq.com and paste it into Settings (or set GROQ_API_KEY in ~/.zshrc). Groq's free tier is generous for daily dictation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my audio private?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your key is stored locally, and your audio and text only ever go to the Groq call you configured. No analytics on your speech, no third parties, no Electron."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Momo Whisper is free and open source, built on WhisperApp by Gamezxz (MIT). You only bring your own Groq key."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it work with Thai?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, Thai is what it was built for. Dictate in Thai, or hold Fn+Shift to speak Thai and get English typed out (or the other way round). Six tones cover Thai and English, and the custom dictionary handles Thai names and nicknames. It also works with Japanese, Chinese, Korean, Spanish and 10 more, 16 languages in all."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it translate while I speak?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Hold Fn+Shift and talk. When you release, Momo Whisper types your words already translated into the language you picked, right where your cursor is. For text that's already on screen, highlight it and click the floating button to translate it in place."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is it different from Superwhisper or Wispr Flow?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They're all Mac dictation apps. Momo Whisper is a small, free one focused on translation: speak in one language and type another, highlight-to-translate in any app, and tones for Thai and English. It runs on your own free Groq key."
+      }
+    }
+  ]
+}
+</script>
+<script>document.documentElement.classList.add('js');</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   Momo Whisper · family.co-inspired restyle
+   Type: Space Grotesk 500 display / Inter body
+   Extracted family.co tokens:
+   hero 68px w500 ls-1.36px lh1.1 · section h 44px w500 ls-1.35px lh48
+   body 15px/22px rgba(71,70,69,.7) · lead 17px/26px w500 #474645
+   pills r32 h48/h32 · container 1072px/24px · sections ~100-130px pad
+   motion: 0.1-0.22s eases, cubic-bezier(0.19,1,0.22,1), scroll reveals
+   ============================================================ */
+:root {
+  --ink-hero: #343433;          /* family display-p3 .2039 near-black */
+  --ink: #121212;               /* section headings */
+  --body: #474645;              /* rgb(71,70,69) */
+  --body-70: rgba(71, 70, 69, .7);
+  --muted: #848281;             /* rgb(132,130,129) */
+  --faint: rgba(112, 112, 112, .4);
+  --accent: #0072e8;            /* Momo waveform blue */
+  --accent-dark: #005fc2;
+  --accent-soft: rgba(0, 114, 232, .08);
+  --accent-sel: rgba(0, 114, 232, .18);
+  --pill: #f2f4f7;              /* secondary pill (family #F6F4EF, cooled) */
+  --pill-hover: #e8ebf0;
+  --tint: #f7f9fb;              /* tinted section bg (family #FBFAF9, cooled) */
+  --panel: #f4f6f9;             /* media panel bg */
+  --hairline: rgba(18, 18, 18, .08);
+  --display: "Space Grotesk", -apple-system, "system-ui", "Segoe UI", Helvetica, Arial, sans-serif;
+  --sans: "Inter", -apple-system, "system-ui", "Segoe UI", Helvetica, Arial, sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-fam: cubic-bezier(0.19, 1, 0.22, 1);  /* family.co's transform ease */
+  --ease-gentle: cubic-bezier(0.22, 0.61, 0.36, 1);  /* soft cubic-out — demo output reveals */
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body { background: #fff; }
+body {
+  font-family: var(--sans);
+  font-size: 16px;
+  color: var(--body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--accent-sel); }
+
+.container { max-width: 1072px; margin: 0 auto; padding: 0 24px; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------- type scale (family.co treatment) ---------- */
+.h-hero {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(40px, 7.2vw, 68px);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--ink-hero);
+}
+.h-section {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(30px, 4.6vw, 44px);
+  letter-spacing: -0.03em;
+  line-height: 1.09;
+  color: var(--ink);
+}
+.lead {
+  font-size: 17px;
+  line-height: 26px;
+  letter-spacing: -0.22px;
+  font-weight: 500;
+  color: var(--body);
+}
+.copy {
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: -0.13px;
+  color: var(--body-70);
+}
+.eyebrow {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.13px;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+/* ---------- pill buttons (family: r32, h48/h32, bg .1s) ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 32px;
+  font-family: var(--sans);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.22px;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 0;
+  transition: background-color 100ms ease, transform 160ms var(--ease-out);
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-secondary { background: var(--pill); color: #121212; }
+.btn-secondary:hover { background: var(--pill-hover); }
+.btn-sm { height: 32px; padding: 0 14px; font-size: 15px; letter-spacing: -0.09px; }
+
+/* ---------- nav (family: sticky white, 72px, single line) ---------- */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, .6);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 200ms ease, background-color 200ms ease;
+}
+.nav.scrolled { border-bottom-color: var(--hairline); }
+.nav-inner {
+  display: flex;
+  align-items: center;
+  height: 72px;
+  gap: 32px;
+}
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+/* wordmark: heavier + tighter so it reads as a logotype, not body text */
+.brand-name {
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.045em;
+  color: var(--ink);
+}
+.nav-brand img { width: 28px; height: 28px; border-radius: 7px; transition: transform 260ms var(--ease-fam); }
+@media (hover: hover) and (pointer: fine) {
+  .nav-brand:hover img { transform: rotate(-6deg) scale(1.06); }
+}
+.nav-links {
+  display: flex;
+  gap: 26px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.09px;
+  color: var(--body);
+}
+.nav-links a { transition: color 140ms ease; padding: 6px 0; }
+.nav-links a:hover { color: var(--ink); }
+.nav-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+/* hamburger (mobile only) + a link that only appears inside the mobile menu */
+.nav-burger { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 38px; height: 38px; padding: 0; background: var(--bg-3); border: 0; border-radius: 10px; cursor: pointer; }
+.nav-burger span { display: block; width: 16px; height: 2px; border-radius: 2px; background: var(--fg); transition: transform .2s ease, opacity .2s ease; }
+.nav-burger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-burger.open span:nth-child(2) { opacity: 0; }
+.nav-burger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.home-link { display: none; }
+
+/* ---------- hero (family: 120/96 pad, centered) ----------
+   icon sits closer under the nav; the components below breathe more generously */
+.hero { padding: 136px 0 40px; text-align: center; }
+.hero .h-hero { max-width: 720px; margin: 0 auto; padding-bottom: 28px; }
+.hero .lead { max-width: 480px; margin: 0 auto 42px; }
+.hero .lead .kbd { transform: translateY(-1px); }
+.hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* hero top visual: the same premium streaming flow-band used near the CTA — source speech
+   flows into the Momo icon, the translation flows out the other side. Sits where the plain
+   icon used to, so the icon is still the anchor, now alive with streaming text. */
+.hero-flow { margin: 0 auto 40px; }
+.hero-flow .flow-stage { height: 208px; }
+/* the hero is white (the CTA band is tinted): fade the streaming text out over WHITE here */
+.hero-flow .flow-icon::before {
+  background: radial-gradient(closest-side, #fff 52%, rgba(255, 255, 255, 0) 100%);
+}
+
+/* ---------- mode showcase (in #how): ONE rotating preview cycling the app's 3 modes ----------
+   Fn (raw dictation: speech typed out verbatim) → ⇧ Fn (speak → translated) → Highlight
+   (select → translate in place), then loops. The three step boxes BELOW are the selectors:
+   clicking one jumps the preview to that mode; a thin progress line along the active box's
+   bottom edge shows the auto-advance. */
+.mode-show { max-width: 940px; margin: 0 auto 44px; }
+/* fixed-height stage: the 3 panes crossfade in place, so the page never reflows */
+.show-stage { position: relative; height: 232px; }
+.show-pane {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px);
+  transition: opacity 460ms var(--ease-gentle), transform 460ms var(--ease-gentle), visibility 0s linear 460ms;
+}
+.show-pane.on {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 460ms var(--ease-gentle), transform 460ms var(--ease-gentle), visibility 0s;
+}
+.show-pane .mock-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 24px 26px;
+  box-shadow: 0 26px 64px rgba(0, 78, 168, .13), 0 3px 10px rgba(18, 30, 50, .07);
+}
+/* raw dictation card: the transcript IS the result — typed text reads as ink, with a live caret */
+#speakCard .mock-src { color: var(--ink); font-weight: 500; }
+#speakCard .mock-src.caret::after {
+  content: '';
+  display: inline-block;
+  width: 2px; height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.16em;
+  background: var(--accent);
+  animation: caretBlink 1s steps(1) infinite;
+}
+/* no-JS: stack all three panes statically (each shows its finished frame) */
+html:not(.js) .show-stage { height: auto; }
+html:not(.js) .show-pane { position: static; opacity: 1; visibility: visible; transform: none; margin-bottom: 28px; }
+
+/* the step boxes double as the showcase's selectors (real buttons) */
+button.step {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;                  /* rounds the progress line into the box */
+  transition: transform 220ms var(--ease-fam), background-color 200ms ease, box-shadow 200ms ease;
+}
+button.step.on {
+  background: #fff;
+  box-shadow: inset 0 0 0 1.5px var(--accent), 0 14px 34px rgba(0, 78, 168, .10);
+}
+button.step.on h3 { color: var(--accent); }
+.tab-prog {
+  position: absolute;
+  left: 0; bottom: 0;
+  height: 3px;
+  width: 0;                          /* JS animates 0 → 100% over the mode's duration */
+  background: var(--accent);
+  opacity: .45;
+  pointer-events: none;
+}
+
+/* stacked offset rounded-square layers → a roomy white squircle tile floats above them,
+   the icon centered inside with generous white padding */
+.icon-stack { position: relative; width: 148px; height: 148px; flex: none; }
+.icon-stack .tile {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 148px; height: 148px;
+  background: #fff;
+  border-radius: 34px;
+  border: 1px solid rgba(18, 30, 50, .05);
+  box-shadow: 0 18px 40px rgba(0, 78, 168, .18), 0 4px 12px rgba(18, 30, 50, .12);
+}
+.icon-stack img {
+  width: 84px; height: 84px;
+  border-radius: 20px;
+  display: block;
+}
+.icon-stack .layer {
+  position: absolute;
+  left: 50%; top: 0;
+  width: 148px; height: 148px;
+  border-radius: 34px;
+  background: #fff;
+  border: 1px solid rgba(18, 30, 50, .05);
+}
+.icon-stack .layer-1 {
+  z-index: 2;
+  transform: translate(-50%, 10px) scale(.955);
+  box-shadow: 0 14px 30px rgba(0, 78, 168, .10);
+}
+.icon-stack .layer-2 {
+  z-index: 1;
+  transform: translate(-50%, 20px) scale(.90);
+  background: #eef3fb;
+  box-shadow: 0 20px 38px rgba(0, 78, 168, .08);
+}
+/* equalizer bars — live-audio pulse, solid Momo blue, mirrored on both sides */
+.eq { display: flex; align-items: center; gap: 5px; height: 80px; flex: none; }
+.eq-left { flex-direction: row-reverse; }   /* tallest bar sits nearest the icon on both sides */
+/* animate real HEIGHT (not scaleY): scaling a rounded pill squishes its end-caps,
+   whereas a height change keeps a constant corner radius — caps stay perfectly
+   round at every bar height. 999px capsule radius clamps to half the width. */
+.eq i {
+  width: 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  height: var(--h, 24px);
+  animation: flowBar 1s ease-in-out infinite;
+}
+.eq i:nth-child(1) { --h: 46px; animation-duration: 1.15s; animation-delay: 0ms; }
+.eq i:nth-child(2) { --h: 34px; animation-duration: .9s;  animation-delay: 140ms; }
+.eq i:nth-child(3) { --h: 25px; animation-duration: 1.2s; animation-delay: 80ms; }
+.eq i:nth-child(4) { --h: 18px; animation-duration: .95s; animation-delay: 220ms; }
+.eq i:nth-child(5) { --h: 12px; animation-duration: 1.05s; animation-delay: 160ms; }
+
+.kbd {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: .82em;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--ink);
+  background: var(--pill);
+  border: 1px solid var(--hairline);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  padding: 1px 7px 2px;
+}
+
+/* ---------- flow band (now the combined CTA showcase): a TRANSLATE demo — source phrases
+   cycle through languages (JA/KO/ZH/ES) streaming into the hero-style app icon, and the
+   matching English translations stream out the other side, on a clean horizontal line ---------- */
+.flow-stage {
+  position: relative;
+  max-width: 940px;
+  margin: 0 auto;
+  height: 224px;
+  /* NO overflow:hidden here — it clipped the icon/chip box-shadows. The clip +
+     edge-fade live on the SVG below, so shadows render fully on all sides. */
+}
+.flow-svg {
+  width: 100%; height: 100%; display: block;
+  overflow: hidden;   /* clip the overflowing streaming text so it never creates page scroll */
+  /* soft horizontal edge-fade so the streaming text enters/exits without a hard cut */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.flow-svg .curve { fill: none; stroke: none; }
+.flow-text { font-family: var(--sans); font-size: 21px; font-weight: 500; letter-spacing: -0.2px; }
+.flow-text.raw { fill: #9aa3ad; }               /* incoming source languages: grey */
+.flow-text.clean { fill: #0072e8; opacity: .34; } /* outgoing English: soft Momo blue, receding */
+
+/* central icon — the hero-style presentation (stacked layers + side equalizer bars),
+   sitting where the waveform pill used to be: speech streams in, Momo, polished text streams out */
+.flow-icon {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 2;
+}
+/* soft backdrop fades the streaming text out before it reaches the icon assembly */
+.flow-icon::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 420px; height: 210px;
+  background: radial-gradient(closest-side, var(--tint) 52%, rgba(247, 249, 251, 0) 100%);
+  z-index: -1;
+}
+@keyframes flowBar {
+  0%, 100% { height: calc(var(--h, 24px) * .3); }
+  50% { height: var(--h, 24px); }
+}
+
+/* language chip — cycles the detected source language above the icon ("日本語 → English") */
+.flow-chip {
+  position: absolute;
+  left: 50%; top: calc(50% - 128px);   /* clear air between the pill and the icon tile below (icon top is at 50% - 74px) */
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: 30px;
+  padding: 6px 15px;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.09px;
+  color: var(--ink);
+  white-space: nowrap;
+  box-shadow: 0 12px 30px rgba(18, 30, 50, .13), 0 1px 3px rgba(18, 30, 50, .06);
+  z-index: 2;
+  animation: chipFloat 4.5s ease-in-out infinite;
+}
+.flow-chip .fc-src,
+.flow-chip .fc-tgt {
+  display: inline-block;
+  min-width: 58px;
+  text-align: center;
+  transition: opacity 280ms ease;
+}
+.flow-chip .fc-src.fade,
+.flow-chip .fc-tgt.fade { opacity: 0; }
+/* both the arrow and the target language read in accent (source stays ink) */
+.flow-chip .fc-arrow,
+.flow-chip .fc-tgt { color: var(--accent); font-weight: 600; }
+@keyframes chipFloat {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-5px); }
+}
+
+.wave { display: inline-flex; align-items: center; gap: 3px; height: 18px; }
+.wave i {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  height: 6px;
+  animation: waveBar 1.05s ease-in-out infinite;
+}
+.wave i:nth-child(1) { animation-delay: 0ms; }
+.wave i:nth-child(2) { animation-delay: 130ms; }
+.wave i:nth-child(3) { animation-delay: 260ms; }
+.wave i:nth-child(4) { animation-delay: 390ms; }
+.wave i:nth-child(5) { animation-delay: 520ms; }
+@keyframes waveBar {
+  0%, 100% { height: 5px; }
+  50% { height: 16px; }
+}
+/* ---------- language marquee (one per page, seamless infinite) ---------- */
+.langs { padding: 64px 0 0; }
+.langs-viewport {
+  position: relative;
+  overflow: hidden;
+}
+/* edge fade via white gradient OVERLAYS, not mask-image: Safari can blank out a
+   masked container whose child runs a composited transform animation (the strip
+   vanished entirely there). Overlays render identically on the hero's white bg. */
+.langs-viewport::before,
+.langs-viewport::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: clamp(48px, 9vw, 120px);
+  z-index: 1;
+  pointer-events: none;
+}
+.langs-viewport::before { left: 0; background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0)); }
+.langs-viewport::after { right: 0; background: linear-gradient(270deg, #fff, rgba(255, 255, 255, 0)); }
+.langs-track {
+  display: flex;
+  width: max-content;
+  /* static base transform = the animation's start frame: even if the animation
+     ever fails to run, the strip still shows fully covered, never blank */
+  transform: translate3d(-50%, 0, 0);
+  animation: marquee 46s linear infinite;  /* -50% → -25%: interior range (4 copies), overflows both edges at every frame */
+  will-change: transform;
+}
+.langs-set {
+  display: flex;
+  gap: 44px;
+  padding-right: 44px;      /* keep spacing consistent across the seam */
+  margin: 0;
+  list-style: none;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.langs-set li { display: block; }
+@keyframes marquee {
+  /* Both ends are interior positions exactly one copy-width (25% of the 4-copy
+     track) apart, so the loop is seamless AND the strip overflows the viewport on
+     the left and right at every frame — never a blank edge. Flows left → right. */
+  from { transform: translate3d(-50%, 0, 0); }
+  to { transform: translate3d(-25%, 0, 0); }
+}
+
+/* ---------- how it works ---------- */
+.how { padding: 130px 0 110px; text-align: center; }
+.how .h-section { max-width: 560px; margin: 0 auto 16px; }
+.how > .container > .copy { max-width: 420px; margin: 0 auto 64px; font-size: 17px; line-height: 26px; letter-spacing: -0.22px; }
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  text-align: left;
+}
+.step {
+  background: var(--tint);
+  border-radius: 20px;
+  padding: 28px 26px 30px;
+  transition: transform 220ms var(--ease-fam);
+}
+@media (hover: hover) and (pointer: fine) {
+  .step:hover { transform: translateY(-3px); }
+}
+.step-keys { display: flex; gap: 6px; margin-bottom: 18px; }
+.step-keys .kbd { font-size: 14px; padding: 4px 12px 5px; background: #fff; }
+.step h3 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.step p { font-size: 15px; line-height: 22px; letter-spacing: -0.13px; color: var(--body-70); }
+
+/* ---------- alternating splits (family: text col + media panel) ---------- */
+.split { padding: 102px 0 96px; }
+.split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.08fr;
+  gap: 72px;
+  align-items: center;
+}
+.split-grid.media-left { grid-template-columns: 1.08fr 1fr; }
+.split-grid.media-left .split-copy { order: 2; }
+.split-grid.media-left .split-media { order: 1; }
+.split-copy .h-section { margin-bottom: 18px; max-width: 420px; }
+.split-copy .lead { margin-bottom: 14px; max-width: 420px; }
+.split-copy .copy { max-width: 400px; }
+.checks { list-style: none; margin-top: 26px; display: grid; gap: 14px; }
+.checks li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.13px;
+  color: var(--accent);
+}
+.checks svg { flex: none; }
+
+.split-media {
+  background: var(--panel);
+  border-radius: 24px;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 44px 36px;
+}
+
+/* media mockups (product-behavior sketches, brand style) */
+.mock-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 16px 40px rgba(18, 30, 50, .08), 0 1px 3px rgba(18, 30, 50, .05);
+  padding: 22px 24px;
+  width: 100%;
+  max-width: 400px;
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: -0.13px;
+  color: var(--body);
+  transition: transform 260ms var(--ease-fam), box-shadow 260ms var(--ease-fam);
+}
+@media (hover: hover) and (pointer: fine) {
+  .split-media:hover .mock-card {
+    transform: translateY(-4px);
+    box-shadow: 0 26px 60px rgba(18, 30, 50, .12), 0 2px 6px rgba(18, 30, 50, .06);
+  }
+}
+.mock-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.mock-head .wave { height: 14px; }
+.mock-head .wave i { animation-duration: 1.2s; }
+.mock-src { color: var(--body-70); margin-bottom: 12px; }
+.mock-out {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+  color: var(--ink);
+  font-weight: 500;
+}
+.mock-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: 22px;              /* one text line tall → centered on the first line */
+  box-sizing: border-box;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 14px;
+  padding: 0 8px;
+}
+
+.mock-doc { position: relative; }
+/* no fixed height — the card starts SHORT (source only) and GROWS as the panel opens */
+/* selection highlight sweeps left → right (background-size grows) */
+.mock-doc .hl {
+  background-image: linear-gradient(var(--accent-sel), var(--accent-sel));
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 0% 100%;
+  border-radius: 3px;
+  padding: 1px 2px;
+  transition: background-size 1800ms cubic-bezier(0.45, 0.1, 0.3, 1);  /* slow, steady drag-select */
+}
+.mock-doc.selecting .hl { background-size: 100% 100%; }
+/* floating translate button pops in (scale + fade, gentle overshoot) */
+.mock-float {
+  position: absolute;
+  right: -12px;
+  top: 34px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 114, 232, .35);
+  opacity: 0;
+  transform: scale(.55);
+  transform-origin: center;
+  transition: opacity 240ms var(--ease-out), transform 360ms cubic-bezier(.34, 1.56, .64, 1);
+}
+.mock-doc.floated .mock-float { opacity: 1; transform: scale(1); }
+/* translate button PRESS — one quick tap-down; the release springs back through the
+   pop-in transition's gentle overshoot, so it reads like a real click */
+.mock-doc.floated .mock-float.press {
+  transform: scale(.78);
+  transition: opacity 240ms var(--ease-out), transform 120ms ease;
+}
+/* the panel lives in a COLLAPSIBLE wrapper (grid-rows 0fr → 1fr): opening it grows the
+   whole card smoothly from short → tall; closing shrinks it back. The 18px gap above the
+   panel lives INSIDE the clipped inner so it collapses away too (no phantom gap when shut). */
+.mock-pop-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 480ms var(--ease-fam);
+}
+.mock-doc.popped .mock-pop-wrap { grid-template-rows: 1fr; }
+.mock-pop-inner { overflow: hidden; min-height: 0; padding-top: 18px; }
+/* translation panel fades + rises gently as the card grows around it */
+.mock-pop {
+  background: var(--tint);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: var(--ink);
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 380ms var(--ease-fam), transform 380ms var(--ease-fam);
+}
+.mock-doc.popped .mock-pop { opacity: 1; transform: none; }
+.mock-pop .pop-text { display: block; transition: opacity 560ms var(--ease-gentle), transform 560ms var(--ease-gentle); }
+.mock-pop .pop-text.out { opacity: 0; transform: translateY(6px); }
+.mock-pop .langs-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+.mock-pop .chip.more { color: var(--faint); }
+/* no-JS fallback: show fully selected + translated (panel wrapper open) */
+html:not(.js) .mock-doc .hl { background-size: 100% 100%; }
+html:not(.js) .mock-float { opacity: 1; transform: none; }
+html:not(.js) .mock-pop-wrap { grid-template-rows: 1fr; }
+html:not(.js) .mock-pop { opacity: 1; transform: none; }
+.chip {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--body-70);
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 3px 9px;
+}
+.chip.on { color: #fff; background: var(--accent); border-color: var(--accent); }
+
+.tone-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+.tone-chips .chip { font-size: 12.5px; padding: 5px 12px; background: var(--tint); border-color: transparent; }
+.tone-chips .chip.on { background: var(--accent); }
+
+/* live demo cards: clickable tabs (tone + highlight chips) */
+.demo-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+button.chip {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  button.chip:hover:not(.on) { color: var(--accent); border-color: var(--accent); }
+  .tone-chips button.chip:hover:not(.on) { background: var(--accent-soft); border-color: transparent; }
+}
+
+/* real-flow demo (Speak + Tone): source appears with live mic → beat → translation loads in.
+   The features card (#xlateCard2) and the showcase's dictation + translate cards
+   (#speakCard, #xlateHow) all share the same fixed frame. */
+#xlateCard2, #speakCard, #xlateHow { min-height: 148px; }   /* no jump on swap (has the mic-head row) */
+#tonePanel { min-height: 96px; }     /* tighter — tone card has no mic-head, just source + output */
+.mock-lang {
+  margin-left: auto;                              /* pushed to the right edge of the head row */
+  font-weight: 600;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 240ms var(--ease-fam);
+}
+.mock-card.listening .mock-lang { opacity: 1; }   /* class-based: works for either xlate card */
+.mock-src { transition: opacity 300ms var(--ease-fam), transform 300ms var(--ease-fam); }
+.mock-src.out { opacity: 0; transform: translateY(6px); }
+/* speech recognised word-by-word: each word pops in (no typing caret) */
+.src-word { display: inline-block; opacity: 0; transform: translateY(4px); transition: opacity 220ms var(--ease-fam), transform 220ms var(--ease-fam); }
+.src-word.in { opacity: 1; transform: none; }
+/* only the OUTPUT sentence animates — the EN badge, divider and card frame stay put.
+   Long, gentle crossfade + rise so the translation settles in softly (Speak + Tone). */
+.out-text {
+  display: inline-block;   /* so translateY applies (transforms are ignored on inline) */
+  transition: opacity 760ms var(--ease-gentle), transform 760ms var(--ease-gentle);
+}
+.out-text.pending { opacity: 0; transform: translateY(8px); }
+html:not(.js) .out-text.pending { opacity: 1; transform: none; }   /* no-JS: show translation */
+/* Speak card: the English output reveals WORD BY WORD — each recognised word chunk pops in
+   (like live dictation), not per-character. `.revealing` kills the block fade so only the
+   individual words animate. */
+.out-text.revealing { transition: none; opacity: 1; transform: none; }
+.out-word { display: inline-block; opacity: 0; transform: translateY(4px); transition: opacity 220ms var(--ease-fam), transform 220ms var(--ease-fam); }
+.out-word.in { opacity: 1; transform: none; }
+
+/* mock-head mic: slight per-bar variance so it reads like a live mic, not a metronome */
+.mock-head .wave i:nth-child(1) { animation-duration: 1.0s; }
+.mock-head .wave i:nth-child(3) { animation-duration: .85s; }
+.mock-head .wave i:nth-child(5) { animation-duration: 1.3s; }
+
+/* dictionary — "add a correction" settings flow: type into the field → Save → prepend to the list.
+   No overflow clip / mask, so the row shadows show fully (nothing gets cut off). */
+.dict-panel { width: 100%; max-width: 400px; }
+.dict-input {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 12px 12px 12px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 10px 26px rgba(18, 30, 50, .07), 0 1px 2px rgba(18, 30, 50, .04);
+  font-size: 15px;
+  letter-spacing: -0.13px;
+}
+.dict-input .di-from { color: var(--muted); white-space: nowrap; }
+/* blinking caret on whichever field is being typed right now */
+.dict-input .di-from.caret::after,
+.dict-input .di-to.caret::after {
+  content: '';
+  display: inline-block;
+  width: 2px; height: 1.05em;
+  margin-left: 1px;
+  vertical-align: -0.16em;
+  background: var(--accent);
+  animation: caretBlink 1s steps(1) infinite;
+}
+@keyframes caretBlink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+.dict-input .di-arrow { color: var(--faint); flex: none; }
+.dict-input .di-to { color: var(--ink); font-weight: 600; flex: 1; min-width: 0; }
+.dict-input .di-save {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 66px; height: 32px;
+  background: var(--pill);
+  color: var(--muted);
+  border: 0;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.09px;
+  cursor: default;
+  position: relative;
+  transition: width 300ms var(--ease-fam), border-radius 300ms var(--ease-fam), background-color 200ms ease, color 200ms ease, transform 160ms var(--ease-fam);
+}
+.dict-input.ready .di-save { background: var(--accent); color: #fff; }
+.dict-input .di-save.press { transform: scale(.9); }
+.di-save .di-save-label { transition: opacity 140ms ease; }
+.di-save .di-save-check {
+  position: absolute;
+  width: 13px; height: 13px;
+  opacity: 0;
+  stroke: currentColor;
+  transition: opacity 200ms ease;
+}
+/* "saved!" → morph the button into a small green circle with a checkmark
+   (scaled down so the ✓ chip reads compact — transform keeps the row height steady) */
+.dict-input .di-save.saved {
+  width: 32px;
+  border-radius: 50%;
+  background: #17a34a;
+  color: #fff;
+  transform: scale(.78);
+}
+.di-save.saved .di-save-label { opacity: 0; }
+.di-save.saved .di-save-check { opacity: 1; }
+/* tiny confetti burst on save — 3 small bits pop outward from the ✓ */
+.di-save .confetti-bit {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 5px; height: 5px;
+  border-radius: 2px;
+  pointer-events: none;
+  animation: confettiPop 640ms cubic-bezier(.16, 1, .3, 1) forwards;
+}
+@keyframes confettiPop {
+  0% { transform: translate(-50%, -50%) scale(.3); opacity: 0; }
+  22% { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--cx)), calc(-50% + var(--cy))) rotate(var(--cr)) scale(1); opacity: 0; }
+}
+.dict-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.dict-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: 0 8px 24px rgba(18, 30, 50, .06), 0 1px 2px rgba(18, 30, 50, .04);
+  font-size: 15px;
+  letter-spacing: -0.13px;
+  transition: transform 220ms var(--ease-fam), box-shadow 220ms var(--ease-fam);
+}
+@media (hover: hover) and (pointer: fine) {
+  .dict-row:hover {
+    transform: translateX(4px);
+    box-shadow: 0 12px 30px rgba(18, 30, 50, .09), 0 1px 2px rgba(18, 30, 50, .04);
+  }
+}
+.dict-row .from { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+.dict-row .arrow { color: var(--faint); flex: none; }
+.dict-row .to { color: var(--ink); font-weight: 600; }
+
+/* ---------- tinted feature grid (family SectionFeatures) ---------- */
+.featgrid { background: var(--tint); padding: 104px 0; }
+.featgrid-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px 64px;
+}
+.feat-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  margin-bottom: 18px;
+}
+.feat h3 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.13px;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.feat p { font-size: 16px; line-height: 24px; letter-spacing: -0.13px; color: var(--body-70); max-width: 440px; }
+
+/* ---------- details (facts) ---------- */
+.details { padding: 116px 0 108px; text-align: center; }
+.details .h-section { margin-bottom: 14px; }
+.details > .container > .copy { max-width: 440px; margin: 0 auto 44px; font-size: 17px; line-height: 26px; letter-spacing: -0.22px; }
+.facts { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+.fact {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.09px;
+  color: var(--body);
+  background: var(--pill);
+  border-radius: 32px;
+  padding: 9px 18px;
+  transition: background-color 160ms ease, color 160ms ease, transform 220ms var(--ease-fam);
+}
+@media (hover: hover) and (pointer: fine) {
+  .fact:hover { background: var(--accent-soft); color: var(--accent); transform: translateY(-2px); }
+}
+
+/* ---------- FAQ (family accordion: hairline rows) ---------- */
+.faq { padding: 104px 0 92px; text-align: center; }   /* centered like every other section */
+.faq .h-section { margin-bottom: 40px; }
+.faq-list { border-top: 1px solid var(--hairline); max-width: 820px; margin: 0 auto; text-align: left; }  /* list block centered, rows read left */
+.faq-item { border-bottom: 1px solid var(--hairline); }
+.faq-q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  padding: 22px 4px;
+  font-family: var(--sans);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.22px;
+  color: var(--ink);
+  transition: color 140ms ease;
+}
+.faq-q:hover { color: var(--accent); }
+.faq-q svg {
+  flex: none;
+  color: var(--muted);
+  transition: transform 260ms var(--ease-out);
+}
+.faq-item.open .faq-q svg { transform: rotate(45deg); }
+.faq-a {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms var(--ease-out);
+}
+.faq-a-inner { overflow: hidden; }
+.faq-a-body { padding: 0 4px 26px; max-width: 660px; }
+.faq-a-body p, .faq-a-body li {
+  font-size: 15px;
+  line-height: 23px;
+  letter-spacing: -0.13px;
+  color: var(--body-70);
+}
+.faq-a-body p + p, .faq-a-body p + ol, .faq-a-body ol + p { margin-top: 10px; }
+.faq-a-body ol { padding-left: 20px; display: grid; gap: 6px; }
+.faq-a-body a { color: var(--accent); font-weight: 500; }
+.faq-a-body a:hover { text-decoration: underline; }
+.faq-a-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  background: var(--tint);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 2px 6px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.faq-item.open .faq-a { grid-template-rows: 1fr; }
+
+/* ---------- CTA callout (family: tinted, centered) ---------- */
+.cta { background: var(--tint); padding: 96px 0 124px; text-align: center; }
+/* combined showcase: the flow band's streaming text + the hero-style app icon, one bottom moment */
+.cta-showcase { margin: 0 auto 48px; }
+.cta .h-section { margin-bottom: 18px; }
+.cta .copy { max-width: 380px; margin: 0 auto 44px; font-size: 17px; line-height: 26px; letter-spacing: -0.22px; }
+.cta-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+/* ---------- footer ---------- */
+footer { padding: 68px 0 80px; }
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  letter-spacing: -0.09px;
+  color: var(--muted);
+}
+.footer-inner a { color: var(--body); font-weight: 500; transition: color 140ms ease; }
+.footer-inner a:hover { color: var(--accent); }
+.footer-links { display: flex; gap: 20px; }
+
+/* ---------- scroll reveal (gated behind .js so no-JS users see everything) ---------- */
+html.js .rv {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out);
+}
+html.js .rv.in { opacity: 1; transform: none; }
+.rv-d1 { transition-delay: 80ms; }
+.rv-d2 { transition-delay: 160ms; }
+.rv-d3 { transition-delay: 240ms; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .split-grid, .split-grid.media-left { grid-template-columns: 1fr; gap: 40px; }
+  .split-grid.media-left .split-copy { order: 1; }
+  .split-grid.media-left .split-media { order: 2; }
+  .split-copy .h-section, .split-copy .lead, .split-copy .copy { max-width: 560px; }
+  .split { padding: 76px 0; }
+  .how { padding: 90px 0 80px; }
+  .steps { grid-template-columns: 1fr; }
+  .featgrid { padding: 76px 0; }
+  .featgrid-grid { grid-template-columns: 1fr; gap: 40px; }
+  .details, .faq { padding: 80px 0; }
+  .cta { padding: 84px 0 96px; }
+  .cta-showcase { margin-bottom: 36px; }
+  .split-media { min-height: 340px; }
+  .flow-stage { height: 200px; }
+  .flow-text { font-size: 17px; }
+  .flow-icon { gap: 14px; }
+  .flow-chip { font-size: 12px; padding: 5px 12px; top: calc(50% - 118px); }
+  .show-stage { height: 232px; }
+}
+@media (max-width: 640px) {
+  .nav-inner { gap: 10px; }
+  .nav-home { display: none; }               /* "How to install" moves into the burger menu on mobile */
+  .nav-burger { display: inline-flex; }
+  .nav-links {
+    position: absolute; top: 72px; left: 0; right: 0;
+    flex-direction: column; gap: 0;
+    background: rgba(255, 255, 255, .98);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+    padding: 6px 24px 14px;
+    transform: translateY(-8px); opacity: 0; pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  .nav-links.open { transform: none; opacity: 1; pointer-events: auto; }
+  .nav-links a { padding: 13px 2px; font-size: 16px; border-bottom: 1px solid var(--line); }
+  .nav-links a:last-child { border-bottom: 0; }
+  .nav-links .home-link { display: block; }
+  .nav-actions { gap: 6px; }
+  .nav-actions .btn-sm { padding: 0 12px; }
+  .hero { padding: 108px 0 24px; }
+  .footer-inner { flex-direction: column; align-items: flex-start; }
+  .mock-float { right: 4px; }
+  /* keep the demo-card header on one tidy line each on narrow screens */
+  .mock-head { font-size: 11px; gap: 7px; }
+  .mock-status, .mock-lang { white-space: nowrap; }
+  .mode-show { margin-bottom: 40px; }
+  .show-stage { height: 288px; }
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .rv { opacity: 1; transform: none; transition: none; }
+  .wave i, .cta img, .flow-chip { animation: none; }
+  .eq i { animation: none; }   /* static icon + bars + layers, no pulsing (hero + CTA showcase) */
+  .di-save .confetti-bit { display: none; }   /* no confetti under reduced motion */
+  .langs-track { animation-duration: 160s; }  /* keep a gentle drift, no jarring motion */
+  .step, .btn, .mock-card, .dict-row, .fact, .nav-brand img { transition: none; }
+  .faq-a, .faq-q svg { transition: none; }
+  /* demo cards: show final static state, no timed flow (chips still clickable) */
+  .mock-src, .out-text, .mock-lang, .mock-pop, .mock-pop .pop-text, .mock-doc .hl, .mock-float, .mock-pop-wrap { transition: none; }
+  .out-text.pending { opacity: 1; transform: none; }
+  .src-word, .out-word { opacity: 1; transform: none; transition: none; }
+  .mock-doc .hl { background-size: 100% 100%; }
+  .mock-float { opacity: 1; transform: none; }
+  .mock-pop { opacity: 1; transform: none; }
+  .mock-doc.popped .mock-pop-wrap { grid-template-rows: 1fr; }   /* panel open, no height animation */
+  .di-save, .dict-row { transition: none; }
+  /* mode showcase: no auto-rotate — panes swap instantly via the step boxes, no progress
+     line, no blinking caret on the dictation card */
+  .show-pane, button.step { transition: none; }
+  .tab-prog { display: none; }
+  #speakCard .mock-src.caret::after { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!--NAV:START-->
+<nav class="nav" id="nav" aria-label="Main">
+  <div class="container nav-inner">
+    <a class="nav-brand" href="#top">
+      <img src="logo.png" alt="Momo Whisper" width="28" height="28">
+      <span class="brand-name">Momo Whisper</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#faq">FAQ</a>
+      <a href="story.html">Story</a>
+      <a class="home-link" href="install.html">How to install</a>
+    </div>
+    <div class="nav-actions">
+      <a class="btn btn-secondary btn-sm nav-home" href="install.html">How to install</a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip" target="_blank" rel="noopener">Download</a>
+      <button class="nav-burger" id="navBurger" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<!--NAV:END-->
+
+<span id="top" aria-hidden="true"></span>
+<div id="nav-sentinel" aria-hidden="true" style="position:absolute;top:8px;height:1px;width:1px;"></div>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="container">
+      <!-- premium streaming showcase up top (same flow-band as the CTA): speech flows into
+           Momo, the translation flows out the other side; the icon stays the anchor -->
+      <div class="hero-flow rv" aria-hidden="true">
+        <div class="flow-stage">
+          <svg class="flow-svg" viewBox="0 0 980 168" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="presentation">
+            <defs>
+              <path id="curveInTop" class="curve" d="M -160 90 L 490 90"/>
+              <path id="curveOutTop" class="curve" d="M 490 90 L 1140 90"/>
+            </defs>
+            <text class="flow-text raw">
+              <textPath href="#curveInTop" xlink:href="#curveInTop" startOffset="0">明日の会議は午後2時からです　·　오늘 안에 파일 보내 주세요　·　这个版本明天就能上线　·　¿Me mandas el informe esta tarde?　·　明日の会議は午後2時からです　·　오늘 안에 파일 보내 주세요　·　这个版本明天就能上线　·　¿Me mandas el informe esta tarde?　·
+                <animate attributeName="startOffset" from="0" to="0" dur="40s" repeatCount="indefinite" calcMode="linear"/>
+              </textPath>
+            </text>
+            <text class="flow-text clean">
+              <textPath href="#curveOutTop" xlink:href="#curveOutTop" startOffset="0">Tomorrow's meeting starts at 2pm.　·　กรุณาส่งไฟล์ภายในวันนี้　·　Esta versión se puede lanzar mañana.　·　今日の午後に報告書を送ってくれますか？　·　Tomorrow's meeting starts at 2pm.　·　กรุณาส่งไฟล์ภายในวันนี้　·　Esta versión se puede lanzar mañana.　·　今日の午後に報告書を送ってくれますか？　·
+                <animate attributeName="startOffset" from="0" to="0" dur="40s" repeatCount="indefinite" calcMode="linear"/>
+              </textPath>
+            </text>
+          </svg>
+          <div class="flow-chip"><span class="fc-src">日本語</span><span class="fc-arrow"> → </span><span class="fc-tgt">English</span></div>
+          <div class="flow-icon">
+            <span class="eq eq-left"><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="icon-stack">
+              <span class="layer layer-2"></span>
+              <span class="layer layer-1"></span>
+              <span class="tile"><img src="logo.png" alt="Momo Whisper" width="84" height="84"></span>
+            </span>
+            <span class="eq eq-right"><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+        </div>
+      </div>
+      <h1 class="h-hero rv rv-d1">Your favorite way to talk to your&nbsp;Mac.</h1>
+      <p class="lead rv rv-d1">Hold <span class="kbd">Fn</span> to dictate. Hold <span class="kbd">Fn</span><span class="kbd">⇧</span> to translate. Highlight any text to translate it in place.</p>
+      <div class="hero-ctas rv rv-d2">
+        <a class="btn btn-primary" href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 21h16"/></svg>
+          Download for macOS
+        </a>
+        <a class="btn btn-secondary" href="install.html">How to install</a>
+      </div>
+    </div>
+
+    <div class="langs" aria-hidden="true">
+      <div class="langs-viewport">
+        <div class="langs-track" id="langsTrack">
+          <!-- 4 identical copies: the track always overflows the viewport on BOTH
+               sides across the whole shift range, so no blank edge ever shows -->
+          <ul class="langs-set">
+            <li>ไทย</li><li>English</li><li>日本語</li><li>中文</li><li>한국어</li><li>Español</li><li>Français</li><li>Deutsch</li><li>Português</li><li>Italiano</li><li>Tiếng Việt</li><li>Bahasa</li><li>हिन्दी</li><li>العربية</li><li>Русский</li><li>Türkçe</li>
+          </ul>
+          <ul class="langs-set" aria-hidden="true">
+            <li>ไทย</li><li>English</li><li>日本語</li><li>中文</li><li>한국어</li><li>Español</li><li>Français</li><li>Deutsch</li><li>Português</li><li>Italiano</li><li>Tiếng Việt</li><li>Bahasa</li><li>हिन्दी</li><li>العربية</li><li>Русский</li><li>Türkçe</li>
+          </ul>
+          <ul class="langs-set" aria-hidden="true">
+            <li>ไทย</li><li>English</li><li>日本語</li><li>中文</li><li>한국어</li><li>Español</li><li>Français</li><li>Deutsch</li><li>Português</li><li>Italiano</li><li>Tiếng Việt</li><li>Bahasa</li><li>हिन्दी</li><li>العربية</li><li>Русский</li><li>Türkçe</li>
+          </ul>
+          <ul class="langs-set" aria-hidden="true">
+            <li>ไทย</li><li>English</li><li>日本語</li><li>中文</li><li>한국어</li><li>Español</li><li>Français</li><li>Deutsch</li><li>Português</li><li>Italiano</li><li>Tiếng Việt</li><li>Bahasa</li><li>हिन्दी</li><li>العربية</li><li>Русский</li><li>Türkçe</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="how" id="how">
+    <div class="container">
+      <h2 class="h-section rv">One key. Every app on your&nbsp;Mac.</h2>
+      <p class="copy rv rv-d1">No windows to open, nothing to copy around. Speak, and Momo cleans up the messy bits before the words land right where your cursor is.</p>
+
+      <!-- the section's star: ONE preview that auto-rotates through the app's 3 modes.
+           Fn (raw dictation: speech typed out verbatim) → ⇧ Fn (speak → translated) →
+           Highlight (translate in place). The three step boxes BELOW are the selectors. -->
+      <div class="mode-show rv rv-d2" id="modeShow">
+        <div class="show-stage">
+
+          <!-- mode 1 · Fn: raw dictation — whatever you say gets typed out, exactly as spoken -->
+          <div class="show-pane on" id="showPane0" role="tabpanel" aria-labelledby="stepBtn0">
+            <div class="mock-card" id="speakCard">
+              <div class="mock-head" aria-hidden="true"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span> <span class="mock-status">Fn held</span> <span class="mock-lang" aria-hidden="true">Thai detected</span></div>
+              <p class="mock-src">เดี๋ยวสรุปประชุมส่งให้ในแชทนะครับ</p>
+            </div>
+          </div>
+
+          <!-- mode 2 · ⇧ Fn: speak-to-translate — same card treatment as mode 1, source
+               language auto-detected, English out word-by-word -->
+          <div class="show-pane" id="showPane1" role="tabpanel" aria-labelledby="stepBtn1">
+            <div class="mock-card" id="xlateHow">
+              <div class="mock-head" aria-hidden="true"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span> <span class="mock-status">Fn + Shift held</span> <span class="mock-lang" aria-hidden="true">Thai detected</span></div>
+              <p class="mock-src">"ช่วยส่งไฟล์ให้ภายในวันนี้นะครับ"</p>
+              <div class="mock-out">
+                <span class="mock-badge">EN</span>
+                <span class="out-text pending">Could you send me the file within today?</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- mode 3 · Highlight: select → 文A button → translation panel slides out in place -->
+          <div class="show-pane" id="showPane2" role="tabpanel" aria-labelledby="stepBtn2">
+            <div class="mock-card mock-doc" id="howHl">
+              <p aria-hidden="true"><span class="hl">Can we move tomorrow's call to 2pm?</span> Let me know!</p>
+              <div class="mock-float" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h9M8 5v3M6 11c1.5 3.5 4 6 7 8"/><path d="M13 11c-1 2.5-3 5-6 7"/><path d="M15 19l3-8 3 8M16 17h4"/></svg>
+              </div>
+              <div class="mock-pop-wrap">
+                <div class="mock-pop-inner">
+                  <div class="mock-pop">
+                    <span class="pop-text">ขอเลื่อนสายพรุ่งนี้ไปบ่ายสองได้ไหมคะ</span>
+                    <div class="langs-row" role="tablist" aria-label="Target language">
+                      <button type="button" class="chip on" role="tab" aria-selected="true">TH</button><button type="button" class="chip" role="tab" aria-selected="false">JA</button><button type="button" class="chip" role="tab" aria-selected="false">ZH</button><button type="button" class="chip" role="tab" aria-selected="false">KO</button><span class="chip more" aria-hidden="true">+12</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- the three step boxes double as the showcase's selectors: click one to jump the
+           preview to that mode (the active box is highlighted + carries the progress line) -->
+      <div class="steps" role="tablist" aria-label="Momo's three modes">
+        <button type="button" class="step on rv" role="tab" id="stepBtn0" aria-selected="true" aria-controls="showPane0">
+          <div class="step-keys"><span class="kbd">Fn</span></div>
+          <h3>Hold to dictate</h3>
+          <p>Speak while holding Fn. Release, and Whisper types the transcript into whatever app you're in.</p>
+          <span class="tab-prog" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="step rv rv-d1" role="tab" id="stepBtn1" aria-selected="false" aria-controls="showPane1">
+          <div class="step-keys"><span class="kbd">Fn</span><span class="kbd">⇧</span></div>
+          <h3>Hold to translate</h3>
+          <p>Same thing, but your speech comes out translated into the language you picked.</p>
+          <span class="tab-prog" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="step rv rv-d2" role="tab" id="stepBtn2" aria-selected="false" aria-controls="showPane2">
+          <div class="step-keys"><span class="kbd">Highlight</span></div>
+          <h3>Select to translate</h3>
+          <p>Highlight text in any app and click the floating button. The translation appears in place.</p>
+          <span class="tab-prog" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SPLIT A · SPEAK TO TRANSLATE ============ -->
+  <section class="split" id="features">
+    <div class="container split-grid">
+      <div class="split-copy rv">
+        <p class="eyebrow">Speak to Translate</p>
+        <h2 class="h-section">Speak any language. Type&nbsp;another.</h2>
+        <p class="lead">Hold Fn+Shift and talk. Your words come out translated into any of 16 languages, with the source auto-detected.</p>
+        <ul class="checks">
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>16 languages, auto-detected source</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Types right where your cursor is</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Thai, Japanese, Chinese, Korean &amp; more</li>
+        </ul>
+      </div>
+      <div class="split-media rv rv-d1">
+        <!-- its own live loop — a different language set/cadence from the hero card so the two
+             demos feel distinct, not cloned (European languages here, Asian up top) -->
+        <div class="mock-card" id="xlateCard2">
+          <div class="mock-head" aria-hidden="true"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span> <span class="mock-status">Fn + Shift held</span> <span class="mock-lang" aria-hidden="true">Spanish detected</span></div>
+          <p class="mock-src">"¿Puedes enviarme el informe hoy?"</p>
+          <div class="mock-out">
+            <span class="mock-badge">EN</span>
+            <span class="out-text pending">Can you send me the report today?</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SPLIT B · HIGHLIGHT TO TRANSLATE ============ -->
+  <section class="split">
+    <div class="container split-grid media-left">
+      <div class="split-copy rv">
+        <p class="eyebrow">Highlight to Translate</p>
+        <h2 class="h-section">Highlight any text. Translated in&nbsp;place.</h2>
+        <p class="lead">Select text in any app and click the floating button. The translation appears right next to it.</p>
+        <p class="copy">Pick any of the 16 target languages right in the popup. Works in your browser, chat, docs, anywhere text can be selected.</p>
+      </div>
+      <div class="split-media rv rv-d1">
+        <div class="mock-card mock-doc" id="hlCard">
+          <p aria-hidden="true"><span class="hl">明日の打ち合わせは午後2時に変更になりました。</span>よろしくお願いします。</p>
+          <div class="mock-float" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h9M8 5v3M6 11c1.5 3.5 4 6 7 8"/><path d="M13 11c-1 2.5-3 5-6 7"/><path d="M15 19l3-8 3 8M16 17h4"/></svg>
+          </div>
+          <div class="mock-pop-wrap">
+            <div class="mock-pop-inner">
+              <div class="mock-pop">
+                <span class="pop-text">Tomorrow's meeting has been moved to 2pm.</span>
+                <div class="langs-row" role="tablist" aria-label="Target language">
+                  <button type="button" class="chip on" role="tab" aria-selected="true">EN</button><button type="button" class="chip" role="tab" aria-selected="false">TH</button><button type="button" class="chip" role="tab" aria-selected="false">ZH</button><button type="button" class="chip" role="tab" aria-selected="false">KO</button><span class="chip more" aria-hidden="true">+12</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TINTED FEATURE GRID ============ -->
+  <section class="featgrid">
+    <div class="container featgrid-grid">
+      <div class="feat rv">
+        <span class="feat-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>
+        <h3>Fast with Groq</h3>
+        <p>whisper-large-v3 for speech, gpt-oss-120b for translation. One Groq key powers it all, with a generous free tier and quota-aware fallback.</p>
+      </div>
+      <div class="feat rv rv-d1">
+        <span class="feat-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7.5 14h9"/></svg></span>
+        <h3>Global Hotkey</h3>
+        <p>Fn hold-to-talk by default, fully rebindable to any modifier or combo. Lives in the menu bar, no Dock clutter.</p>
+      </div>
+      <div class="feat rv">
+        <span class="feat-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M8.5 4h7M8.5 20h7"/></svg></span>
+        <h3>Types Anywhere</h3>
+        <p>Clipboard-safe auto-paste into whatever app you're in, with a live waveform and status overlay while it works.</p>
+      </div>
+      <div class="feat rv rv-d1">
+        <span class="feat-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.2-3 7.4-7 8.5-4-1.1-7-4.3-7-8.5V6l7-3z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></span>
+        <h3>Light &amp; Private</h3>
+        <p>Pure Swift, no Electron. Your key is stored locally and your audio and text only ever go to the Groq call you configured.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SPLIT C · TONE CONTROL ============ -->
+  <section class="split">
+    <div class="container split-grid">
+      <div class="split-copy rv">
+        <p class="eyebrow">Tone Control</p>
+        <h2 class="h-section">The right words for the&nbsp;moment.</h2>
+        <p class="lead">Six tones for Thai and English: Email, Professional, Workplace Chat, Casual, AI-prompt, and No-filter.</p>
+        <p class="copy">Other languages translate in a clean, natural style. Pick a tone once and every dictation comes out sounding like it should.</p>
+      </div>
+      <div class="split-media rv rv-d1">
+        <div class="mock-card" id="toneCard">
+          <div class="tone-chips demo-tabs" role="tablist" aria-label="Tone">
+            <button type="button" class="chip on" role="tab" aria-selected="true" aria-controls="tonePanel">Email</button><button type="button" class="chip" role="tab" aria-selected="false" aria-controls="tonePanel">Professional</button><button type="button" class="chip" role="tab" aria-selected="false" aria-controls="tonePanel">Chat</button><button type="button" class="chip" role="tab" aria-selected="false" aria-controls="tonePanel">Casual</button><button type="button" class="chip" role="tab" aria-selected="false" aria-controls="tonePanel">AI-prompt</button><button type="button" class="chip" role="tab" aria-selected="false" aria-controls="tonePanel">No-filter</button>
+          </div>
+          <div id="tonePanel" role="tabpanel" aria-label="Tone example">
+            <p class="mock-src">"บอกทีมด้วยว่าเดดไลน์เลื่อนไปศุกร์หน้า"</p>
+            <div class="mock-out">
+              <span class="mock-badge">EN</span>
+              <span class="out-text pending">Hi team, please note the deadline has been moved to next Friday.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SPLIT D · LEARNS YOUR WORDS ============ -->
+  <section class="split">
+    <div class="container split-grid media-left">
+      <div class="split-copy rv">
+        <p class="eyebrow">Learns Your Words</p>
+        <h2 class="h-section">It learns the words you actually&nbsp;use.</h2>
+        <p class="lead">A custom dictionary fixes names and jargon the recognizer keeps missing.</p>
+        <p class="copy">Teach a word once and it catches the mis-spellings from then on. Product names, teammates, Thai nicknames, all of it.</p>
+      </div>
+      <div class="split-media rv rv-d1" aria-hidden="true">
+        <div class="dict-panel" id="dictCard">
+          <div class="dict-input ready" aria-hidden="true">
+            <span class="di-from">คลอส</span>
+            <span class="di-arrow">→</span>
+            <span class="di-to">Claude</span>
+            <button class="di-save" type="button" tabindex="-1"><span class="di-save-label">Save</span><svg class="di-save-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></button>
+          </div>
+          <div class="dict-list">
+            <div class="dict-row"><span class="from">mo mo whisper</span><span class="arrow">→</span><span class="to">Momo Whisper</span></div>
+            <div class="dict-row"><span class="from">grok</span><span class="arrow">→</span><span class="to">Groq</span></div>
+            <div class="dict-row"><span class="from">figma jam</span><span class="arrow">→</span><span class="to">FigJam</span></div>
+            <div class="dict-row"><span class="from">สวิฟท์ ยูไอ</span><span class="arrow">→</span><span class="to">SwiftUI</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DETAILS ============ -->
+  <section class="details">
+    <div class="container">
+      <h2 class="h-section rv">Light, private, yours.</h2>
+      <p class="copy rv rv-d1">A native menu-bar app that stays out of the way. Free and open source, with your key stored on your Mac.</p>
+      <div class="facts rv rv-d2">
+        <span class="fact">macOS 13+</span>
+        <span class="fact">Free &amp; open source</span>
+        <span class="fact">Pure Swift, no Electron</span>
+        <span class="fact">Bring your own Groq key</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="faq" id="faq">
+    <div class="container">
+      <h2 class="h-section rv">Frequently asked questions</h2>
+      <div class="faq-list rv rv-d1">
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-1">
+            How do I install it?
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq-a" id="faq-a-1">
+            <div class="faq-a-inner"><div class="faq-a-body">
+              <p><a href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip" target="_blank" rel="noopener">Download Momo Whisper</a>, unzip, and drag it into your Applications folder. New to installing apps outside the App Store? Follow the <a href="install.html">full step-by-step install guide</a>.</p>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-2">
+            macOS says "Apple could not verify…". What now?
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq-a" id="faq-a-2">
+            <div class="faq-a-inner"><div class="faq-a-body">
+              <p>Expected on any app that isn't paid-notarized. Do this once and it opens normally forever after:</p>
+              <ol>
+                <li>Double-click the app, then click <strong>Done</strong> on the warning.</li>
+                <li>Open System Settings → Privacy &amp; Security.</li>
+                <li>Scroll to "Momo Whisper was blocked…" and click <strong>Open Anyway</strong>.</li>
+              </ol>
+              <p>Or in Terminal: <code>xattr -dr com.apple.quarantine "/Applications/Momo Whisper.app"</code></p>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-3">
+            What permissions does it need?
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq-a" id="faq-a-3">
+            <div class="faq-a-inner"><div class="faq-a-body">
+              <p><strong>Microphone</strong> so it can hear you dictate, and <strong>Accessibility</strong> so it can type the result into other apps.</p>
+              <p><strong>Speech Recognition</strong> is recommended but optional: it enables faster, more accurate on-device transcription, and that audio stays on your Mac.</p>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-4">
+            Do I need an API key?
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq-a" id="faq-a-4">
+            <div class="faq-a-inner"><div class="faq-a-body">
+              <p>Yes, one free Groq key powers everything. Get it at <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> and paste it into Settings (or set <code>GROQ_API_KEY</code> in <code>~/.zshrc</code>). Groq's free tier is generous for daily dictation.</p>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-5">
+            Is my audio private?
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq-a" id="faq-a-5">
+            <div class="faq-a-inner"><div class="faq-a-body">
+              <p>Your key is stored locally, and your audio and text only ever go to the Groq call you configured. No analytics on your speech, no third parties, no Electron.</p>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-6">
+            Is it free?
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq-a" id="faq-a-6">
+            <div class="faq-a-inner"><div class="faq-a-body">
+              <p>Yes. Momo Whisper is free and open source, built on <a href="https://github.com/Gamezxz/WhisperApp" target="_blank" rel="noopener">WhisperApp</a> by Gamezxz (MIT). You only bring your own Groq key.</p>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-7">
+            Does it work with Thai?
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq-a" id="faq-a-7">
+            <div class="faq-a-inner"><div class="faq-a-body">
+              <p>Yes, Thai is what it was built for. Dictate in Thai, or hold Fn+Shift to speak Thai and get English typed out (or the other way round). Six tones cover Thai and English, and the custom dictionary handles Thai names and nicknames. It also works with Japanese, Chinese, Korean, Spanish and 10 more, 16 languages in all.</p>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-8">
+            Does it translate while I speak?
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq-a" id="faq-a-8">
+            <div class="faq-a-inner"><div class="faq-a-body">
+              <p>Hold Fn+Shift and talk. When you release, Momo Whisper types your words already translated into the language you picked, right where your cursor is. For text that's already on screen, highlight it and click the floating button to translate it in place.</p>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-9">
+            How is it different from Superwhisper or Wispr Flow?
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq-a" id="faq-a-9">
+            <div class="faq-a-inner"><div class="faq-a-body">
+              <p>They're all Mac dictation apps. Momo Whisper is a small, free one focused on translation: speak in one language and type another, highlight-to-translate in any app, and tones for Thai and English. It runs on your own free Groq key.</p>
+            </div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA (combined showcase: flow band + hero-style app icon) ============ -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta-showcase rv" aria-hidden="true">
+        <div class="flow-stage">
+          <svg class="flow-svg" id="flowSvg" viewBox="0 0 980 168" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="presentation">
+            <defs>
+              <!-- straight horizontal lines at y=90 (nudged below viewBox center 84 so the
+                   21px glyphs sit optically centered in the band): source languages stream in
+                   from the left, their English translations stream out to the right -->
+              <path id="curveIn" class="curve" d="M -160 90 L 490 90"/>
+              <path id="curveOut" class="curve" d="M 490 90 L 1140 90"/>
+            </defs>
+            <!-- one "copy" = the 4-phrase sequence; source and TARGET both vary
+                 (JA→EN · KO→TH · ZH→ES · ES→JA), written twice for the seamless one-copy shift -->
+            <text class="flow-text raw">
+              <textPath id="tpIn" href="#curveIn" xlink:href="#curveIn" startOffset="0">明日の会議は午後2時からです　·　오늘 안에 파일 보내 주세요　·　这个版本明天就能上线　·　¿Me mandas el informe esta tarde?　·　明日の会議は午後2時からです　·　오늘 안에 파일 보내 주세요　·　这个版本明天就能上线　·　¿Me mandas el informe esta tarde?　·
+                <animate id="animIn" attributeName="startOffset" from="0" to="0" dur="40s" repeatCount="indefinite" calcMode="linear"/>
+              </textPath>
+            </text>
+            <text class="flow-text clean">
+              <textPath id="tpOut" href="#curveOut" xlink:href="#curveOut" startOffset="0">Tomorrow's meeting starts at 2pm.　·　กรุณาส่งไฟล์ภายในวันนี้　·　Esta versión se puede lanzar mañana.　·　今日の午後に報告書を送ってくれますか？　·　Tomorrow's meeting starts at 2pm.　·　กรุณาส่งไฟล์ภายในวันนี้　·　Esta versión se puede lanzar mañana.　·　今日の午後に報告書を送ってくれますか？　·
+                <animate id="animOut" attributeName="startOffset" from="0" to="0" dur="40s" repeatCount="indefinite" calcMode="linear"/>
+              </textPath>
+            </text>
+          </svg>
+          <div class="flow-chip"><span class="fc-src">日本語</span><span class="fc-arrow"> → </span><span class="fc-tgt">English</span></div>
+          <div class="flow-icon">
+            <span class="eq eq-left"><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="icon-stack">
+              <span class="layer layer-2"></span>
+              <span class="layer layer-1"></span>
+              <span class="tile"><img src="logo.png" alt="" width="84" height="84"></span>
+            </span>
+            <span class="eq eq-right"><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+        </div>
+      </div>
+      <h2 class="h-section rv rv-d1">Start talking to your&nbsp;Mac.</h2>
+      <p class="copy rv rv-d2">Download, paste a free Groq key, hold Fn. You're dictating in under a minute.</p>
+      <div class="cta-actions rv rv-d3">
+        <a class="btn btn-primary" href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 21h16"/></svg>
+          Download for macOS
+        </a>
+        <a class="btn btn-secondary" href="install.html">How to install</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <span>momo whisper, by <a href="https://github.com/Nabhak" target="_blank" rel="noopener">nabhak</a> · built on <a href="https://github.com/Gamezxz/WhisperApp" target="_blank" rel="noopener">whisper</a> by gamezxz</span>
+    <span class="footer-links">
+      <a href="install.html">how to install</a>
+      <a href="story.html">story</a>
+      <a href="https://github.com/Nabhak/Momo-Whisper" target="_blank" rel="noopener">github</a>
+      <a href="https://github.com/Nabhak/Momo-Whisper/releases" target="_blank" rel="noopener">releases</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- sticky nav border (IO sentinel, no scroll listener) ---------- */
+  var nav = document.getElementById('nav');
+  var sentinel = document.getElementById('nav-sentinel');
+  if (nav && sentinel && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      nav.classList.toggle('scrolled', !entries[0].isIntersecting);
+    }).observe(sentinel);
+  }
+
+  /* mobile hamburger — toggle the nav-links dropdown */
+  var burger = document.getElementById('navBurger');
+  var navLinks = document.getElementById('navLinks');
+  if (burger && navLinks) {
+    burger.addEventListener('click', function () {
+      var open = navLinks.classList.toggle('open');
+      burger.classList.toggle('open', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    navLinks.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A') { navLinks.classList.remove('open'); burger.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); }
+    });
+  }
+
+  /* ---------- scroll reveals ---------- */
+  var targets = document.querySelectorAll('.rv:not(.in)');
+  if (reduceMotion || !('IntersectionObserver' in window)) {
+    targets.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+    targets.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ---------- FAQ accordion ---------- */
+  document.querySelectorAll('.faq-item').forEach(function (item) {
+    var btn = item.querySelector('.faq-q');
+    btn.addEventListener('click', function () {
+      var open = item.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+
+  /* ---------- streaming flow-band (both the hero AND the CTA use it) ----------
+     Shift startOffset by exactly ONE repeated copy (= the 4-phrase multilingual
+     sequence) so the loop is seamless regardless of the path shape. Runs for EVERY
+     .flow-svg on the page, keyed off each svg's own textPaths (no shared ids). */
+  var flowSvgs = Array.prototype.slice.call(document.querySelectorAll('.flow-svg'));
+  if (flowSvgs.length) {
+    var COPIES = 2;
+    function setupPath(tp) {
+      if (!tp) return;
+      var anim = tp.querySelector('animate');
+      if (!anim) return;
+      var total = 0;
+      try { total = tp.getComputedTextLength(); } catch (e) { total = 0; }
+      if (!total) return;
+      var one = total / COPIES;               // length of a single sentence copy
+      tp.setAttribute('startOffset', -one);   // pre-fill from before the path start
+      anim.setAttribute('from', -one);
+      anim.setAttribute('to', 0);             // glyphs travel +path direction (in / out of the icon)
+    }
+    function initOneFlow(svg) {
+      Array.prototype.slice.call(svg.querySelectorAll('textPath')).forEach(setupPath);
+      try { svg.setCurrentTime(0); } catch (e) {}
+      if (reduceMotion) {
+        /* freeze on a tasteful static frame */
+        try { svg.setCurrentTime(6); svg.pauseAnimations(); } catch (e) {}
+      }
+    }
+    function initFlow() { flowSvgs.forEach(initOneFlow); }
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(initFlow);
+      /* fallback if fonts.ready never settles */
+      setTimeout(initFlow, 1200);
+    } else {
+      setTimeout(initFlow, 300);
+    }
+    /* pause every SVG timeline when tab is hidden (saves cycles) */
+    document.addEventListener('visibilitychange', function () {
+      if (reduceMotion) return;
+      flowSvgs.forEach(function (svg) {
+        try { document.hidden ? svg.pauseAnimations() : svg.unpauseAnimations(); } catch (e) {}
+      });
+    });
+  }
+
+  /* language chip above each flow-band icon: gently cycles BOTH the source and target
+     language (target isn't always English — matches the varied phrases in the outgoing
+     stream). Runs for every .flow-chip; static "日本語 → English" under reduced motion. */
+  Array.prototype.slice.call(document.querySelectorAll('.flow-chip')).forEach(function (chip) {
+    var fcSrc = chip.querySelector('.fc-src');
+    var fcTgt = chip.querySelector('.fc-tgt');
+    if (!fcSrc || !fcTgt || reduceMotion) return;
+    var fcPairs = [
+      { src: '日本語',   tgt: 'English' },
+      { src: '한국어',   tgt: 'ไทย' },
+      { src: '中文',     tgt: 'Español' },
+      { src: 'Español',  tgt: '日本語' }
+    ];
+    var fcIdx = 0;
+    setInterval(function () {
+      if (document.hidden) return;
+      fcIdx = (fcIdx + 1) % fcPairs.length;
+      fcSrc.classList.add('fade');
+      fcTgt.classList.add('fade');
+      setTimeout(function () {
+        fcSrc.textContent = fcPairs[fcIdx].src;
+        fcTgt.textContent = fcPairs[fcIdx].tgt;
+        fcSrc.classList.remove('fade');
+        fcTgt.classList.remove('fade');
+      }, 300);
+    }, 3600);
+  });
+
+  /* ---------- flow demo (Speak + Tone): source + live mic → beat → translation loads ----------
+     Speak card auto-loops through source languages (no picker). Tone card keeps its
+     tone tabs (clickable pins a tone). Fixed card size, pause off-screen/hidden,
+     reduced-motion shows the final state statically. */
+  function flowDemo(cardId, items, opts) {
+    var card = document.getElementById(cardId);
+    if (!card) return;
+    var tabs = Array.prototype.slice.call(card.querySelectorAll('[role="tab"]'));
+    var srcEl = card.querySelector('.mock-src');
+    var outEl = card.querySelector('.mock-out');
+    var outText = card.querySelector('.out-text');
+    var langEl = card.querySelector('.mock-lang');
+    if (!opts.raw && (!outEl || !outText)) return;   /* raw dictation cards have no output row */
+    var srcChanges = !!opts.srcChanges;
+    var idx = -1, timer = null, stopped = false, inView = true, seq = 0;
+
+    function setTabs(i) {
+      tabs.forEach(function (t, k) {
+        t.classList.toggle('on', k === i);
+        t.setAttribute('aria-selected', k === i ? 'true' : 'false');
+      });
+    }
+    var typeT = null, outT = null;
+    /* reveal the ENGLISH OUTPUT WORD BY WORD — each word chunk pops in (like live dictation),
+       not per-character. `.revealing` kills the block fade so only the words animate. */
+    function revealOutputWords(text, mySeq) {
+      outText.classList.remove('pending');
+      outText.classList.add('revealing');
+      outText.textContent = '';
+      var words = text.split(' ');
+      var n = 0;
+      (function step() {
+        if (mySeq !== seq) return;
+        /* the space goes BETWEEN word spans as a text node — a leading space inside an
+           inline-block collapses, which would run the words together */
+        if (n > 0) outText.appendChild(document.createTextNode(' '));
+        var w = document.createElement('span');
+        w.className = 'out-word';
+        w.textContent = words[n];
+        outText.appendChild(w);
+        requestAnimationFrame(function () { if (mySeq === seq) w.classList.add('in'); });
+        n++;
+        if (n < words.length) { outT = setTimeout(step, 135); }
+      })();
+    }
+    /* reveal the spoken source WORD BY WORD (each recognised word pops in). For a RAW
+       dictation card (opts.raw) the transcript itself IS the result: no wrapping quotes,
+       and a live caret blinks at the tail while the words land, then clears when the
+       speech settles — "speak, and it types exactly that". */
+    function revealWords(item, mySeq, done) {
+      var words = item.words || [item.src.replace(/^"|"$/g, '')];
+      var sep = item.sep || '';
+      srcEl.textContent = '';
+      if (!opts.raw) srcEl.appendChild(document.createTextNode('"'));
+      var wrap = document.createElement('span');
+      srcEl.appendChild(wrap);
+      if (!opts.raw) srcEl.appendChild(document.createTextNode('"'));
+      if (opts.raw) srcEl.classList.add('caret');
+      var n = 0;
+      (function step() {
+        if (mySeq !== seq) return;
+        /* separator as a text node between spans (a leading space inside an inline-block
+           collapses); sep='' for CJK runs the glyphs together, sep=' ' for spaced scripts */
+        if (n > 0 && sep) wrap.appendChild(document.createTextNode(sep));
+        var w = document.createElement('span');
+        w.className = 'src-word';
+        w.textContent = words[n];
+        wrap.appendChild(w);
+        requestAnimationFrame(function () { if (mySeq === seq) w.classList.add('in'); });
+        n++;
+        if (n < words.length) { typeT = setTimeout(step, 165); }
+        else { if (opts.raw) srcEl.classList.remove('caret'); if (done) done(); }
+      })();
+    }
+    function fullSource(item) { return '"' + (item.words ? item.words.join(item.sep || '') : item.src.replace(/^"|"$/g, '')) + '"'; }
+    function rawSource(item) { return item.words ? item.words.join(item.sep || '') : item.src.replace(/^"|"$/g, ''); }
+    function renderStatic(i) {
+      idx = i; setTabs(i);
+      if (srcChanges && srcEl) srcEl.textContent = opts.raw ? rawSource(items[i]) : fullSource(items[i]);
+      if (langEl && items[i].lang) langEl.textContent = items[i].lang + ' detected';
+      card.classList.add('listening');
+      if (opts.raw) return;                                /* raw dictation has no output row */
+      outText.textContent = items[i].out;
+      outText.classList.remove('pending', 'revealing');   /* only the output text — chrome stays put */
+    }
+    function play(i) {
+      var mySeq = ++seq;
+      idx = i; setTabs(i);
+      clearTimeout(typeT); clearTimeout(outT);
+      if (!opts.raw) {
+        outText.classList.remove('revealing');
+        outText.classList.add('pending');       /* hide only the translation SENTENCE */
+      }
+      card.classList.add('listening');          /* mic live + "detected" label */
+      if (langEl && items[i].lang) langEl.textContent = items[i].lang + ' detected';
+
+      function revealTranslation() {
+        if (mySeq !== seq) return;
+        if (opts.raw) return;                   /* raw dictation: the transcript itself IS the result */
+        if (opts.wordOut) {                     /* Speak/Translate card: output reveals WORD BY WORD */
+          revealOutputWords(items[i].out, mySeq);
+          return;
+        }
+        outText.textContent = items[i].out;     /* Tone card: set while hidden, then fade in */
+        requestAnimationFrame(function () { requestAnimationFrame(function () {
+          if (mySeq === seq) outText.classList.remove('pending');
+        }); });
+      }
+
+      if (srcChanges && srcEl) {                /* words pop in → (translation beat, unless raw) */
+        revealWords(items[i], mySeq, function () { if (!opts.raw) setTimeout(revealTranslation, 780); });
+      } else {                                  /* Tone card: source static → brief beat → swap text */
+        setTimeout(revealTranslation, 700);
+      }
+    }
+    function go(i) { if (reduceMotion) renderStatic(i); else play(i); }
+
+    tabs.forEach(function (t, k) {
+      t.addEventListener('click', function () { stopped = true; clearInterval(timer); go(k); });
+    });
+    /* manual mode (hero showcase): no self-timer — the orchestrator calls play() on mode
+       entry. play() already renders the static final frame under reduced motion. */
+    if (opts.manual) return { play: go, count: items.length };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (e) { inView = e[0].isIntersecting; }, { threshold: 0.3 }).observe(card);
+    }
+    if (reduceMotion) { renderStatic(0); return; }
+    go(0);
+    timer = setInterval(function () {
+      if (stopped || document.hidden || !inView) return;
+      go((idx + 1) % items.length);
+    }, opts.period);
+  }
+
+  /* (The old hero translate card was removed — the hero now leads with the streaming flow
+     band, and the rotating mode showcase below covers speak-to-translate live.) */
+
+  /* Speak to Translate — FEATURES card: its OWN loop, European languages + a slower cadence,
+     so it reads as a distinct demo rather than a clone of the hero card. */
+  flowDemo('xlateCard2', [
+    { lang: 'Spanish',    words: ['¿Puedes', 'enviarme', 'el', 'informe', 'hoy?'],       sep: ' ', out: 'Can you send me the report today?' },
+    { lang: 'French',     words: ['Peux-tu', 'relire', 'le', 'document', '?'],           sep: ' ', out: 'Could you proofread the document?' },
+    { lang: 'German',     words: ['Ich', 'schicke', 'dir', 'die', 'Datei', 'gleich'],    sep: ' ', out: "I'll send you the file shortly." },
+    { lang: 'Vietnamese', words: ['Cuộc', 'họp', 'dời', 'sang', '3', 'giờ', 'chiều'],     sep: ' ', out: 'The meeting has moved to 3pm.' }
+  ], { period: 5200, srcChanges: true, wordOut: true });
+
+  /* Tone Control: same Thai source, six English tones (tabs stay clickable) */
+  flowDemo('toneCard', [
+    { out: 'Hi team, please note the deadline has been moved to next Friday.' },
+    { out: 'Please be informed that the deadline has been moved to next Friday.' },
+    { out: 'Heads up team, the deadline moved to next Friday.' },
+    { out: "Hey, the deadline's been pushed to next Friday." },
+    { out: 'Tell the team: the deadline has moved to next Friday.' },
+    { out: 'Tell the team the deadline slipped to next Friday.' }
+  ], { period: 3100, srcChanges: false });
+
+  /* ---------- Highlight to Translate: FULL LOOPING sequence ----------
+     Every language replays the whole product moment, forever:
+       1. source text only — the translation panel is collapsed, nothing below
+       2. the selection highlight SWEEPS across the source
+       3. the 文A translate button pops in and PRESSES (a real tap)
+       4. the panel SLIDES OUT downward, then the translation fades in a beat later
+       5. HOLD → collapse back to stage 1 and replay with the next language.
+     A chip click pins that language + pauses the auto-loop (still replays the full
+     sequence once). Fixed card size (space reserved, the panel animates in place).
+     Reduced motion: static final state — highlighted + panel open + text shown. */
+  function highlightDemo(cardId, langs, opts) {
+    var card = document.getElementById(cardId);
+    if (!card) return;
+    var popText = card.querySelector('.pop-text');
+    var hl = card.querySelector('.hl');
+    var floatBtn = card.querySelector('.mock-float');
+    var chips = Array.prototype.slice.call(card.querySelectorAll('[role="tab"]'));
+    if (!popText) return;
+    var idx = 0, timer = null, stopped = false, inView = true, seq = 0, timers = [];
+
+    var T_CLEAR = 420;      /* stage 1 reads: source only, panel collapsed */
+    var T_SWEEP = 1940;     /* 1800ms drag-select + a landing beat */
+    var T_BTN = 430;        /* button pop-in settles before the press */
+    var T_PRESS = 150;      /* press down… */
+    var T_RELEASE = 300;    /* …spring back, then the panel starts */
+    var T_STAGGER = 160;    /* panel slides out FIRST, text fades in a beat later */
+
+    function setChips(i) {
+      chips.forEach(function (c, k) {
+        c.classList.toggle('on', k === i);
+        c.setAttribute('aria-selected', k === i ? 'true' : 'false');
+      });
+    }
+    function later(fn, ms, mySeq) {
+      timers.push(setTimeout(function () { if (mySeq === seq) fn(); }, ms));
+    }
+    function playCycle(i) {                        /* one full loop pass for language i */
+      var mySeq = ++seq;
+      idx = i; setChips(i);
+      if (reduceMotion) {                          /* static final state, text swaps directly */
+        card.classList.add('floated', 'popped', 'selecting');
+        popText.classList.remove('out');
+        popText.textContent = langs[i].text;
+        return;
+      }
+      timers.forEach(clearTimeout); timers = [];
+      if (floatBtn) floatBtn.classList.remove('press');
+      /* stage 1: source only — panel collapses, button hides, highlight resets */
+      card.classList.remove('floated', 'popped');
+      popText.classList.add('out');
+      if (hl) {
+        hl.style.transition = 'none';
+        card.classList.remove('selecting');        /* reset the highlight to 0% instantly */
+        void hl.offsetWidth;                       /* reflow so the sweep can re-fire */
+        hl.style.transition = '';
+      }
+      later(function () {
+        card.classList.add('selecting');           /* stage 2: highlight sweeps in */
+        later(function () {
+          card.classList.add('floated');           /* the 文A button pops in… */
+          later(function () {
+            if (floatBtn) floatBtn.classList.add('press');    /* stage 3: …and presses */
+            later(function () {
+              if (floatBtn) floatBtn.classList.remove('press');
+              later(function () {
+                popText.textContent = langs[i].text;   /* set while hidden */
+                card.classList.add('popped');          /* stage 4a: panel slides out… */
+                later(function () {
+                  popText.classList.remove('out');     /* stage 4b: …then the text, staggered */
+                }, T_STAGGER, mySeq);
+              }, T_RELEASE, mySeq);
+            }, T_PRESS, mySeq);
+          }, T_BTN, mySeq);
+        }, T_SWEEP, mySeq);
+      }, T_CLEAR, mySeq);
+    }
+
+    setChips(0);
+
+    /* manual mode (hero showcase): no self-timer — the orchestrator calls play() on mode
+       entry. Chips still preview a language on click; playCycle() handles reduced motion. */
+    if (opts.manual) {
+      if (!reduceMotion) popText.classList.add('out');   /* start collapsed (stage 1) */
+      chips.forEach(function (c, k) {
+        c.addEventListener('click', function () { playCycle(k); });
+      });
+      return { play: playCycle, count: langs.length };
+    }
+
+    if (reduceMotion) {                            /* static final state (chips still clickable) */
+      popText.textContent = langs[0].text;
+      card.classList.add('floated', 'popped', 'selecting');
+      chips.forEach(function (c, k) {
+        c.addEventListener('click', function () { playCycle(k); });
+      });
+      return;
+    }
+
+    popText.classList.add('out');                  /* start collapsed (stage 1) */
+
+    chips.forEach(function (c, k) {
+      c.addEventListener('click', function () { stopped = true; clearInterval(timer); playCycle(k); });
+    });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (e) { inView = e[0].isIntersecting; }, { threshold: 0.3 }).observe(card);
+    }
+    playCycle(0);                                  /* first pass plays the full sequence */
+    timer = setInterval(function () {
+      if (stopped || document.hidden || !inView) return;
+      playCycle((idx + 1) % langs.length);
+    }, opts.period);
+  }
+
+  highlightDemo('hlCard', [
+    { text: "Tomorrow's meeting has been moved to 2pm." },
+    { text: 'การประชุมพรุ่งนี้ถูกเลื่อนเป็นบ่ายสองโมง' },
+    { text: '明天的会议已改到下午2点。' },
+    { text: '내일 회의가 오후 2시로 변경되었습니다.' }
+  ], { period: 7200 });
+
+  /* ---------- MODE SHOWCASE (#how): one demo, rotating through the app's 3 modes ----------
+     Fn (dictate: messy speech → polished transcript) → ⇧ Fn (translate: the streaming
+     flow band, always running on its own SVG timeline) → Highlight (select → 文A press →
+     panel slides out), then loops forever. The hotkey pills double as tabs — clicking one
+     jumps there and the rotation continues from it. A thin progress line under the active
+     pill shows the auto-advance. Pauses while the tab is hidden or the section is scrolled
+     away — and mode 1 replays from its start the first time the showcase scrolls into
+     view, so nobody lands mid-animation. Reduced motion: no cycling — each pane holds its
+     finished frame, pills still switch panes statically. */
+  (function modeShowcase() {
+    var root = document.getElementById('modeShow');
+    if (!root) return;
+    /* the three step BOXES (below the stage) double as the tabs — they live in a sibling
+       .steps container, so reach out to the section for them */
+    var section = root.closest('.how') || root.parentNode;
+    var tabs = Array.prototype.slice.call(section.querySelectorAll('.steps .step'));
+    var panes = Array.prototype.slice.call(root.querySelectorAll('.show-pane'));
+    if (tabs.length !== 3 || panes.length !== 3) return;
+
+    /* mode 1 — Fn: RAW dictation. Speak, and it types exactly that — no translation, no
+       cleanup. The source words land verbatim with a live caret (reuses flowDemo raw mode). */
+    var speak = flowDemo('speakCard', [
+      { lang: 'English', words: ['Let’s', 'ship', 'the', 'update', 'today', 'and', 'fix', 'the', 'rest', 'tomorrow.'], sep: ' ' },
+      { lang: 'Thai',    words: ['เดี๋ยว', 'สรุป', 'ประชุม', 'ส่งให้', 'ในแชท', 'นะครับ'], sep: '' },
+      { lang: 'English', words: ['Add', 'a', 'dark', 'mode', 'toggle', 'to', 'the', 'settings', 'screen.'], sep: ' ' }
+    ], { srcChanges: true, raw: true, manual: true });
+
+    /* mode 2 — ⇧ Fn: speak-to-translate, SAME component as the translate demo (word-by-word
+       source → English out) so the two read consistently, just driven manually here. */
+    var xlate = flowDemo('xlateHow', [
+      { lang: 'Thai',     words: ['ช่วย', 'ส่งไฟล์', 'ให้', 'ภายใน', 'วันนี้', 'นะครับ'], sep: '', out: 'Could you send me the file within today?' },
+      { lang: 'Japanese', words: ['金曜日', 'までに', '資料を', 'お願い', 'します'],          sep: '', out: 'Could I have the documents by Friday?' },
+      { lang: 'Korean',   words: ['내일', '오전에', '회의', '가능하세요?'],                   sep: ' ', out: 'Are you free for a meeting tomorrow morning?' }
+    ], { srcChanges: true, wordOut: true, manual: true });
+
+    /* mode 3 — Highlight: reuses highlightDemo's full select → press → panel sequence */
+    var hilite = highlightDemo('howHl', [
+      { text: 'ขอเลื่อนสายพรุ่งนี้ไปบ่ายสองได้ไหมคะ' },
+      { text: '明日の電話を午後2時に変更できますか？' },
+      { text: '明天的电话可以改到下午2点吗？' },
+      { text: '내일 통화를 오후 2시로 옮길 수 있을까요?' }
+    ], { manual: true });
+
+    var speakIdx = 0, xlIdx = 0, hlIdx = 0;
+    var MODES = [
+      /* dictate (raw): ~1.7s source words + a hold */
+      { dur: 5200, enter: function () { if (speak) { speak.play(speakIdx % speak.count); speakIdx++; } } },
+      /* translate: source words → beat → English out, word by word */
+      { dur: 6000, enter: function () { if (xlate) { xlate.play(xlIdx % xlate.count); xlIdx++; } } },
+      /* highlight: full sequence ≈ 4s + hold */
+      { dur: 6800, enter: function () { if (hilite) { hilite.play(hlIdx % hilite.count); hlIdx++; } } }
+    ];
+    var mode = -1, nextT = null, inView = true;
+
+    function render(i) {
+      tabs.forEach(function (t, k) {
+        t.classList.toggle('on', k === i);
+        t.setAttribute('aria-selected', k === i ? 'true' : 'false');
+        var prog = t.querySelector('.tab-prog');
+        if (!prog) return;
+        prog.style.transition = 'none';
+        prog.style.width = '0';
+        if (k === i && !reduceMotion) {
+          void prog.offsetWidth;                 /* reflow so the fill restarts from 0 */
+          prog.style.transition = 'width ' + MODES[i].dur + 'ms linear';
+          prog.style.width = '100%';
+        }
+      });
+      panes.forEach(function (p, k) { p.classList.toggle('on', k === i); });
+    }
+    function setMode(i) {
+      mode = i;
+      render(i);
+      if (MODES[i].enter) MODES[i].enter();
+      if (!reduceMotion) schedule();
+    }
+    function schedule() {
+      clearTimeout(nextT);
+      nextT = setTimeout(function tick() {
+        if (document.hidden || !inView) { nextT = setTimeout(tick, 900); return; }
+        setMode((mode + 1) % MODES.length);
+      }, MODES[mode].dur);
+    }
+
+    tabs.forEach(function (t, k) {
+      t.addEventListener('click', function () { setMode(k); });   /* jump + keep rotating */
+    });
+    var seen = false;
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (e) {
+        inView = e[0].isIntersecting;
+        /* the section sits below the fold: replay the current mode from its start the
+           first time it scrolls into view, so nobody lands mid-animation */
+        if (inView && !seen) { seen = true; if (!reduceMotion && mode >= 0) setMode(mode); }
+      }, { threshold: 0.15 }).observe(root);
+    }
+    if (reduceMotion && hilite) hilite.play(0);  /* pre-render the highlight pane's finished frame */
+    setMode(0);
+  })();
+
+  /* ---------- dictionary: "add a correction" flow — type into the field → Save → prepend to list ----------
+     Like adding a rule in Settings: the mis-spelling types into the field, the correction resolves,
+     Save presses, then the new rule slides into the top of the list (oldest collapses off the bottom
+     to keep the height steady). No overflow clip, so the row shadows show fully. Pause off-screen. */
+  function dictSettings(cardId, pool, opts) {
+    var card = document.getElementById(cardId);
+    if (!card) return;
+    var list = card.querySelector('.dict-list');
+    var input = card.querySelector('.dict-input');
+    var fromEl = card.querySelector('.di-from');
+    var toEl = card.querySelector('.di-to');
+    var saveBtn = card.querySelector('.di-save');
+    if (!list || !input || reduceMotion) return;   /* reduced motion: static input + seed list */
+    var poolIdx = 4, inView = true, running = false, seq = 0, KEEP = 4;
+
+    function makeRow(p) {
+      var row = document.createElement('div');
+      row.className = 'dict-row';
+      var f = document.createElement('span'); f.className = 'from'; f.textContent = p[0];
+      var a = document.createElement('span'); a.className = 'arrow'; a.textContent = '→';
+      var t = document.createElement('span'); t.className = 'to'; t.textContent = p[1];
+      row.appendChild(f); row.appendChild(a); row.appendChild(t);
+      return row;
+    }
+    /* type text into a field char-by-char, showing a caret on that field while typing */
+    function typeInto(el, text, mySeq, done) {
+      el.textContent = '';
+      el.classList.add('caret');
+      var n = 0;
+      (function step() {
+        if (mySeq !== seq) return;
+        n++;
+        el.textContent = text.slice(0, n);
+        if (n < text.length) setTimeout(step, 55);
+        else { el.classList.remove('caret'); if (done) done(); }
+      })();
+    }
+    function reset() {
+      input.classList.remove('ready');
+      saveBtn.classList.remove('saved', 'press');
+      fromEl.classList.remove('caret'); toEl.classList.remove('caret');
+      fromEl.textContent = ''; toEl.textContent = '';
+    }
+    /* tiny "boom, saved!" — 3 confetti bits pop outward from the ✓ (skipped under reduced motion,
+       since this whole demo never runs there) */
+    function burstConfetti() {
+      var colors = ['#37d2ff', '#17a34a', '#0072e8'];
+      for (var b = 0; b < 3; b++) {
+        var bit = document.createElement('span');
+        bit.className = 'confetti-bit';
+        var ang = (-90 + (b - 1) * 52) * Math.PI / 180;   /* up-left, up, up-right */
+        var dist = 20 + b * 5;
+        bit.style.background = colors[b];
+        bit.style.setProperty('--cx', (Math.cos(ang) * dist).toFixed(1) + 'px');
+        bit.style.setProperty('--cy', (Math.sin(ang) * dist).toFixed(1) + 'px');
+        bit.style.setProperty('--cr', (b * 140 - 120) + 'deg');
+        saveBtn.appendChild(bit);
+        (function (el) { setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 700); })(bit);
+      }
+    }
+    function prependRule(pair, mySeq) {
+      /* the new rule slides down into the top of the list; the oldest collapses off the bottom */
+      var newRow = makeRow(pair);
+      list.insertBefore(newRow, list.firstChild);
+      var gap = parseFloat(getComputedStyle(list).rowGap || getComputedStyle(list).gap) || 10;
+      var pull = newRow.offsetHeight + gap;
+      var last = list.children.length > KEEP ? list.lastElementChild : null;
+      newRow.style.transition = 'none';
+      newRow.style.marginTop = (-pull) + 'px';
+      newRow.style.opacity = '0';
+      void newRow.offsetWidth;
+      newRow.style.transition = 'margin-top 520ms cubic-bezier(.19,1,.22,1), opacity 400ms ease';
+      newRow.style.marginTop = '0';
+      newRow.style.opacity = '1';
+      if (last) {
+        last.style.transition = 'margin-bottom 520ms cubic-bezier(.19,1,.22,1), opacity 320ms ease';
+        last.style.marginBottom = (-pull) + 'px';
+        last.style.opacity = '0';
+      }
+      setTimeout(function () {
+        if (mySeq !== seq) return;
+        if (last && last.parentNode) list.removeChild(last);
+        newRow.style.transition = ''; newRow.style.marginTop = ''; newRow.style.opacity = '';
+        reset();
+        running = false;
+      }, 560);
+    }
+
+    function cycle() {
+      if (document.hidden || !inView || running) return;
+      running = true;
+      var mySeq = ++seq;
+      var pair = pool[poolIdx % pool.length]; poolIdx++;
+      reset();
+      /* 1. type the mis-spelling, then 2. type the correction — both char-by-char with a caret */
+      typeInto(fromEl, pair[0], mySeq, function () {
+        if (mySeq !== seq) return;
+        setTimeout(function () {
+          if (mySeq !== seq) return;
+          typeInto(toEl, pair[1], mySeq, function () {
+            if (mySeq !== seq) return;
+            input.classList.add('ready');          /* 3. Save lights up */
+            setTimeout(function () {
+              if (mySeq !== seq) return;
+              saveBtn.classList.add('press');      /* 4. Save presses… */
+              setTimeout(function () {
+                if (mySeq !== seq) return;
+                saveBtn.classList.remove('press');
+                saveBtn.classList.add('saved');    /* …→ green ✓ circle confirmation */
+                burstConfetti();                   /* tiny celebration burst */
+                setTimeout(function () {           /* 5. after the ✓ beat, drop the row into the list */
+                  if (mySeq !== seq) return;
+                  prependRule(pair, mySeq);
+                }, 520);
+              }, 200);
+            }, 320);
+          });
+        }, 240);
+      });
+    }
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (e) { inView = e[0].isIntersecting; }, { threshold: 0.2 }).observe(card);
+    }
+    setInterval(cycle, opts.period);
+    setTimeout(cycle, 900);
+  }
+
+  dictSettings('dictCard', [
+    ['mo mo whisper', 'Momo Whisper'],
+    ['grok', 'Groq'],
+    ['figma jam', 'FigJam'],
+    ['สวิฟท์ ยูไอ', 'SwiftUI'],
+    ['คลอส', 'Claude'],
+    ['รีรีส', 'Release'],
+    ['จีทีฮับ', 'GitHub'],
+    ['ทิปเอสคริป', 'TypeScript'],
+    ['โน้ตชั่น', 'Notion'],
+    ['ดีบัก', 'debug'],
+    ['เอพีไอ', 'API']
+  ], { period: 4200 });
+})();
+</script>
+<!-- GoatCounter — privacy-friendly analytics (page views + download/coffee clicks) -->
+<script data-goatcounter="https://nabhak.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script>
+  /* count Download + "buy a coffee" button clicks as GoatCounter events */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[href*="releases/latest/download"], a[href*="buymeacoffee"]') : null;
+    if (!a || !window.goatcounter || !window.goatcounter.count) return;
+    var coffee = a.href.indexOf('buymeacoffee') > -1;
+    var page = (location.pathname.split('/').pop() || 'index').replace('.html', '') || 'index';
+    window.goatcounter.count({
+      path: (coffee ? 'coffee-' : 'download-') + page,
+      title: coffee ? 'Buy a coffee click' : 'Download click',
+      event: true
+    });
+  });
+</script>
+</body>
+</html>
