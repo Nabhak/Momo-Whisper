@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--
+  ============================================================================
+  MOMO WHISPER — "Send feedback" page. SINGLE self-contained file (inline CSS + JS, no build step).
+  Posts to Web3Forms with fetch(); nothing else leaves the page.
+
+  HOW TO FIND THINGS (grep the MARKER):
+    SECTION          MARKER (grep)          CSS block            JS
+    ----------------------------------------------------------------------------------
+    Nav              <nav ... id="nav"      .nav                 sticky-border observer (#nav-sentinel)
+    Hero             class="install-hero"   .install-hero        (static; scroll reveals via .rv)
+    Topic            id="fbTopic"           .fb-select/.fb-chip  pill toggles (Bug/Idea/Love it/Other, none = general) drive the
+                                                                 hidden <select>. Bug swaps the placeholder
+    Form             id="fbForm"            .fb-*                submit → fetch(Web3Forms), counter + hint, ⌘↩, rate limit
+                                                                 fields: topic, message, source, app_version, macos, lang, page (+ email/replyto)
+    Success          id="fbDone"            .fb-done             shown after a 200
+    Footer           <footer                footer               —
+    Bridge           window.momoSubmit      —                    ?bridge=1 only (see below)
+
+  TWO MODES:
+    feedback.html                 the public website form (source: web).
+    feedback.html?bridge=1&v=<app version>&os=<macOS version>&lang=<Mac language>
+                                  the app's NATIVE "Send Feedback" window loads this in a HIDDEN WKWebView and
+                                  submits through it (Web3Forms' free plan only accepts browser submissions).
+                                  The page looks the same; nobody sees it. v / os / lang go into the payload (source: app).
+      page → app  webkit.messageHandlers.momo.postMessage({type:"ready"})          on load
+      app → page  window.momoSubmit({topic, message, email?})
+      page → app  {type:"result", ok:true} | {type:"result", ok:false, error}      after the send
+    App side: Sources/Feedback.swift (contract) + Sources/FeedbackView.swift (FeedbackBridge).
+  ============================================================================
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Send feedback — Momo Whisper</title>
+<meta name="description" content="Tell Momo's maker what works, what doesn't, or what you'd love next. A short note is all it takes.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<link rel="canonical" href="https://nabhak.github.io/Momo-Whisper/feedback.html">
+<link rel="alternate" type="text/plain" href="llms.txt" title="LLM-friendly summary">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nabhak.github.io/Momo-Whisper/feedback.html">
+<meta property="og:site_name" content="Momo Whisper">
+<meta property="og:title" content="Send feedback — Momo Whisper">
+<meta property="og:description" content="Tell Momo's maker what works, what doesn't, or what you'd love next.">
+<meta property="og:image" content="https://nabhak.github.io/Momo-Whisper/og.png?v=5">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Send feedback — Momo Whisper">
+<meta name="twitter:description" content="A short note is all it takes. 🐾">
+<meta name="twitter:image" content="https://nabhak.github.io/Momo-Whisper/og.png?v=5">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>
+  document.documentElement.classList.add('js');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --ink: #121212;
+  --body: #474645;
+  --body-70: rgba(71, 70, 69, .7);
+  --muted: #848281;
+  --accent: #0072e8;
+  --accent-dark: #005fc2;
+  --accent-soft: rgba(0, 114, 232, .08);
+  --accent-sel: rgba(0, 114, 232, .18);
+  --pill: #f2f4f7;
+  --pill-hover: #e8ebf0;
+  --tint: #f7f9fb;
+  --hairline: rgba(18, 18, 18, .08);
+  --bg: #fff;                    /* page + field background */
+  --display: "Space Grotesk", -apple-system, "system-ui", "Segoe UI", Helvetica, Arial, sans-serif;
+  --sans: "Inter", -apple-system, "system-ui", "Segoe UI", Helvetica, Arial, sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-fam: cubic-bezier(0.19, 1, 0.22, 1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body { background: var(--bg); }
+body { font-family: var(--sans); font-size: 16px; color: var(--body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--accent-sel); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.container { max-width: 1072px; margin: 0 auto; padding: 0 24px; }
+
+.h-section { font-family: var(--display); font-weight: 500; font-size: clamp(30px, 4.6vw, 44px); letter-spacing: -0.03em; line-height: 1.09; color: var(--ink); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 24px; border-radius: 32px; font-family: var(--sans); font-size: 17px; font-weight: 500; letter-spacing: -0.22px; white-space: nowrap; cursor: pointer; border: 0; transition: background-color 100ms ease, transform 160ms var(--ease-out), opacity 160ms ease; }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-secondary { background: var(--pill); color: var(--ink); }
+.btn-secondary:hover { background: var(--pill-hover); }
+.btn-sm { height: 32px; padding: 0 14px; font-size: 15px; letter-spacing: -0.09px; }
+.btn[disabled] { opacity: .55; cursor: default; }
+.btn[disabled]:active { transform: none; }
+
+/* nav */
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(255,255,255,.6); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid transparent; transition: border-color 200ms ease, background-color 200ms ease; }
+.nav.scrolled { border-bottom-color: var(--hairline); }
+.nav-inner { display: flex; align-items: center; height: 72px; gap: 32px; }
+.nav-brand { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; font-family: var(--display); font-weight: 600; font-size: 17px; letter-spacing: -0.02em; color: var(--ink); }
+.nav-brand img { width: 28px; height: 28px; border-radius: 7px; transition: transform 260ms var(--ease-fam); }
+@media (hover: hover) and (pointer: fine) { .nav-brand:hover img { transform: rotate(-6deg) scale(1.06); } }
+.nav-links { display: flex; gap: 26px; font-size: 15px; font-weight: 500; letter-spacing: -0.09px; color: var(--body); }
+.nav-links a { transition: color 140ms ease; padding: 6px 0; }
+.nav-links a:hover { color: var(--ink); }
+.nav-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+/* hamburger (mobile only) + a Home link that only appears inside the mobile menu */
+.nav-burger { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 38px; height: 38px; padding: 0; background: var(--pill); border: 0; border-radius: 10px; cursor: pointer; }
+.nav-burger span { display: block; width: 16px; height: 2px; border-radius: 2px; background: var(--ink); transition: transform .2s ease, opacity .2s ease; }
+.nav-burger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-burger.open span:nth-child(2) { opacity: 0; }
+.nav-burger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.home-link { display: none; }
+
+/* page header */
+.install-hero { padding: 168px 0 48px; text-align: center; }
+.install-hero .eyebrow { font-size: 16px; font-weight: 600; letter-spacing: -0.13px; color: var(--accent); margin-bottom: 12px; }
+.install-hero .h-section { font-size: clamp(34px, 5.4vw, 52px); letter-spacing: -0.03em; max-width: 720px; margin: 0 auto 16px; }
+.install-hero .intro { max-width: 540px; margin: 0 auto; font-size: 17px; line-height: 26px; letter-spacing: -0.22px; color: var(--body-70); }
+
+/* feedback form — one tint card, same shape as the install/story cards */
+.fb { padding: 0 0 40px; }
+.fb-card { max-width: 640px; margin: 0 auto; background: var(--tint); border-radius: 20px; padding: 28px 30px 30px; }
+.fb-field { display: block; }
+.fb-field + .fb-field { margin-top: 18px; }
+.fb-label { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 14px; font-weight: 600; letter-spacing: -0.09px; color: var(--ink); }
+.fb-label .opt { font-weight: 400; color: var(--muted); }
+.fb-count { font-size: 12.5px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--muted); transition: color 140ms ease; }
+.fb-count.over { color: var(--ink); }
+.fb-input { display: block; width: 100%; min-width: 0; font-family: var(--sans); font-size: 16px; line-height: 24px; letter-spacing: -0.13px; color: var(--ink); background: var(--bg); border: 1px solid var(--hairline); border-radius: 12px; padding: 11px 14px; -webkit-appearance: none; appearance: none; transition: border-color 140ms ease, box-shadow 140ms ease; }
+.fb-input::placeholder { color: var(--muted); }
+.fb-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+textarea.fb-input { min-height: 148px; resize: vertical; }
+/* hint under the textarea — explains why Send is off ("Type a little more…" / "Too long"); reserves its line so nothing jumps */
+.fb-hint { display: block; min-height: 16px; margin-top: 6px; font-size: 12.5px; line-height: 16px; letter-spacing: -0.09px; color: var(--muted); }
+/* footer: privacy note on its own row, then Send full-width on the last row (all viewports) */
+.fb-footer { display: flex; flex-direction: column; align-items: stretch; gap: 14px; margin-top: 20px; }
+.fb-note { min-width: 0; display: flex; align-items: flex-start; gap: 10px; font-size: 13px; line-height: 19px; letter-spacing: -0.09px; color: var(--muted); }
+.fb-note svg { flex: none; margin-top: 1px; }
+.fb-footer .btn { flex: none; width: 100%; align-self: stretch; justify-content: center; }
+/* inline error — the neutral reassure-style note, no new colours */
+.fb-error { display: none; margin-top: 16px; background: var(--pill); border-radius: 12px; padding: 12px 15px; font-size: 13.5px; line-height: 20px; color: var(--ink); }
+.fb-error.show { display: block; }
+/* topic — single-select pill toggles (same chip recipe as the home page demos: hairline pill,
+   accent when on, accent hover). None pressed = "general". The <select> behind them stays hidden. */
+.fb-select { display: none; }
+.fb-topics { display: flex; flex-wrap: wrap; gap: 8px; }
+.fb-chip {
+  -webkit-appearance: none; appearance: none;
+  display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 18px;
+  font-family: inherit; font-size: 14px; font-weight: 500; letter-spacing: -0.09px; white-space: nowrap;
+  color: var(--body); background: var(--bg); border: 1px solid var(--hairline); cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms var(--ease-out);
+}
+.fb-chip:active { transform: scale(0.97); }
+.fb-chip[aria-pressed="true"] { color: #fff; background: var(--accent); border-color: var(--accent); }
+.fb-chip:focus-visible { border-radius: 18px; outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .fb-chip:not([aria-pressed="true"]):hover { color: var(--accent); border-color: var(--accent); }
+}
+/* honeypot — kept out of sight and out of the tab order; bots fill it, people never see it */
+.fb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+/* button spinner while sending */
+.spin { display: none; width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, .35); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+.btn.sending .spin { display: inline-block; }
+.btn.sending .lbl { display: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* success */
+.fb-done { display: none; text-align: center; padding: 8px 0 2px; }
+.fb-done.show { display: block; }
+.fb-done .paw { font-size: 40px; line-height: 1; margin-bottom: 14px; }
+.fb-done h2 { font-family: var(--display); font-weight: 500; font-size: 24px; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 8px; }
+.fb-done p { font-size: 15px; line-height: 23px; letter-spacing: -0.13px; color: var(--body-70); margin-bottom: 20px; }
+
+/* footer */
+footer { padding: 60px 0 80px; margin-top: 40px; }
+.footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; font-size: 14px; letter-spacing: -0.09px; color: var(--muted); }
+.footer-inner a { color: var(--body); font-weight: 500; transition: color 140ms ease; }
+.footer-inner a:hover { color: var(--accent); }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+
+/* reveal */
+html.js .rv { opacity: 0; transform: translateY(22px); transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out); }
+html.js .rv.in { opacity: 1; transform: none; }
+.rv-d1 { transition-delay: 80ms; }
+.rv-d2 { transition-delay: 160ms; }
+
+/* responsive */
+@media (max-width: 640px) {
+  .nav-inner { gap: 10px; }
+  .nav-home { display: none; }
+  .nav-burger { display: inline-flex; }
+  .nav-links {
+    position: absolute; top: 72px; left: 0; right: 0;
+    flex-direction: column; gap: 0;
+    background: rgba(255, 255, 255, .98);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--hairline);
+    padding: 6px 24px 14px;
+    transform: translateY(-8px); opacity: 0; pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  .nav-links.open { transform: none; opacity: 1; pointer-events: auto; }
+  .nav-links a { padding: 13px 2px; font-size: 16px; border-bottom: 1px solid var(--hairline); }
+  .nav-links a:last-child { border-bottom: 0; }
+  .nav-links .home-link { display: block; }
+  .install-hero { padding: 128px 0 36px; }
+  .fb-card { padding: 22px 20px 24px; }
+  .footer-inner { flex-direction: column; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .rv { opacity: 1; transform: none; transition: none; }
+  .btn, .nav-brand img { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<!--NAV:START-->
+<nav class="nav" id="nav" aria-label="Main">
+  <div class="container nav-inner">
+    <a class="nav-brand" href="index.html">
+      <img src="logo.png" alt="Momo Whisper" width="28" height="28">
+      <span class="brand-name">Momo Whisper</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#features">Features</a>
+      <a href="index.html#faq">FAQ</a>
+      <a href="story.html">Story</a>
+      <a href="feedback.html">Feedback</a>
+      <a class="home-link" href="install.html">How to install</a>
+    </div>
+    <div class="nav-actions">
+      <a class="btn btn-secondary btn-sm nav-home" href="install.html">How to install</a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip" target="_blank" rel="noopener">Download</a>
+      <button class="nav-burger" id="navBurger" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<!--NAV:END-->
+
+<span id="top" aria-hidden="true"></span>
+<div id="nav-sentinel" aria-hidden="true" style="position:absolute;top:8px;height:1px;width:1px;"></div>
+
+<main>
+  <header class="install-hero">
+    <div class="container">
+      <p class="eyebrow rv">Feedback</p>
+      <h1 class="h-section rv">Tell Momo what you think 🐾</h1>
+      <p class="intro rv rv-d1">Something broken, a word it keeps getting wrong, or a feature you'd love? A short note is all it takes — it lands straight in the maker's inbox.</p>
+    </div>
+  </header>
+
+  <section class="fb">
+    <div class="container">
+      <div class="fb-card rv rv-d2">
+
+        <form id="fbForm" novalidate>
+          <div class="fb-field">
+            <label class="fb-label" id="fbTopicLabel" for="fbTopic"><span>Topic</span></label>
+            <!-- pill toggles (none pressed = general); they set the hidden select below -->
+            <div class="fb-topics" id="fbTopics" role="group" aria-labelledby="fbTopicLabel">
+              <button class="fb-chip" type="button" data-topic="bug" aria-pressed="false"><span aria-hidden="true">🐞</span>Bug</button>
+              <button class="fb-chip" type="button" data-topic="idea" aria-pressed="false"><span aria-hidden="true">💡</span>Idea</button>
+              <button class="fb-chip" type="button" data-topic="love" aria-pressed="false"><span aria-hidden="true">💙</span>Love it</button>
+              <button class="fb-chip" type="button" data-topic="other" aria-pressed="false"><span aria-hidden="true">💬</span>Other</button>
+            </div>
+            <!-- hidden: the payload's source of truth for the topic -->
+            <select class="fb-input fb-select" id="fbTopic" name="topic">
+              <option value="general" selected>General</option>
+              <option value="bug">Bug</option>
+              <option value="idea">Idea</option>
+              <option value="love">Love it</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <label class="fb-field" for="fbMessage">
+            <span class="fb-label"><span>Your message</span><span class="fb-count" id="fbCount">0 / 2000</span></span>
+            <textarea class="fb-input" id="fbMessage" name="message" placeholder="What happened, or what would make Momo better?" required></textarea>
+            <span class="fb-hint" id="fbHint" aria-live="polite"></span>
+          </label>
+
+          <label class="fb-field" for="fbEmail">
+            <span class="fb-label"><span>Email <span class="opt">— only if you'd like a reply</span></span></span>
+            <input class="fb-input" id="fbEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" spellcheck="false">
+          </label>
+
+          <!-- Web3Forms honeypot: hidden from people, bots tick it and get dropped -->
+          <input class="fb-hp" type="checkbox" name="botcheck" id="fbBot" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+          <div class="fb-error" id="fbError" role="alert"></div>
+
+          <div class="fb-footer">
+            <p class="fb-note">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+              <span>We only get what you type + your app &amp; macOS version.</span>
+            </p>
+            <button class="btn btn-primary" id="fbSend" type="submit" disabled title="Send (⌘↩)">
+              <span class="spin" aria-hidden="true"></span>
+              <span class="lbl">Send</span>
+            </button>
+          </div>
+        </form>
+
+        <div class="fb-done" id="fbDone" aria-live="polite">
+          <div class="paw" aria-hidden="true">🐾</div>
+          <h2>Thanks! Message sent to Momo's maker.</h2>
+          <p>Every note gets read — it's how Momo gets better.</p>
+          <a class="btn btn-secondary" href="index.html">Back to home</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <span>momo whisper, by <a href="https://github.com/Nabhak" target="_blank" rel="noopener">nabhak</a> · built on <a href="https://github.com/Gamezxz/WhisperApp" target="_blank" rel="noopener">whisper</a> by gamezxz</span>
+    <span class="footer-links">
+      <a href="index.html">home</a>
+      <a href="install.html">how to install</a>
+      <a href="story.html">story</a>
+      <a href="feedback.html">feedback</a>
+      <a href="https://github.com/Nabhak/Momo-Whisper" target="_blank" rel="noopener">github</a>
+      <a href="https://github.com/Nabhak/Momo-Whisper/releases" target="_blank" rel="noopener">releases</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* sticky nav border */
+  var nav = document.getElementById('nav');
+  var sentinel = document.getElementById('nav-sentinel');
+  if (nav && sentinel && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (e) { nav.classList.toggle('scrolled', !e[0].isIntersecting); }).observe(sentinel);
+  }
+
+  /* mobile hamburger — toggle the nav-links dropdown */
+  var burger = document.getElementById('navBurger');
+  var navLinks = document.getElementById('navLinks');
+  if (burger && navLinks) {
+    burger.addEventListener('click', function () {
+      var open = navLinks.classList.toggle('open');
+      burger.classList.toggle('open', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    navLinks.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A') { navLinks.classList.remove('open'); burger.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); }
+    });
+  }
+
+  /* scroll reveals */
+  var targets = document.querySelectorAll('.rv:not(.in)');
+  if (reduceMotion || !('IntersectionObserver' in window)) {
+    targets.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+    targets.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ---------- feedback form ---------- */
+  var ENDPOINT = 'https://api.web3forms.com/submit';
+  var ACCESS_KEY = '3c4bcc62-431a-4fe2-bada-6c8508f3b2a3';
+  var MIN = 2, MAX = 2000, COOLDOWN_MS = 60 * 1000, LS_KEY = 'momo_fb_last';
+
+  var form = document.getElementById('fbForm');
+  var msg = document.getElementById('fbMessage');
+  var email = document.getElementById('fbEmail');
+  var bot = document.getElementById('fbBot');
+  var count = document.getElementById('fbCount');
+  var hint = document.getElementById('fbHint');
+  var send = document.getElementById('fbSend');
+  var errBox = document.getElementById('fbError');
+  var done = document.getElementById('fbDone');
+
+  /* topic: the hidden <select> holds the value (default General); Bug swaps the placeholder.
+     The pills set it — one pressed at a time, pressing it again clears back to General. */
+  var topicSel = document.getElementById('fbTopic');
+  var chips = document.querySelectorAll('#fbTopics .fb-chip');
+  var TOPIC_LABEL = { general: 'General', bug: 'Bug', idea: 'Idea', love: 'Love it', other: 'Other' };
+  var basePlaceholder = msg.getAttribute('placeholder');
+  function topic() { return TOPIC_LABEL[topicSel.value] ? topicSel.value : 'general'; }
+  function applyTopic() {
+    msg.setAttribute('placeholder', topic() === 'bug' ? 'What happened, and what did you expect?' : basePlaceholder);
+    chips.forEach(function (c) { c.setAttribute('aria-pressed', c.getAttribute('data-topic') === topic() ? 'true' : 'false'); });
+  }
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      var t = c.getAttribute('data-topic');
+      topicSel.value = topic() === t ? 'general' : t;
+      applyTopic();
+    });
+  });
+
+  var params = new URLSearchParams(location.search);
+  var appVersion = (params.get('v') || '').trim();
+  var osVersion = (params.get('os') || '').trim();
+  var source = appVersion ? 'app' : 'web';
+
+  /* bridge mode: post a message to the host app (no-op in a normal browser) */
+  function tellApp(message) {
+    try {
+      var h = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.momo;
+      if (h) h.postMessage(message);
+    } catch (e) {}
+  }
+
+  /* one field per datum — Web3Forms prints each as its own "key : value" line, easy for people and AI to read */
+  function buildPayload(t, text, mail, botChecked) {
+    t = TOPIC_LABEL[t] ? t : 'general';
+    var versionTag = appVersion ? (/^v/i.test(appVersion) ? appVersion : 'v' + appVersion) : 'web';
+    var payload = {
+      access_key: ACCESS_KEY,
+      subject: '[Momo Feedback] ' + TOPIC_LABEL[t] + ' · ' + versionTag,
+      from_name: 'Momo Whisper',
+      topic: t,
+      message: text,
+      source: source,
+      app_version: appVersion || '-',
+      macos: osVersion || '-',
+      lang: (params.get('lang') || '').trim() || navigator.language || '-',   // app passes the Mac's real language
+      page: location.pathname,
+      botcheck: !!botChecked
+    };
+    if (mail) { payload.email = mail; payload.replyto = mail; }
+    return payload;
+  }
+  function postPayload(payload) {
+    return fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        if (!res.ok || data.success === false) throw new Error((data && data.message) || ('HTTP ' + res.status));
+      });
+    });
+  }
+
+  function showError(text) { errBox.textContent = text; errBox.classList.add('show'); }
+  function hideError() { errBox.textContent = ''; errBox.classList.remove('show'); }
+
+  /* counter + hint + Send state: too short → "Type a little more…", too long → "Too long — 2000 max" */
+  function refresh() {
+    var raw = msg.value.length, n = msg.value.trim().length;
+    var tooShort = n < MIN, tooLong = raw > MAX;
+    count.textContent = raw + ' / ' + MAX;
+    count.classList.toggle('over', tooLong);
+    hint.textContent = tooLong ? 'Too long — ' + MAX + ' max' : tooShort ? 'Type a little more…' : '';
+    send.disabled = tooShort || tooLong || send.classList.contains('sending');
+  }
+  msg.addEventListener('input', function () { hideError(); refresh(); });
+  email.addEventListener('input', hideError);
+  refresh();
+
+  /* ⌘/Ctrl + Enter sends from either field */
+  form.addEventListener('keydown', function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); if (!send.disabled) form.requestSubmit(); }
+  });
+
+  /* client-side rate limit: one send per minute, remembered per browser */
+  function secondsLeft() {
+    try {
+      var last = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
+      var left = Math.ceil((last + COOLDOWN_MS - Date.now()) / 1000);
+      return left > 0 ? left : 0;
+    } catch (e) { return 0; }
+  }
+  function markSent() { try { localStorage.setItem(LS_KEY, String(Date.now())); } catch (e) {} }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideError();
+
+    var text = msg.value.trim();
+    if (text.length < MIN) { showError('Type a little more so Momo has something to read.'); msg.focus(); return; }
+    if (msg.value.length > MAX) { showError('Too long — keep it under ' + MAX + ' characters.'); msg.focus(); return; }
+    var mail = email.value.trim();
+    if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { showError('That email does not look right — fix it, or leave it blank.'); email.focus(); return; }
+    var wait = secondsLeft();
+    if (wait) { showError('You just sent one — give Momo ' + wait + 's to catch its breath.'); return; }
+
+    var payload = buildPayload(topic(), text, mail, !!bot.checked);
+
+    send.classList.add('sending');
+    send.disabled = true;
+    msg.disabled = true; email.disabled = true;
+
+    postPayload(payload).then(function () {
+      markSent();
+      form.style.display = 'none';
+      done.classList.add('show');
+    }).catch(function () {
+      showError('Could not send right now — check your connection and try again. Your message is still here.');
+    }).then(function () {
+      send.classList.remove('sending');
+      msg.disabled = false; email.disabled = false;
+      refresh();
+    });
+  });
+
+  /* bridge=1: the app's NATIVE "Send Feedback" window drives this page invisibly (Web3Forms' free plan
+     only accepts browser submissions from our page). App → window.momoSubmit({topic, message, email?});
+     page → postMessage({type:"ready"}) on load, then {type:"result", ok:true} / {type:"result", ok:false, error}. */
+  if (/[?&]bridge=1(&|$)/.test(location.search)) {
+    window.momoSubmit = function (p) {
+      p = p || {};
+      var text = String(p.message || '').trim(), mail = String(p.email || '').trim();
+      if (text.length < MIN || text.length > MAX) { tellApp({ type: 'result', ok: false, error: 'invalid message' }); return; }
+      postPayload(buildPayload(String(p.topic || 'general'), text, mail, false))
+        .then(function () { tellApp({ type: 'result', ok: true }); })
+        .catch(function (e) { tellApp({ type: 'result', ok: false, error: String((e && e.message) || e) }); });
+    };
+    tellApp({ type: 'ready' });
+  }
+})();
+</script>
+</body>
+</html>

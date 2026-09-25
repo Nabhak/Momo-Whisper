@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nabhak.github.io/Momo-Whisper/sitemap.xml
