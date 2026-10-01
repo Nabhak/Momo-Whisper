@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--
+  ============================================================================
+  MOMO WHISPER — install / setup guide page. SINGLE self-contained file
+  (inline CSS + JS, no build step). Edit here, then open in a browser to test.
+
+  HOW TO FIND THINGS (grep the MARKER):
+    SECTION          MARKER (grep)          CSS block            JS
+    ----------------------------------------------------------------------------------
+    Nav              <nav ... id="nav"      .nav                 floating pill; top inset tracks scroll
+    Page header      class="page-head"      .page-head           in the content column, same block as .mcp-head
+    On this page     class="toc"            .guide / .toc        2 accordion groups (.toc-group.open, one at a time);
+                                                                 scrollspy (IntersectionObserver) + smooth-scroll clicks;
+                                                                 ≤919px = two chip rows (groups / open group's sub-items)
+    Steps (1–6)      class="install"        .install / .istep    copy buttons (.copy-btn, one per .codeblock-wrap; .copied swaps icon+label only)
+    Connect AI (MCP) id="mcp"               .mcp-head / .method  same copy buttons; JSON blocks = .codeblock-wrap.multi
+    Closing CTA      grep: closing CTA      .cta / .flow-*        flow-band (flowSvgs + .flow-chip cycler);
+                     (class="cta")                                #backToTop button scrolls to top
+    Footer           <footer                footer               —
+
+  NOTES: permission links use x-apple.systempreferences: deep links. reduced-motion + mobile
+  (<=640px) at the bottom of <style>. The flow-band CTA is copied from index.html and shares the
+  same class names / JS.
+  ============================================================================
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to install Momo Whisper &amp; connect your AI (MCP)</title>
+<meta name="description" content="Step-by-step Momo Whisper setup for Mac: download, first-open warning, permissions, free Groq key — plus how to connect Claude, Cursor or Codex via MCP.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<link rel="canonical" href="https://nabhak.github.io/Momo-Whisper/install.html">
+<link rel="alternate" type="text/plain" href="llms.txt" title="LLM-friendly summary">
+<link rel="alternate" type="text/markdown" href="install.md" title="This guide as Markdown">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nabhak.github.io/Momo-Whisper/install.html">
+<meta property="og:site_name" content="Momo Whisper">
+<meta property="og:title" content="How to install Momo Whisper &amp; connect your AI (MCP)">
+<meta property="og:description" content="Step-by-step Momo Whisper setup for Mac: download, first-open warning, permissions, free Groq key — plus how to connect Claude, Cursor or Codex via MCP.">
+<meta property="og:image" content="https://nabhak.github.io/Momo-Whisper/og.png?v=5">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Install Momo Whisper &amp; connect your AI (MCP)">
+<meta name="twitter:description" content="Install guide for Momo Whisper on macOS, plus MCP setup for Claude Desktop, Claude Code, Cursor, Codex and Gemini CLI.">
+<meta name="twitter:image" content="https://nabhak.github.io/Momo-Whisper/og.png?v=5">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- HowTo: connecting an MCP client to Momo (mirrors the #mcp section; keep in sync) -->
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "HowTo",
+ "name": "How to install Momo Whisper on a Mac",
+ "description": "Install the free Momo Whisper dictation and translation app on macOS 13 or later: download, move to Applications, get past the first-open warning, allow permissions, add a free Groq key.",
+ "totalTime": "PT3M",
+ "supply": [
+  {
+   "@type": "HowToSupply",
+   "name": "A Mac with macOS 13 or later"
+  },
+  {
+   "@type": "HowToSupply",
+   "name": "A free Groq API key (console.groq.com)"
+  }
+ ],
+ "step": [
+  {
+   "@type": "HowToStep",
+   "name": "Download and unzip",
+   "text": "Download Momo-Whisper.zip from https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip and double-click it to unzip.",
+   "url": "https://nabhak.github.io/Momo-Whisper/install.html#install-app"
+  },
+  {
+   "@type": "HowToStep",
+   "name": "Move it into Applications",
+   "text": "Drag Momo Whisper into your Applications folder.",
+   "url": "https://nabhak.github.io/Momo-Whisper/install.html#install-app"
+  },
+  {
+   "@type": "HowToStep",
+   "name": "Open it the first time",
+   "text": "macOS warns that Apple could not verify the app. Right-click Momo Whisper in Applications and choose Open, then Open again (or System Settings → Privacy & Security → Open Anyway, or run xattr -dr com.apple.quarantine \"/Applications/Momo Whisper.app\" in Terminal). Needed only once.",
+   "url": "https://nabhak.github.io/Momo-Whisper/install.html#install-app"
+  },
+  {
+   "@type": "HowToStep",
+   "name": "Allow permissions",
+   "text": "Allow Microphone (to hear you) and Accessibility (to type into other apps). Speech Recognition is optional and keeps that audio on your Mac.",
+   "url": "https://nabhak.github.io/Momo-Whisper/install.html#install-app"
+  },
+  {
+   "@type": "HowToStep",
+   "name": "Add your free Groq key",
+   "text": "Create a free API key at console.groq.com and paste it into Momo. The key is stored locally.",
+   "url": "https://nabhak.github.io/Momo-Whisper/install.html#install-app"
+  },
+  {
+   "@type": "HowToStep",
+   "name": "Start talking",
+   "text": "Hold Fn to dictate, hold Fn+Shift to translate as you speak, or highlight text and click the translate button.",
+   "url": "https://nabhak.github.io/Momo-Whisper/install.html#install-app"
+  }
+ ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Connect your AI to Momo Whisper (MCP)",
+  "description": "Let Claude Desktop, Claude Code, Cursor, Codex or Gemini CLI read your Momo Whisper dictation history and dictionary and add corrections you approve. Runs on your Mac only over stdio; the only thing it can send is feedback you approve.",
+  "totalTime": "PT2M",
+  "supply": [{ "@type": "HowToSupply", "name": "Momo Whisper installed in /Applications" }],
+  "tool": [{ "@type": "HowToTool", "name": "An AI app that supports local (stdio) MCP servers" }],
+  "step": [
+    { "@type": "HowToStep", "name": "Install Momo Whisper", "text": "Download Momo Whisper, move it to Applications and open it once. The MCP server ships inside the app.", "url": "https://nabhak.github.io/Momo-Whisper/install.html#install-app" },
+    { "@type": "HowToStep", "name": "Claude Desktop: one click", "text": "Download momo-whisper.mcpb from the latest release, double-click it and choose Install.", "url": "https://nabhak.github.io/Momo-Whisper/install.html#mcp-desktop" },
+    { "@type": "HowToStep", "name": "Any other MCP app", "text": "Add a server named momo-whisper with the command /Applications/Momo Whisper.app/Contents/MacOS/momo-mcp and no arguments — for example claude mcp add -s user momo-whisper -- \"/Applications/Momo Whisper.app/Contents/MacOS/momo-mcp\" in Claude Code, or the mcpServers JSON in Cursor or Gemini CLI.", "url": "https://nabhak.github.io/Momo-Whisper/install.html#mcp-any" },
+    { "@type": "HowToStep", "name": "Ask your AI", "text": "Ask it to check your Momo history and fix the words Momo keeps mishearing. It shows the changes first; nothing is saved until you approve. Entries appear as Added by your AI in Settings → Dictionary.", "url": "https://nabhak.github.io/Momo-Whisper/install.html#mcp-ask" }
+  ]
+}
+</script>
+<script>document.documentElement.classList.add('js');</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --ink: #121212;
+  --body: #474645;
+  --body-70: rgba(71, 70, 69, .7);
+  --muted: #848281;
+  --accent: #0072e8;
+  --accent-dark: #005fc2;
+  --accent-soft: rgba(0, 114, 232, .08);
+  --accent-sel: rgba(0, 114, 232, .18);
+  --pill: #f2f4f7;
+  --pill-hover: #e8ebf0;
+  --tint: #f7f9fb;
+  --hairline: rgba(18, 18, 18, .08);
+  /* nav — Craft-style floating pill (values measured on craft.do, adapted to Momo ink) */
+  --nav-top-rest: 32px;         /* Craft: top 32px at rest (24px on mobile) */
+  --nav-top-min: 16px;          /* Craft: settles at 16px once scrolled */
+  --nav-h: 52px;                /* Craft: h-[52px] */
+  --nav-radius: 26px;           /* Craft: 26px (stays a rounded rect when the mobile menu expands) */
+  --nav-max-w: 920px;           /* Craft: max 920 ≥1024, 850 ≥768, calc(100% − 48px) below */
+  --nav-glass-top: rgba(255, 255, 255, .55);    /* Craft: linear-gradient(rgba(255,255,255,.4) 10%, rgba(255,255,255,.8)) */
+  --nav-glass-bottom: rgba(255, 255, 255, .86);
+  --nav-blur: 10px;             /* Craft: blur(4px) on a busy hero; Momo's hero is white, so a touch more */
+  --nav-border: rgba(18, 18, 18, .10);          /* Craft: 1px gradient hairline (white .64) — inverted to ink for a light page */
+  --nav-highlight: rgba(255, 255, 255, .8);     /* inner top highlight, the glass "lip" */
+  --nav-shadow: 0 12px 12px 2px rgba(0, 0, 0, .07), 0 2px 4px -1px rgba(0, 0, 0, .06);   /* Craft: 0 12px 12px 2px #0000001a, 0 2px 4px -1px #0000000f */
+  --nav-dim: rgba(18, 18, 18, .38);             /* Craft: siblings fade to rgba(3,3,2,.35) on hover */
+  --nav-ring: rgba(18, 18, 18, .16);            /* hover outline pill (Craft's rounded-full ring) */
+  --nav-ring-fill: rgba(255, 255, 255, .55);
+  --nav-row: rgba(242, 244, 247, .92);          /* mobile menu rows (Craft: translucent white cards, r16, h46) — Momo --pill so they read on a white page */
+  --ease-std: cubic-bezier(0.4, 0, 0.2, 1);     /* Craft/Tailwind default ease, 200ms */
+  --display: "Space Grotesk", -apple-system, "system-ui", "Segoe UI", Helvetica, Arial, sans-serif;
+  --sans: "Inter", -apple-system, "system-ui", "Segoe UI", Helvetica, Arial, sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-fam: cubic-bezier(0.19, 1, 0.22, 1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body { background: #fff; }
+body { font-family: var(--sans); font-size: 16px; color: var(--body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--accent-sel); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.container { max-width: 1072px; margin: 0 auto; padding: 0 24px; }
+
+.h-section { font-family: var(--display); font-weight: 500; font-size: clamp(30px, 4.6vw, 44px); letter-spacing: -0.03em; line-height: 1.09; color: var(--ink); }
+
+.kbd {
+  display: inline-block; font-family: var(--sans); font-size: .82em; font-weight: 600;
+  color: var(--ink); background: var(--pill); border: 1px solid var(--hairline);
+  border-bottom-width: 2px; border-radius: 6px; padding: 1px 7px 2px;
+}
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 24px; border-radius: 32px; font-family: var(--sans); font-size: 17px; font-weight: 500; letter-spacing: -0.22px; white-space: nowrap; cursor: pointer; border: 0; transition: background-color 100ms ease, transform 160ms var(--ease-out); }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-secondary { background: var(--pill); color: var(--ink); }
+.btn-secondary:hover { background: var(--pill-hover); }
+.btn-sm { height: 32px; padding: 0 14px; font-size: 15px; letter-spacing: -0.09px; }
+
+/* ---------- nav (Craft-style floating glass pill: inset from the edges, blurred, hairline + soft shadow) ---------- */
+.nav {
+  position: fixed;
+  top: var(--nav-top-rest);      /* JS tracks scroll: max(--nav-top-min, rest − scrollY) */
+  left: 0; right: 0;
+  z-index: 100;
+  width: calc(100% - 48px);
+  max-width: var(--nav-max-w);
+  margin-inline: auto;
+  border-radius: var(--nav-radius);
+  background: linear-gradient(var(--nav-glass-top) 10%, var(--nav-glass-bottom));
+  -webkit-backdrop-filter: saturate(160%) blur(var(--nav-blur));
+  backdrop-filter: saturate(160%) blur(var(--nav-blur));
+  box-shadow: inset 0 0 0 1px var(--nav-border), inset 0 1px 0 var(--nav-highlight), var(--nav-shadow);
+  font-family: var(--sans);
+}
+.nav-inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;   /* brand | links (true-centered) | actions */
+  align-items: center;
+  height: var(--nav-h);
+  padding: 8px 8px 8px 16px;             /* Craft: py-2 pr-2 pl-4 */
+}
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 10px;
+  white-space: nowrap;
+  font-family: var(--display);
+  color: var(--ink);
+}
+/* wordmark: heavier + tighter so it reads as a logotype, not body text */
+.brand-name {
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.045em;
+  color: var(--ink);
+}
+.nav-brand img { width: 28px; height: 28px; border-radius: 7px; transition: transform 260ms var(--ease-fam); }
+.beta-pill {
+  flex-shrink: 0;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 3px 7px;
+  line-height: 1;
+  white-space: nowrap;
+}
+@media (hover: hover) and (pointer: fine) {
+  .nav-brand:hover img { transform: rotate(-6deg) scale(1.06); }
+}
+.nav-drawer { display: contents; }       /* desktop: links sit in the centre column; mobile: becomes the expanding drawer */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.02em;                /* Craft: tracking -0.02em, 16px/400 */
+  color: var(--ink);
+}
+.nav-links a {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 18px;
+  color: inherit;
+  white-space: nowrap;
+  box-shadow: inset 0 0 0 1px transparent;
+  transition: color 200ms var(--ease-std), box-shadow 200ms var(--ease-std), background-color 200ms var(--ease-std);
+}
+@media (hover: hover) and (pointer: fine) {
+  .nav-links:hover a:not(:hover):not(.nav-cta-menu) { color: var(--nav-dim); }   /* Craft: the others fade, the hovered one stays ink */
+  .nav-links a:hover { box-shadow: inset 0 0 0 1px var(--nav-ring); background: var(--nav-ring-fill); }   /* outline pill */
+}
+.nav-links a:focus-visible, .nav-home:focus-visible, .nav-cta:focus-visible, .nav-burger:focus-visible { outline: 0; box-shadow: 0 0 0 2px var(--nav-glass-bottom), 0 0 0 4px var(--accent); }
+.nav-links .home-link, .nav-links .nav-cta-menu, .nav-links .nav-note { display: none; }   /* mobile-menu-only rows */
+.nav-actions { display: flex; align-items: center; justify-self: end; gap: 8px; }
+/* actions: the site's own .btn-secondary (How to install / Home) and .btn-primary (Download) pills, sized to Craft's 36px CTA */
+.nav-home, .nav-cta { height: 36px; padding: 0 14px; font-size: 15px; letter-spacing: -0.09px; }
+/* hamburger (mobile only): two bars → X */
+.nav-burger { display: none; position: relative; width: 36px; height: 36px; padding: 0; background: transparent; border: 0; border-radius: 18px; cursor: pointer; }
+.nav-burger span { position: absolute; left: 9px; width: 18px; height: 1.5px; border-radius: 2px; background: var(--ink); transition: transform 240ms var(--ease-std); }
+.nav-burger span:nth-child(1) { top: 14px; }
+.nav-burger span:nth-child(2) { top: 21px; }
+.nav.open .nav-burger span:nth-child(1) { transform: translateY(3.5px) rotate(45deg); }
+.nav.open .nav-burger span:nth-child(2) { transform: translateY(-3.5px) rotate(-45deg); }
+
+@media (max-width: 1023px) { .nav { --nav-max-w: 850px; } }   /* Craft: md → max 850 */
+@media (max-width: 919px) {
+  /* mobile: the pill stays a pill; the menu expands INSIDE it (Craft) */
+  .nav { --nav-top-rest: 24px; overflow: hidden; }
+  .nav-inner {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: var(--nav-h) minmax(0, 1fr);
+    height: auto;
+    max-height: calc(100dvh - 40px);
+    padding: 0 8px 0 16px;
+  }
+  .nav-brand { grid-area: 1 / 1; gap: 6px; min-width: 0; }
+  .beta-pill { font-size: 9px; padding: 2.5px 6px; }
+  .brand-name { font-size: 17px; }
+  .nav-actions { grid-area: 1 / 2; gap: 4px; }
+  .nav-home { display: none; }             /* moves into the menu as a row */
+  .nav-cta { height: 34px; padding: 0 12px; font-size: 13px; }   /* Craft mobile: compact CTA stays in the bar, 13px */
+  .nav-burger { display: inline-flex; }
+  .nav-drawer {
+    grid-area: 2 / 1 / 3 / 3;
+    display: grid;
+    grid-template-rows: 0fr;
+    margin: 0 -8px 0 -16px;
+    min-height: 0;
+    transition: grid-template-rows 320ms var(--ease-std);
+  }
+  .nav.open .nav-drawer { grid-template-rows: 1fr; }
+  .nav-links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0 8px;
+    opacity: 0;
+    transition: opacity 200ms var(--ease-std), padding 320ms var(--ease-std);
+  }
+  .nav.open .nav-links { opacity: 1; padding: 4px 8px 8px; transition-delay: 60ms, 0ms; }
+  .nav-links a {
+    display: flex;
+    justify-content: space-between;
+    height: 46px;                          /* Craft: 46px rows, r16, translucent white, chevron right */
+    padding: 0 16px;
+    border-radius: 16px;
+    background: var(--nav-row);
+    font-size: 16px;
+    box-shadow: none;
+  }
+  .nav-links a::after { content: ""; width: 7px; height: 7px; border-top: 1.5px solid currentColor; border-right: 1.5px solid currentColor; transform: rotate(45deg); opacity: .55; }
+  .nav-links .home-link { display: flex; }
+  .nav-links .nav-cta-menu { display: flex; justify-content: center; margin-top: 4px; background: var(--accent); color: #fff; }   /* Craft: full-width Download at the bottom — Momo primary blue */
+  .nav-links .nav-cta-menu::after { display: none; }
+  .nav-links .nav-cta-menu:hover { background: var(--accent-dark); box-shadow: none; }
+  .nav-note { display: block; text-align: center; margin: -2px 0 0; font-size: 11px; letter-spacing: -0.05px; color: var(--muted); }
+  body.nav-open { overflow: hidden; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-drawer, .nav-links, .nav-links a, .nav-home, .nav-cta, .nav-burger span { transition: none; }
+}
+
+/* page header + the MCP section header: the same block, centred inside the content column */
+.page-head, .mcp-head { text-align: center; max-width: 760px; margin: 0 auto; }
+.page-head .eyebrow, .mcp-head .eyebrow { font-size: 16px; font-weight: 600; letter-spacing: -0.13px; color: var(--accent); margin-bottom: 12px; }
+.page-head .h-section { font-size: clamp(32px, 4.2vw, 46px); letter-spacing: -0.03em; max-width: 640px; margin: 0 auto 14px; }
+.page-head .intro, .mcp-head .intro { max-width: 540px; margin: 0 auto; font-size: 17px; line-height: 26px; letter-spacing: -0.22px; color: var(--body-70); }
+.page-head:focus, .mcp-head:focus { outline: none; }
+
+/* Connect your AI (MCP) — optional section after the six steps; same card family as the steps */
+.mcp-head { margin-bottom: 32px; }
+.mcp-head .h-section { max-width: 560px; margin: 0 auto 14px; }
+.istep-num svg { display: block; }
+
+/* guide grid: sticky "On this page" menu (desktop) + the step lists. Mobile (≤919px, same as the nav): chip row */
+.guide { display: grid; grid-template-columns: 184px minmax(0, 760px); column-gap: 56px; justify-content: center; align-items: start; padding-top: 168px; }   /* top = the old hero's top padding */
+.guide-main { min-width: 0; }
+.toc { position: sticky; top: 100px; }   /* sidebar top = content column top (the page header); sticky top = the cards' scroll-margin, so they stay level while scrolling */
+.toc-list { display: flex; flex-direction: column; gap: 4px; }
+.toc-subl { list-style: none; }
+/* group header: plain semibold text + chevron (no boxes) */
+.toc-head {
+  width: 100%; display: flex; align-items: center; gap: 8px; min-height: 32px; padding: 4px 0; border: 0; border-radius: 0;
+  background: transparent; font-family: var(--sans); font-size: 14px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); text-align: left; cursor: pointer;
+  transition: color 200ms var(--ease-std);
+}
+.toc-head .toc-t { flex: 1; min-width: 0; }
+.toc-head .toc-n { display: none; }
+.toc-chev { flex: none; color: var(--muted); transition: transform 260ms var(--ease-std); }
+.toc-group.open .toc-chev { transform: rotate(180deg); }
+@media (hover: hover) and (pointer: fine) { .toc-head:hover { color: var(--accent); } }
+/* sub-items: collapse/expand with the grid-rows trick (height + fade), one group open at a time */
+.toc-sub { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 320ms var(--ease-std); }
+.toc-subl { min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 0; margin: 0; padding: 0; opacity: 0; transition: opacity 200ms var(--ease-std); }
+.toc-group.open .toc-sub { grid-template-rows: 1fr; }
+.toc-group.open .toc-subl { opacity: 1; padding-top: 2px; padding-bottom: 6px; transition-delay: 60ms; }
+.toc-subl li { position: relative; }
+.toc a {
+  display: flex; align-items: center; gap: 8px; min-height: 30px; padding: 4px 0 4px 16px; border-radius: 0;
+  font-size: 13.5px; font-weight: 500; letter-spacing: -0.02em; color: var(--nav-dim);
+  transition: color 200ms var(--ease-std), background-color 200ms var(--ease-std);
+}
+.toc-n { display: none; }
+@media (hover: hover) and (pointer: fine) { .toc a:hover { color: var(--ink); } }
+.toc a.active { color: var(--ink); }
+/* docs-style: a 1px rail down the group; the active item = ink text + a 3px accent bar centred on the rail, full item height */
+/* The list clips its overflow (accordion), which also clipped a bar sitting over a CSS border — so the rail is
+   drawn INSIDE the list (::before) and the 3px bar sits fully inside it, centred on the rail. */
+.toc-subl { margin-left: 6px; position: relative; }
+.toc-subl::before { content: ""; position: absolute; left: 1px; top: 0; bottom: 0; width: 1px; background: var(--hairline); }
+.toc a { padding-left: 16px; }
+.toc a::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 2px; background: var(--accent); opacity: 0; transform: scaleY(.4); transition: opacity 200ms var(--ease-std), transform 260ms var(--ease-std); }
+.toc a.active::before { opacity: 1; transform: none; }
+.istep, #mcp, #install-app { scroll-margin-top: 100px; }   /* clear the floating nav when jumping */
+.istep:focus, #mcp:focus { outline: none; }
+.istep .mcpb-btn { margin: 14px 0 12px; }
+
+/* stepper */
+.install { padding: 48px 0 40px; }
+.step-list { max-width: 760px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.istep { position: relative; background: var(--tint); border-radius: 20px; padding: 26px 30px 28px 82px; transition: transform 220ms var(--ease-fam); }
+@media (hover: hover) and (pointer: fine) { .istep:hover { transform: translateY(-3px); } }
+.istep-num { position: absolute; left: 26px; top: 26px; width: 38px; height: 38px; border-radius: 50%; background: var(--accent); color: #fff; font-family: var(--display); font-weight: 500; font-size: 17px; display: flex; align-items: center; justify-content: center; }
+.istep h3 { font-family: var(--display); font-weight: 500; font-size: 20px; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 8px; }
+.istep p { font-size: 15px; line-height: 23px; letter-spacing: -0.13px; color: var(--body-70); }
+.istep p + p { margin-top: 10px; }
+.istep strong { color: var(--ink); font-weight: 600; }
+.istep code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; background: var(--pill); border: 1px solid var(--hairline); border-radius: 6px; padding: 1px 6px; color: var(--ink); overflow-wrap: anywhere; }
+.istep a { color: var(--accent); font-weight: 500; }
+.istep a:hover { text-decoration: underline; }
+/* Buttons inside a step keep their own button look — not the inline-link blue + underline. */
+.istep a.btn { color: #fff; font-weight: 600; text-decoration: none; }
+.istep a.btn:hover { text-decoration: none; }
+.mcpb-btn { gap: 6px; margin: 4px 0 2px; }
+
+.methods { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 16px; }
+.method { min-width: 0; background: #fff; border: 1px solid var(--hairline); border-radius: 14px; padding: 16px 18px; }
+.method-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.method ol, .method ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14.5px; line-height: 22px; color: var(--body-70); }
+.method ol strong, .method ul strong { color: var(--ink); }
+.method > p { font-size: 14.5px; line-height: 22px; color: var(--body-70); margin-bottom: 10px; }
+.method > p:last-child { margin-bottom: 0; }
+.method .codeblock-wrap + p { margin-top: 10px; }
+@media (min-width: 641px) { .methods.two { grid-template-columns: 1fr 1fr; } }   /* can / can't side by side on desktop */
+.method .alt { margin-top: 12px; }                                                  /* collapsed "Not JSON?" one-liners */
+.method .alt summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent); }
+.method .alt summary::-webkit-details-marker { display: none; }
+.method .alt summary::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform 200ms var(--ease-std); }
+.method .alt[open] summary::after { transform: rotate(-135deg) translateY(-1px); }
+/* fixed layout: cells never grow to a <pre>'s min-content width, so long snippets scroll inside their dark box, not the page */
+.alt-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 12px; font-size: 13.5px; line-height: 20px; color: var(--body-70); }
+.alt-table th { text-align: left; font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding: 0 12px 8px 0; border-bottom: 1px solid var(--hairline); }
+.alt-table th:nth-child(1) { width: 96px; }
+.alt-table th:nth-child(2) { width: 30%; }
+.alt-table td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--hairline); vertical-align: top; min-width: 0; overflow-wrap: anywhere; }
+.alt-table tr:last-child td { border-bottom: 0; }
+.alt-table td.app { color: var(--ink); }
+.alt-table td.snip { padding-right: 0; }
+.alt-table .codeblock-wrap { max-width: 100%; }
+.alt-table td.snip p { font-size: 13.5px; line-height: 20px; margin: 0; }
+.alt-table .codeblock { font-size: 12px; line-height: 18px; }
+.codeblock-wrap.prompt + .codeblock-wrap.prompt { margin-top: 8px; }   /* "Then just ask" example prompts */
+.codeblock-wrap.prompt .codeblock { font-family: var(--sans); font-size: 14px; color: var(--body); }   /* prompts are prose, not code */
+@media (max-width: 640px) {   /* phone: each row stacks (App · Where · Snippet) */
+  .alt-table thead { display: none; }
+  .alt-table, .alt-table tbody, .alt-table tr, .alt-table td { display: block; width: 100%; }
+  .alt-table tr { padding: 12px 0; border-bottom: 1px solid var(--hairline); }
+  .alt-table tr:last-child { border-bottom: 0; }
+  .alt-table td { padding: 0; border: 0; }
+  .alt-table td.where { max-width: none; margin: 2px 0 8px; }
+}
+
+/* code blocks: light surface (same family as the .kbd / inline code chips), never clipped — long paths wrap */
+.codeblock-wrap { display: flex; align-items: flex-start; gap: 10px; min-width: 0; background: var(--pill); border: 1px solid var(--hairline); border-radius: 12px; padding: 8px 8px 8px 14px; }
+.istep .codeblock, .codeblock { flex: 1; min-width: 0; margin: 0; padding: 7px 0 6px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; line-height: 19px; color: var(--ink); background: none; border: 0; border-radius: 0; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+.copy-btn { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 32px; background: #fff; color: var(--ink); border: 1px solid var(--hairline); border-radius: 16px; padding: 0 12px; font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: -0.09px; cursor: pointer; transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease, transform 160ms var(--ease-out); }   /* .btn-secondary, sized small */
+.copy-btn:hover { background: var(--pill-hover); }
+.copy-btn:active { transform: scale(.96); }
+/* copied state: identical look; only the icon and label swap, stacked in one cell so the width never changes */
+.copy-btn-ico, .copy-btn-label { display: grid; }
+.copy-btn-ico > svg, .copy-btn-label > span { grid-area: 1 / 1; }
+.copy-btn-ico > svg { display: block; }
+.copy-btn .ico-check, .copy-btn .l-done { visibility: hidden; }
+.copy-btn.copied .ico-copy, .copy-btn.copied .l-copy { visibility: hidden; }
+.copy-btn.copied .ico-check, .copy-btn.copied .l-done { visibility: visible; }
+
+.perm-list { list-style: none; margin: 14px 0 0; display: grid; gap: 10px; }
+.perm-list li { font-size: 14.5px; line-height: 22px; color: var(--body-70); }
+.perm-list a.pk { color: var(--accent); font-weight: 600; }
+.perm-list a.pk:hover { text-decoration: underline; }
+
+.reassure { display: flex; align-items: center; gap: 10px; margin-top: 16px; background: var(--accent-soft); border-radius: 12px; padding: 12px 15px; font-size: 13.5px; line-height: 20px; color: var(--accent-dark); }
+.reassure svg { flex: none; }
+
+/* closing CTA — streaming flow-band showcase (brought over from the home page) */
+.cta { background: var(--tint); padding: 96px 0 124px; text-align: center; margin-top: 56px; }
+.cta-showcase { margin: 0 auto 48px; }
+.cta .h-section { margin-bottom: 18px; }
+.cta .copy { max-width: 380px; margin: 0 auto 44px; font-size: 17px; line-height: 26px; letter-spacing: -0.22px; color: var(--body-70); }
+.cta-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.cta-note { margin: 12px 0 0; font-size: 13px; letter-spacing: -0.05px; color: var(--muted); }
+.cta-actions + .cta-note { text-align: center; }
+.istep p.cta-note { margin-top: 6px; font-size: 13px; color: var(--muted); }
+
+/* flow-band: source languages stream into the icon, English streams out */
+.flow-stage { position: relative; max-width: 940px; margin: 0 auto; height: 224px; }
+.flow-svg {
+  width: 100%; height: 100%; display: block;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.flow-svg .curve { fill: none; stroke: none; }
+.flow-text { font-family: var(--sans); font-size: 21px; font-weight: 500; letter-spacing: -0.2px; }
+.flow-text.raw { fill: #9aa3ad; }
+.flow-text.clean { fill: var(--accent); opacity: .34; }
+.flow-icon { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; gap: 20px; z-index: 2; }
+/* backdrop never wider than the viewport (a fixed 420px caused ~15px horizontal page overflow on phones) */
+.flow-icon::before { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(420px, 100vw - 8px); height: 210px; background: radial-gradient(closest-side, var(--tint) 52%, rgba(247, 249, 251, 0) 100%); z-index: -1; }
+@keyframes flowBar { 0%, 100% { height: calc(var(--h, 24px) * .3); } 50% { height: var(--h, 24px); } }
+
+/* language chip above the icon */
+.flow-chip { position: absolute; left: 50%; top: calc(50% - 128px); transform: translateX(-50%); background: #fff; border: 1px solid var(--hairline); border-radius: 30px; padding: 6px 15px; font-size: 13.5px; font-weight: 500; letter-spacing: -0.09px; color: var(--ink); white-space: nowrap; box-shadow: 0 12px 30px rgba(18, 30, 50, .13), 0 1px 3px rgba(18, 30, 50, .06); z-index: 2; animation: chipFloat 4.5s ease-in-out infinite; }
+.flow-chip .fc-src, .flow-chip .fc-tgt { display: inline-block; min-width: 58px; text-align: center; transition: opacity 280ms ease; }
+.flow-chip .fc-src.fade, .flow-chip .fc-tgt.fade { opacity: 0; }
+.flow-chip .fc-arrow, .flow-chip .fc-tgt { color: var(--accent); font-weight: 600; }
+@keyframes chipFloat { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-5px); } }
+
+/* central icon assembly — stacked layers + mirrored equalizer bars */
+.icon-stack { position: relative; width: 148px; height: 148px; flex: none; }
+.icon-stack .tile { position: relative; z-index: 3; display: flex; align-items: center; justify-content: center; width: 148px; height: 148px; background: #fff; border-radius: 34px; border: 1px solid rgba(18, 30, 50, .05); box-shadow: 0 18px 40px rgba(0, 78, 168, .18), 0 4px 12px rgba(18, 30, 50, .12); }
+.icon-stack img { width: 84px; height: 84px; border-radius: 20px; display: block; }
+.icon-stack .layer { position: absolute; left: 50%; top: 0; width: 148px; height: 148px; border-radius: 34px; background: #fff; border: 1px solid rgba(18, 30, 50, .05); }
+.icon-stack .layer-1 { z-index: 2; transform: translate(-50%, 10px) scale(.955); box-shadow: 0 14px 30px rgba(0, 78, 168, .10); }
+.icon-stack .layer-2 { z-index: 1; transform: translate(-50%, 20px) scale(.90); background: #eef3fb; box-shadow: 0 20px 38px rgba(0, 78, 168, .08); }
+.eq { display: flex; align-items: center; gap: 5px; height: 80px; flex: none; }
+.eq-left { flex-direction: row-reverse; }
+.eq i { width: 5px; border-radius: 999px; background: var(--accent); height: var(--h, 24px); animation: flowBar 1s ease-in-out infinite; }
+.eq i:nth-child(1) { --h: 46px; animation-duration: 1.15s; animation-delay: 0ms; }
+.eq i:nth-child(2) { --h: 34px; animation-duration: .9s;  animation-delay: 140ms; }
+.eq i:nth-child(3) { --h: 25px; animation-duration: 1.2s; animation-delay: 80ms; }
+.eq i:nth-child(4) { --h: 18px; animation-duration: .95s; animation-delay: 220ms; }
+.eq i:nth-child(5) { --h: 12px; animation-duration: 1.05s; animation-delay: 160ms; }
+
+/* ---------- footer ---------- */
+footer { padding: 0 0 56px; margin-top: 40px; }
+footer > .container { padding-top: 72px; }
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+.footer-brand { display: flex; flex-direction: column; gap: 14px; max-width: 320px; }
+.footer-brand .nav-brand { gap: 10px; }
+.footer-brand .brand-name { font-size: 17px; }
+.footer-tagline { margin: 0; font-size: 14px; line-height: 22px; letter-spacing: -0.09px; color: var(--muted); }
+.footer-cols { display: flex; gap: 72px; flex-wrap: wrap; }
+.footer-col { display: flex; flex-direction: column; gap: 12px; min-width: 120px; }
+.footer-col h4 {
+  margin: 0 0 2px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.footer-col a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: -0.1px;
+  font-weight: 500;
+  color: var(--body);
+  transition: color 140ms ease;
+  overflow-wrap: anywhere;
+}
+.footer-col a:hover { color: var(--accent); }
+.footer-col a svg { flex: none; color: var(--muted); transition: color 140ms ease; }
+.footer-col a:hover svg { color: var(--accent); }
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px 32px;
+  flex-wrap: wrap;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--hairline);
+  font-size: 13px;
+  line-height: 20px;
+  letter-spacing: -0.06px;
+  color: var(--muted);
+}
+.footer-bottom p { margin: 0; }
+.footer-bottom a { color: var(--body); font-weight: 500; transition: color 140ms ease; }
+.footer-bottom a:hover { color: var(--accent); }
+
+/* reveal */
+html.js .rv { opacity: 0; transform: translateY(22px); transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out); }
+html.js .rv.in { opacity: 1; transform: none; }
+.rv-d1 { transition-delay: 80ms; }
+.rv-d2 { transition-delay: 160ms; }
+.rv-d3 { transition-delay: 240ms; }
+
+/* responsive */
+@media (max-width: 919px) {
+  /* no sidebar: page header first, then two chip rows — row 1 = the two groups, row 2 = the open group's sub-chips (scrolls sideways) */
+  .guide { display: flex; flex-direction: column; }
+  .guide-main { display: contents; }          /* header / menu / sections become siblings, so the menu can sit under the title */
+  .page-head { order: 0; margin-bottom: 28px; }
+  .toc { order: 1; position: static; padding: 0; margin: 0 -24px 8px; }
+  .install, #mcp { order: 2; }
+  .toc-list { display: grid; grid-template-columns: auto auto; grid-auto-flow: row dense; justify-content: start; column-gap: 8px; row-gap: 8px; padding: 2px 24px 6px; }   /* dense: both group chips share row 1, the sub rows span below */
+  .toc-group { display: contents; }
+  .toc-head { width: auto; min-height: 34px; padding: 0 12px 0 8px; border-radius: 17px; background: var(--pill); font-size: 13.5px; white-space: nowrap; }
+  .toc-head .toc-x, .toc-chev { display: none; }
+  .toc-head .toc-n, .toc a .toc-n { display: inline-flex; width: 18px; height: 18px; border-radius: 6px; font-size: 11px; background: #fff; color: var(--muted); }
+  .toc a .toc-n { width: 16px; height: 16px; font-size: 10.5px; }
+  .toc-subl { margin: 0; border: 0; }
+  .toc a::before, .toc-subl::before { display: none; }
+  .toc-group.open .toc-head { background: var(--accent); color: #fff; box-shadow: none; }
+  .toc-group.open .toc-head .toc-n { background: rgba(255, 255, 255, .22); color: #fff; }
+  .toc-sub { grid-column: 1 / -1; margin: 0 -24px; }
+  .toc-subl { flex-direction: row; gap: 8px; margin: 0; padding: 0 24px; border: 0; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .toc-subl::-webkit-scrollbar { display: none; }
+  .toc-group.open .toc-subl { padding: 0 24px 4px; }
+  .toc-subl li { flex: none; }
+  .toc a { min-height: 32px; padding: 0 12px 0 8px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1px var(--hairline); color: var(--ink); font-size: 13px; white-space: nowrap; }
+  .toc a .toc-n { background: var(--pill); }
+  .toc a.active { background: var(--pill); box-shadow: inset 0 0 0 1px var(--nav-ring); color: var(--ink); }
+  .toc a.active .toc-n { background: var(--accent); color: #fff; }
+  .istep, #mcp { scroll-margin-top: 92px; }
+}
+@media (max-width: 640px) {
+  .guide { padding-top: 128px; }
+  /* Mobile: step number sits centered on top, text gets the full row width. */
+  .istep { padding: 22px 22px 26px; }
+  .istep-num { position: static; margin: 0 auto 16px; }
+  footer { padding: 56px 0 48px; }
+  .footer-top { flex-direction: column; gap: 36px; }
+  .footer-cols { gap: 32px 48px; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 40px; }
+  .cta { padding: 84px 0 96px; }
+  .cta-showcase { margin-bottom: 36px; }
+  .flow-stage { height: 200px; }
+  .flow-text { font-size: 17px; }
+  .flow-icon { gap: 14px; }
+  .flow-chip { font-size: 12px; padding: 5px 12px; top: calc(50% - 118px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .rv { opacity: 1; transform: none; transition: none; }
+  .btn, .istep, .copy-btn, .nav-brand img, .toc a, .toc a::before, .toc-n, .toc-head, .toc-chev, .toc-sub, .toc-subl { transition: none; }
+  .flow-chip, .eq i { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!--NAV:START-->
+<nav class="nav" id="nav" aria-label="Main">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">
+      <img src="logo.png" alt="Momo Whisper" width="28" height="28">
+      <span class="brand-name">Momo Whisper</span>
+      <span class="beta-pill" title="Public beta — free version, still improving">Beta</span>
+    </a>
+    <div class="nav-drawer" id="navDrawer">
+      <div class="nav-links" id="navLinks">
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#features">Features</a>
+      <a href="index.html#faq">FAQ</a>
+      <a href="story.html">Story</a>
+      <a href="feedback.html">Feedback</a>
+        <a class="home-link" href="index.html">Home</a>
+        <a class="btn btn-primary nav-cta-menu" href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip" target="_blank" rel="noopener" title="For Mac · macOS 13+">Download</a>
+        <p class="nav-note">For Mac · macOS 13+</p>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <a class="btn btn-secondary nav-home" href="index.html">Home</a>
+      <a class="btn btn-primary nav-cta" href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip" target="_blank" rel="noopener" title="For Mac · macOS 13+">Download</a>
+      <button class="nav-burger" id="navBurger" type="button" aria-label="Menu" aria-controls="navLinks" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<!--NAV:END-->
+
+<span id="top" aria-hidden="true"></span>
+
+<main>
+  <div class="guide container">
+    <aside class="toc" aria-label="On this page">
+      <div class="toc-list" id="tocList">
+    <div class="toc-group open" data-group="install">
+      <button class="toc-head" type="button" data-target="install-app" aria-expanded="true" aria-controls="tocSub-install"><span class="toc-n"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 21h16"/></svg></span><span class="toc-t">How to install<span class="toc-x"> the app</span></span><svg class="toc-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="toc-sub" id="tocSub-install">
+        <ul class="toc-subl">
+          <li><a href="#step-1"><span class="toc-n">1</span>Download</a></li>
+          <li><a href="#step-2"><span class="toc-n">2</span>Move to Applications</a></li>
+          <li><a href="#step-3"><span class="toc-n">3</span>First open</a></li>
+          <li><a href="#step-4"><span class="toc-n">4</span>Permissions</a></li>
+          <li><a href="#step-5"><span class="toc-n">5</span>Groq key</a></li>
+          <li><a href="#step-6"><span class="toc-n">6</span>Start talking</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="toc-group" data-group="mcp">
+      <button class="toc-head" type="button" data-target="mcp" aria-expanded="false" aria-controls="tocSub-mcp"><span class="toc-n"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v5M15 3v5"/><path d="M6 8h12v3a6 6 0 0 1-12 0V8z"/><path d="M12 17v4"/></svg></span><span class="toc-t">Connect your AI<span class="toc-x"> (MCP)</span></span><svg class="toc-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="toc-sub" id="tocSub-mcp">
+        <ul class="toc-subl">
+          <li><a href="#mcp-desktop"><span class="toc-n">1</span>Claude Desktop</a></li>
+          <li><a href="#mcp-any"><span class="toc-n">2</span>Other AI apps</a></li>
+          <li><a href="#mcp-ask"><span class="toc-n">3</span>What to ask</a></li>
+          <li><a href="#mcp-scope"><span class="toc-n">4</span>What it can do</a></li>
+        </ul>
+      </div>
+    </div>
+      </div>
+    </aside>
+    <div class="guide-main">
+  <header class="page-head" id="install-app" tabindex="-1">
+    <p class="eyebrow rv">Setup guide</p>
+    <h1 class="h-section rv">How to install Momo Whisper</h1>
+    <p class="intro rv rv-d1">New to installing apps outside the App Store? No problem. Follow these six steps once and you'll be dictating in a couple of minutes.</p>
+  </header>
+  <section class="install">
+      <div class="step-list">
+
+        <div class="istep rv" id="step-1" tabindex="-1">
+          <span class="istep-num">1</span>
+          <h3>Download and unzip</h3>
+          <p>Click <a href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip" target="_blank" rel="noopener">Download</a> (right here, or the button top right — it always gives you the newest version). Your browser saves a <code>.zip</code> file to your <strong>Downloads</strong> folder. Double-click that file to unzip it, and you'll get an app called <strong>Momo Whisper</strong>.</p>
+          <p class="cta-note">For Mac · macOS 13+</p>
+          <p>Why a zip? It keeps the app in one tidy package so it downloads quickly and arrives intact.</p>
+        </div>
+
+        <div class="istep rv" id="step-2" tabindex="-1">
+          <span class="istep-num">2</span>
+          <h3>Move it into Applications</h3>
+          <p>Drag <strong>Momo Whisper</strong> into your <strong>Applications</strong> folder. Not sure where that is? Open a <strong>Finder</strong> window (the blue smiley face in your Dock) and you'll see <strong>Applications</strong> in the sidebar on the left.</p>
+          <p>Why here? Applications is where your Mac keeps all its apps and expects to find them, so everything runs smoothly.</p>
+        </div>
+
+        <div class="istep rv" id="step-3" tabindex="-1">
+          <span class="istep-num">3</span>
+          <h3>Open it the first time</h3>
+          <p>The first time you open Momo Whisper, macOS shows a warning like <em>“Apple could not verify Momo Whisper is free of malware.”</em> Don't worry, nothing is wrong. macOS says this about <strong>every free indie app</strong> that hasn't paid Apple's notarization fee. You only need to get past it once. Pick whichever way feels comfortable:</p>
+          <div class="methods">
+            <div class="method">
+              <span class="method-label">Option A · easiest, no typing</span>
+              <ol>
+                <li>In your <strong>Applications</strong> folder, <strong>right-click</strong> (or Control-click) Momo Whisper and choose <strong>Open</strong>.</li>
+                <li>The warning appears again, but now with an <strong>Open</strong> button. Click <strong>Open</strong>.</li>
+                <li>Don't see an Open button? Go to <a href="x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension">System Settings → Privacy &amp; Security</a>, scroll down to <em>“Momo Whisper was blocked”</em>, click <strong>Open Anyway</strong>, then enter your Mac password.</li>
+              </ol>
+            </div>
+            <div class="method">
+              <span class="method-label">Option B · one Terminal command</span>
+              <p>Prefer a single command? Open <strong>Terminal</strong> (in Applications → Utilities), paste this, and press <strong>Return</strong>:</p>
+              <div class="codeblock-wrap">
+                <code class="codeblock" id="quarantineCmd">xattr -dr com.apple.quarantine "/Applications/Momo Whisper.app"</code>
+                <button type="button" class="copy-btn" id="copyCmdBtn" aria-label="Copy command to clipboard">
+                  <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                  <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                </button>
+              </div>
+              <p>It just removes the “downloaded from the internet” quarantine flag, nothing more.</p>
+            </div>
+          </div>
+          <div class="reassure">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            This is a one-time step. After it opens once, Momo Whisper launches normally forever after.
+          </div>
+        </div>
+
+        <div class="istep rv" id="step-4" tabindex="-1">
+          <span class="istep-num">4</span>
+          <h3>Allow a few permissions</h3>
+          <p>On first launch, Momo Whisper walks you through a few macOS permissions. Here's what each one is for:</p>
+          <ul class="perm-list">
+            <li><a class="pk" href="x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone">Microphone</a>, so it can hear you when you dictate.</li>
+            <li><a class="pk" href="x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility">Accessibility</a>, so it can type the finished text into whatever app you're in.</li>
+            <li><a class="pk" href="x-apple.systempreferences:com.apple.preference.security?Privacy_SpeechRecognition">Speech Recognition</a> <em>(recommended, optional)</em>, which turns on faster, more accurate on-device transcription; that audio stays on your Mac.</li>
+          </ul>
+          <p>You can review or change these anytime in <a href="x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension">System Settings → Privacy &amp; Security</a>.</p>
+        </div>
+
+        <div class="istep rv" id="step-5" tabindex="-1">
+          <span class="istep-num">5</span>
+          <h3>Add your free Groq key</h3>
+          <p>Momo uses <strong>Groq</strong> to turn your speech into text and to translate it. It needs a <strong>Groq API key</strong>, which is like a free password that lets the app talk to Groq on your behalf.</p>
+          <p>It's <strong>free</strong>: create one at <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a>, copy it, and paste it into Momo's <strong>Settings</strong>. Your key is stored locally on your Mac, and Groq's free tier is generous for everyday dictation.</p>
+        </div>
+
+        <div class="istep rv" id="step-6" tabindex="-1">
+          <span class="istep-num">6</span>
+          <h3>Start talking to your Mac</h3>
+          <p>That's it! Hold <span class="kbd">Fn</span> and speak to dictate, hold <span class="kbd">Fn</span><span class="kbd">⇧</span> to translate as you speak, or highlight any text and click the translate button. The menu-bar icon shows a live waveform while it listens.</p>
+        </div>
+
+      </div>
+  </section>
+
+  <!-- Connect your AI (MCP) — optional, for people who already use MCP -->
+  <section class="install" id="mcp" tabindex="-1">
+      <div class="mcp-head" data-toc-group="mcp">
+        <p class="eyebrow rv">Optional · for MCP users</p>
+        <h2 class="h-section rv">Connect your AI (MCP)</h2>
+        <p class="intro rv rv-d1">Works with Claude Desktop (one click) and any MCP app — Claude Code, Cursor, Codex, Gemini CLI. Point it at Momo and ask: <em>“Look at my last 50 dictations and fix the words Momo keeps mishearing.”</em> It reads your history, adds the fixes, and you approve.</p>
+      </div>
+      <div class="step-list">
+
+        <div class="istep rv" id="mcp-desktop" tabindex="-1">
+          <span class="istep-num" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 21h16"/></svg></span>
+          <h3>Claude Desktop — one click</h3>
+          <p>Download the connector and Claude Desktop installs it for you. No config file to edit.</p>
+          <a class="btn btn-primary btn-sm mcpb-btn" href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/momo-whisper.mcpb" data-event="mcpb">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 21h16"/></svg>
+            Add to Claude Desktop
+          </a>
+          <p>Double-click the file, then <strong>Install</strong>. Needs Momo installed.</p>
+        </div>
+
+        <div class="istep rv" id="mcp-any" tabindex="-1">
+          <span class="istep-num" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v5M15 3v5"/><path d="M6 8h12v3a6 6 0 0 1-12 0V8z"/><path d="M12 17v4"/></svg></span>
+          <h3>Any other AI app that supports local MCP</h3>
+          <p>Claude Code, Cursor, Codex, Gemini CLI and more. Momo ships a tiny MCP server inside the app. Add it once, in the AI app you use, with these two values. No arguments, no keys.</p>
+          <p><strong>Needs Momo installed on this Mac.</strong> The connector ships inside the app, so finish the six steps above first.</p>
+          <div class="methods">
+            <div class="method">
+              <span class="method-label">Server name</span>
+              <div class="codeblock-wrap">
+                <code class="codeblock" id="mcpServerName">momo-whisper</code>
+                <button type="button" class="copy-btn" aria-label="Copy server name to clipboard">
+                  <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                  <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                </button>
+              </div>
+              <p>Command <em>(no arguments)</em></p>
+              <div class="codeblock-wrap">
+                <code class="codeblock" id="mcpCommand">/Applications/Momo Whisper.app/Contents/MacOS/momo-mcp</code>
+                <button type="button" class="copy-btn" aria-label="Copy command to clipboard">
+                  <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                  <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                </button>
+              </div>
+            </div>
+            <div class="method">
+              <span class="method-label">Most apps use this JSON format</span>
+              <p>Cursor, Gemini CLI, Windsurf and most others: paste this into the app's MCP config file, then restart the app. (Claude Desktop's config file takes it too, if you'd rather not use the one-click file.)</p>
+              <div class="codeblock-wrap multi">
+                <pre class="codeblock" id="mcpJson">{
+  "mcpServers": {
+    "momo-whisper": {
+      "command": "/Applications/Momo Whisper.app/Contents/MacOS/momo-mcp"
+    }
+  }
+}</pre>
+                <button type="button" class="copy-btn" aria-label="Copy JSON config to clipboard">
+                  <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                  <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                </button>
+              </div>
+              <details class="alt">
+                <summary>Not that JSON? Other apps</summary>
+                <div class="alt-scroll">
+                  <table class="alt-table">
+                    <thead><tr><th>App</th><th>Where</th><th>Snippet</th></tr></thead>
+                    <tbody>
+                    <tr>
+                      <td class="app"><strong>Claude Code</strong></td>
+                      <td class="where">Terminal</td>
+                      <td class="snip"><div class="codeblock-wrap">
+                        <code class="codeblock">claude mcp add -s user momo-whisper -- "/Applications/Momo Whisper.app/Contents/MacOS/momo-mcp"</code>
+                        <button type="button" class="copy-btn" aria-label="Copy Claude Code command to clipboard">
+                          <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                          <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                        </button>
+                      </div></td>
+                    </tr>
+                    <tr>
+                      <td class="app"><strong>Codex CLI</strong></td>
+                      <td class="where"><code>~/.codex/config.toml</code></td>
+                      <td class="snip"><div class="codeblock-wrap multi">
+                        <pre class="codeblock">[mcp_servers.momo-whisper]
+command = "/Applications/Momo Whisper.app/Contents/MacOS/momo-mcp"</pre>
+                        <button type="button" class="copy-btn" aria-label="Copy Codex config to clipboard">
+                          <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                          <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                        </button>
+                      </div></td>
+                    </tr>
+                    <tr>
+                      <td class="app"><strong>VS Code</strong></td>
+                      <td class="where">Command Palette → <em>MCP: Open User Configuration</em> (key is <code>servers</code>)</td>
+                      <td class="snip"><div class="codeblock-wrap multi">
+                        <pre class="codeblock">{
+  "servers": {
+    "momo-whisper": { "type": "stdio", "command": "/Applications/Momo Whisper.app/Contents/MacOS/momo-mcp" }
+  }
+}</pre>
+                        <button type="button" class="copy-btn" aria-label="Copy VS Code config to clipboard">
+                          <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                          <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                        </button>
+                      </div></td>
+                    </tr>
+                    <tr>
+                      <td class="app"><strong>Zed</strong></td>
+                      <td class="where"><code>settings.json</code> (key is <code>context_servers</code>)</td>
+                      <td class="snip"><div class="codeblock-wrap multi">
+                        <pre class="codeblock">{
+  "context_servers": {
+    "momo-whisper": { "command": "/Applications/Momo Whisper.app/Contents/MacOS/momo-mcp", "args": [] }
+  }
+}</pre>
+                        <button type="button" class="copy-btn" aria-label="Copy Zed config to clipboard">
+                          <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                          <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                        </button>
+                      </div></td>
+                    </tr>
+                    <tr>
+                      <td class="app"><strong>Continue</strong></td>
+                      <td class="where"><code>~/.continue/config.yaml</code></td>
+                      <td class="snip"><div class="codeblock-wrap multi">
+                        <pre class="codeblock">mcpServers:
+  - name: momo-whisper
+    type: stdio
+    command: "/Applications/Momo Whisper.app/Contents/MacOS/momo-mcp"
+    args: []</pre>
+                        <button type="button" class="copy-btn" aria-label="Copy Continue config to clipboard">
+                          <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                          <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                        </button>
+                      </div></td>
+                    </tr>
+                    <tr>
+                      <td class="app"><strong>Goose</strong></td>
+                      <td class="where"><code>goose configure</code> → Add Extension → Command-line Extension, or <code>~/.config/goose/config.yaml</code></td>
+                      <td class="snip"><div class="codeblock-wrap multi">
+                        <pre class="codeblock">extensions:
+  momo-whisper:
+    name: Momo Whisper
+    type: stdio
+    cmd: "/Applications/Momo Whisper.app/Contents/MacOS/momo-mcp"
+    args: []
+    enabled: true
+    timeout: 300</pre>
+                        <button type="button" class="copy-btn" aria-label="Copy Goose config to clipboard">
+                          <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                          <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                        </button>
+                      </div></td>
+                    </tr>
+                    <tr>
+                      <td class="app"><strong>Warp</strong></td>
+                      <td class="where">Settings → Agents → MCP servers → <strong>+ Add</strong></td>
+                      <td class="snip"><p>Paste the JSON above.</p></td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+            </div>
+          </div>
+          <p>Works with apps that support local (stdio) MCP servers. The ChatGPT and Gemini web and desktop apps don't yet.</p>
+        </div>
+
+        <div class="istep rv" id="mcp-ask" tabindex="-1">
+          <span class="istep-num" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.4A8 8 0 1 1 21 12z"/></svg></span>
+          <h3>Then just ask</h3>
+          <p>Talk to your AI like you normally do. Momo's history and dictionary are simply there for it to use.</p>
+          <div class="methods">
+            <div class="method">
+              <span class="method-label">Claude Code · slash commands</span>
+              <p>Momo adds four commands, ready to run. Tip: type <code>/mcp</code> to see them.</p>
+              <ul>
+                <li><code>/mcp__momo-whisper__fix-my-words</code> — finds what Momo keeps mishearing and proposes fixes.</li>
+                <li><code>/mcp__momo-whisper__learn-my-names</code> — picks out names and terms you say often, adds them to the vocabulary.</li>
+                <li><code>/mcp__momo-whisper__review-dictionary</code> — checks your dictionary for duplicates or risky entries.</li>
+                <li><code>/mcp__momo-whisper__send-feedback</code> — drafts a note to us; it's sent only after you approve.</li>
+              </ul>
+            </div>
+            <div class="method">
+              <span class="method-label">Any other app · paste a prompt</span>
+              <div class="codeblock-wrap prompt">
+                <code class="codeblock">Check my Momo history from the last 3 days and fix the words it keeps mishearing — show me the list first.</code>
+                <button type="button" class="copy-btn" aria-label="Copy example prompt to clipboard">
+                  <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                  <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                </button>
+              </div>
+              <div class="codeblock-wrap prompt">
+                <code class="codeblock">Find names and terms I say often in my Momo history and add them to Momo's vocabulary — ask me first.</code>
+                <button type="button" class="copy-btn" aria-label="Copy example prompt to clipboard">
+                  <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                  <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                </button>
+              </div>
+              <div class="codeblock-wrap prompt">
+                <code class="codeblock">Review my Momo dictionary for duplicates or risky entries and suggest fixes — don't change anything until I approve.</code>
+                <button type="button" class="copy-btn" aria-label="Copy example prompt to clipboard">
+                  <span class="copy-btn-ico"><svg class="ico-copy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><svg class="ico-check" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+                  <span class="copy-btn-label"><span class="l-copy">Copy</span><span class="l-done">Copied</span></span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="method">
+            <span class="method-label">Tips for good fixes</span>
+            <ul>
+              <li>Only fix a mistake that keeps repeating — skip a one-off typo.</li>
+              <li>If the misheard word is a real word on its own (Thai or English), don't map that single word — it would rewrite it everywhere else too. Use the short phrase as it was heard instead, e.g. <em>"หลอกหลังบ้าน → log หลังบ้าน"</em>, not <em>"หลอก → log"</em>.</li>
+              <li>Give it the exact spelling you want — <strong>"log"</strong>, <strong>"Figma"</strong>, <strong>"Claude Code"</strong> — not lowercase or reworded.</li>
+              <li>No one consistent wrong form? Ask it to add the name as a word to listen for instead of a correction.</li>
+              <li>Momo already checks its own dictionary first, so it won't propose something you already have.</li>
+            </ul>
+          </div>
+          <div class="reassure">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            Your AI always shows the changes first. Nothing is saved until you approve.
+          </div>
+        </div>
+
+        <div class="istep rv" id="mcp-scope" tabindex="-1">
+          <span class="istep-num" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span>
+          <h3>What your AI can and can't do</h3>
+          <p>It gets a small, fixed set of tools. Nothing more.</p>
+          <div class="methods two">
+            <div class="method">
+              <span class="method-label">It can</span>
+              <ul>
+                <li><strong>Read</strong> your dictation history and your dictionary.</li>
+                <li><strong>Add</strong> corrections and words to listen for. They show as <strong>“Added by your AI”</strong> in Settings → Dictionary, where you can remove any of them.</li>
+                <li><strong>Remove</strong> its own entries. Your own entries only go after you click <strong>Remove</strong> in the dialog Momo shows you.</li>
+                <li><strong>Send feedback</strong> to us — only after you approve it.</li>
+              </ul>
+            </div>
+            <div class="method">
+              <span class="method-label">It can't</span>
+              <ul>
+                <li>Change the app, your settings, prompts or keys.</li>
+                <li>Run commands or touch other files.</li>
+                <li>Reach the internet — except sending feedback you approve.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="reassure">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+            Runs on your Mac only. The only thing it can send is feedback you approve, straight to our inbox. What your AI reads goes to that AI's provider, like any chat.
+          </div>
+        </div>
+
+      </div>
+  </section>
+    </div><!-- /guide-main -->
+  </div><!-- /guide -->
+
+  <!-- closing CTA — the home page's streaming flow-band showcase, brought here -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta-showcase rv" aria-hidden="true">
+        <div class="flow-stage">
+          <svg class="flow-svg" viewBox="0 0 980 168" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="presentation">
+            <defs>
+              <path id="curveIn" class="curve" d="M -160 90 L 490 90"/>
+              <path id="curveOut" class="curve" d="M 490 90 L 1140 90"/>
+            </defs>
+            <text class="flow-text raw">
+              <textPath href="#curveIn" xlink:href="#curveIn" startOffset="0">明日の会議は午後2時からです　·　오늘 안에 파일 보내 주세요　·　这个版本明天就能上线　·　¿Me mandas el informe esta tarde?　·　明日の会議は午後2時からです　·　오늘 안에 파일 보내 주세요　·　这个版本明天就能上线　·　¿Me mandas el informe esta tarde?　·
+                <animate attributeName="startOffset" from="0" to="0" dur="40s" repeatCount="indefinite" calcMode="linear"/>
+              </textPath>
+            </text>
+            <text class="flow-text clean">
+              <textPath href="#curveOut" xlink:href="#curveOut" startOffset="0">Tomorrow's meeting starts at 2pm.　·　กรุณาส่งไฟล์ภายในวันนี้　·　Esta versión se puede lanzar mañana.　·　今日の午後に報告書を送ってくれますか？　·　Tomorrow's meeting starts at 2pm.　·　กรุณาส่งไฟล์ภายในวันนี้　·　Esta versión se puede lanzar mañana.　·　今日の午後に報告書を送ってくれますか？　·
+                <animate attributeName="startOffset" from="0" to="0" dur="40s" repeatCount="indefinite" calcMode="linear"/>
+              </textPath>
+            </text>
+          </svg>
+          <div class="flow-chip"><span class="fc-src">日本語</span><span class="fc-arrow"> → </span><span class="fc-tgt">English</span></div>
+          <div class="flow-icon">
+            <span class="eq eq-left"><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="icon-stack">
+              <span class="layer layer-2"></span>
+              <span class="layer layer-1"></span>
+              <span class="tile"><img src="logo.png" alt="" width="84" height="84"></span>
+            </span>
+            <span class="eq eq-right"><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+        </div>
+      </div>
+      <h2 class="h-section rv rv-d1">Start talking to your&nbsp;Mac.</h2>
+      <p class="copy rv rv-d2">Download, paste a free Groq key, hold Fn. You're dictating in under a minute.</p>
+      <div class="cta-actions rv rv-d3">
+        <a class="btn btn-primary" href="https://github.com/Nabhak/Momo-Whisper/releases/latest/download/Momo-Whisper.zip" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 21h16"/></svg>
+          Download for macOS
+        </a>
+        <a class="btn btn-secondary" href="#top" id="backToTop">Back to Top</a>
+      </div>
+      <p class="cta-note rv rv-d3">For Mac · macOS 13+</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="nav-brand" href="index.html">
+          <img src="logo.png" alt="Momo Whisper" width="28" height="28">
+          <span class="brand-name">Momo Whisper</span>
+        </a>
+        <p class="footer-tagline">Hold Fn to dictate, Fn+Shift to translate. A menu&#8209;bar app for your Mac.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="install.html">How to install</a>
+          <a href="story.html">Story</a>
+          <a href="https://github.com/Nabhak/Momo-Whisper/releases" target="_blank" rel="noopener">Releases</a>
+          <a href="https://github.com/Nabhak/Momo-Whisper" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="footer-col">
+          <h4>Help</h4>
+          <a href="feedback.html">Send feedback</a>
+          <a href="mailto:momoplugin.help@gmail.com"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>momoplugin.help@gmail.com</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 <a href="https://github.com/Nabhak" target="_blank" rel="noopener">nabhak</a></p>
+      <p>Built on the open-source <a href="https://github.com/Gamezxz/WhisperApp" target="_blank" rel="noopener">WhisperApp</a> by Gamezxz (MIT)</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- floating nav: top inset tracks scroll (rest → 16px), rAF-throttled, passive ---------- */
+  var nav = document.getElementById('nav');
+  var burger = document.getElementById('navBurger');
+  var navLinks = document.getElementById('navLinks');
+  function closeNav() {
+    if (!nav || !nav.classList.contains('open')) return;
+    nav.classList.remove('open');
+    document.body.classList.remove('nav-open');
+    if (burger) burger.setAttribute('aria-expanded', 'false');
+  }
+  if (nav) {
+    var navRest = 32, navMin = 16, navTicking = false;
+    var readNavInsets = function () {
+      var cs = getComputedStyle(nav);
+      navRest = parseFloat(cs.getPropertyValue('--nav-top-rest')) || 32;
+      navMin = parseFloat(cs.getPropertyValue('--nav-top-min')) || 16;
+    };
+    var placeNav = function () {
+      navTicking = false;
+      nav.style.top = Math.max(navMin, navRest - window.scrollY) + 'px';
+    };
+    readNavInsets(); placeNav();
+    window.addEventListener('scroll', function () {
+      if (!navTicking) { navTicking = true; requestAnimationFrame(placeNav); }
+    }, { passive: true });
+    window.addEventListener('resize', function () {
+      readNavInsets(); placeNav();
+      if (window.innerWidth >= 920) closeNav();
+    }, { passive: true });
+  }
+
+  /* mobile hamburger — the pill itself expands to reveal the links */
+  if (nav && burger && navLinks) {
+    burger.addEventListener('click', function () {
+      var open = nav.classList.toggle('open');
+      document.body.classList.toggle('nav-open', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    navLinks.addEventListener('click', function (e) { if (e.target.closest('a')) closeNav(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeNav(); });
+  }
+
+  /* scroll reveals */
+  var targets = document.querySelectorAll('.rv:not(.in)');
+  if (reduceMotion || !('IntersectionObserver' in window)) {
+    targets.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+    targets.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ---------- "On this page" menu: two accordion groups (one open at a time). Group header click → scroll to the
+     section + expand it; sub-item click → scroll; scrollspy opens the group you're in and highlights the sub-item. ---------- */
+  var tocList = document.getElementById('tocList');
+  if (tocList) {
+    var tocGroups = Array.prototype.slice.call(tocList.querySelectorAll('.toc-group'));
+    var tocLinks = Array.prototype.slice.call(tocList.querySelectorAll('a[href^="#"]'));
+    var tocMobile = window.matchMedia('(max-width: 919px)');
+    var scrollBehavior = function () { return reduceMotion ? 'auto' : 'smooth'; };
+    function openGroup(group) {
+      tocGroups.forEach(function (g) {
+        var on = g === group;
+        g.classList.toggle('open', on);
+        g.querySelector('.toc-head').setAttribute('aria-expanded', on ? 'true' : 'false');
+      });
+    }
+    function groupOf(el) { return el.closest('.toc-group'); }
+    /* scrollspy lock: while a menu click scrolls the page, sections flying past must not re-open the other group.
+       Unlocks on scrollend (or when scrollY has been still for 120 ms; 1.5 s cap). */
+    var spyLocked = false, spyUnlockTimer = 0, spyStillTimer = 0;
+    function unlockSpy() { spyLocked = false; clearTimeout(spyUnlockTimer); clearInterval(spyStillTimer); }
+    function lockSpy() {
+      spyLocked = true;
+      clearTimeout(spyUnlockTimer); clearInterval(spyStillTimer);
+      spyUnlockTimer = setTimeout(unlockSpy, 1500);
+      var lastY = window.scrollY, still = 0;
+      spyStillTimer = setInterval(function () {
+        if (window.scrollY === lastY) { still += 40; if (still >= 120) unlockSpy(); } else { still = 0; lastY = window.scrollY; }
+      }, 40);
+    }
+    if ('onscrollend' in window) window.addEventListener('scrollend', function () { if (spyLocked) unlockSpy(); }, { passive: true });
+    function docTop(el) { var y = 0; while (el) { y += el.offsetTop; el = el.offsetParent; } return y; }   /* layout position: ignores the .rv reveal transform */
+    function jumpTo(id, href) {
+      var target = document.getElementById(id);
+      if (!target) return;
+      target.classList.add('in');
+      var margin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+      lockSpy();
+      window.scrollTo({ top: Math.max(0, docTop(target) - margin), behavior: scrollBehavior() });
+      target.focus({ preventScroll: true });
+      if (history.replaceState) history.replaceState(null, '', href);
+    }
+    function setTocActive(id) {
+      var active = null;
+      tocLinks.forEach(function (a) {
+        var on = a.getAttribute('href') === '#' + id;
+        a.classList.toggle('active', on);
+        if (on) { a.setAttribute('aria-current', 'true'); active = a; } else { a.removeAttribute('aria-current'); }
+      });
+      var group = active ? groupOf(active) : tocGroups.filter(function (g) { return g.querySelector('.toc-head').getAttribute('data-target') === id; })[0];
+      if (group) openGroup(group);
+      /* chip row: keep the active chip in view (horizontal only — never scrolls the page) */
+      if (active && tocMobile.matches) {
+        var row = active.closest('.toc-subl');
+        var left = active.parentNode.offsetLeft - 24;
+        var max = row.scrollWidth - row.clientWidth;
+        row.scrollTo({ left: Math.max(0, Math.min(left, max)), behavior: scrollBehavior() });
+      }
+    }
+    tocGroups.forEach(function (g) {
+      var head = g.querySelector('.toc-head');
+      head.addEventListener('click', function () {
+        var id = head.getAttribute('data-target');
+        openGroup(g);
+        tocLinks.forEach(function (a) { a.classList.remove('active'); a.removeAttribute('aria-current'); });
+        jumpTo(id, '#' + id);
+      });
+    });
+    tocLinks.forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var id = a.getAttribute('href').slice(1);
+        if (!document.getElementById(id)) return;
+        e.preventDefault();
+        jumpTo(id, '#' + id);
+        setTocActive(id);
+      });
+    });
+    /* spy targets: every sub-item's card, plus the MCP intro (data-toc-group) so the group opens while its heading is in view */
+    var tocTargets = tocLinks.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); })
+      .concat(Array.prototype.slice.call(document.querySelectorAll('[data-toc-group]')))
+      .filter(Boolean);
+    if ('IntersectionObserver' in window && tocTargets.length) {
+      /* a section is "current" while it crosses the band from just under the nav (100px) to 40% down the viewport;
+         when two do, the topmost in document order wins (a short card never hands the highlight to the next one) */
+      var visible = [];
+      var SPY_TOP = 100, HYST = 48;   /* band top (nav clearance) and the extra distance a section must travel before groups switch */
+      function groupNameOf(el) {
+        var g = el.getAttribute('data-toc-group');
+        if (g) return g;
+        var link = tocLinks.filter(function (a) { return a.getAttribute('href') === '#' + el.id; })[0];
+        return link ? groupOf(link).getAttribute('data-group') : null;
+      }
+      function openGroupName() { var g = tocGroups.filter(function (g) { return g.classList.contains('open'); })[0]; return g ? g.getAttribute('data-group') : null; }
+      var spy = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          var i = visible.indexOf(en.target);
+          if (en.isIntersecting && i < 0) visible.push(en.target);
+          if (!en.isIntersecting && i > -1) visible.splice(i, 1);
+        });
+        if (spyLocked || !visible.length) return;
+        var top = visible.slice().sort(function (a, b) { return tocTargets.indexOf(a) - tocTargets.indexOf(b); })[0];
+        var name = groupNameOf(top);
+        if (name && name !== openGroupName()) {
+          /* hysteresis: only switch groups once the section is clearly inside the band — top well below the band's top edge
+             when coming from above, bottom well below it when coming back up — so hovering at the boundary never ping-pongs */
+          var r = top.getBoundingClientRect();
+          var bandBottom = window.innerHeight * 0.4;
+          if (!(r.top <= bandBottom - HYST && r.bottom >= SPY_TOP + HYST)) return;
+        }
+        if (top.hasAttribute('data-toc-group')) {
+          tocLinks.forEach(function (a) { a.classList.remove('active'); a.removeAttribute('aria-current'); });
+          openGroup(tocGroups.filter(function (g) { return g.getAttribute('data-group') === name; })[0]);
+        } else setTocActive(top.id);
+      }, { rootMargin: '-100px 0px -60% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] });
+      tocTargets.forEach(function (el) { spy.observe(el); });
+    }
+    var initial = location.hash && document.getElementById(location.hash.slice(1));
+    setTocActive(initial ? initial.id : 'step-1');
+  }
+
+  /* copy buttons — one per .codeblock-wrap (xattr command + the MCP snippets); copies the sibling .codeblock */
+  Array.prototype.slice.call(document.querySelectorAll('.codeblock-wrap')).forEach(function (wrap) {
+    var copyBtn = wrap.querySelector('.copy-btn');
+    var codeEl = wrap.querySelector('.codeblock');
+    if (!copyBtn || !codeEl) return;
+    var timer;
+    function done() {   /* swap to the check icon + "Copied" (same button size/colours), revert after 1.5 s */
+      copyBtn.classList.add('copied');
+      clearTimeout(timer);
+      timer = setTimeout(function () { copyBtn.classList.remove('copied'); }, 1500);
+    }
+    copyBtn.addEventListener('click', function () {
+      var text = codeEl.textContent;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done);
+      } else {
+        /* older / non-secure contexts: select + execCommand fallback */
+        var range = document.createRange(); range.selectNodeContents(codeEl);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+        try { document.execCommand('copy'); done(); } catch (e) {}
+        sel.removeAllRanges();
+      }
+    });
+  });
+
+  /* back-to-top button in the closing CTA */
+  var toTop = document.getElementById('backToTop');
+  if (toTop) {
+    toTop.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    });
+  }
+
+  /* ---------- streaming flow-band (CTA showcase) ----------
+     Shift startOffset by exactly ONE repeated copy so the loop is seamless. Runs for
+     every .flow-svg, keyed off each svg's own textPaths (no shared ids). */
+  var flowSvgs = Array.prototype.slice.call(document.querySelectorAll('.flow-svg'));
+  if (flowSvgs.length) {
+    var COPIES = 2;
+    function setupPath(tp) {
+      if (!tp) return;
+      var anim = tp.querySelector('animate');
+      if (!anim) return;
+      var total = 0;
+      try { total = tp.getComputedTextLength(); } catch (e) { total = 0; }
+      if (!total) return;
+      var one = total / COPIES;
+      tp.setAttribute('startOffset', -one);
+      anim.setAttribute('from', -one);
+      anim.setAttribute('to', 0);
+    }
+    function initOneFlow(svg) {
+      Array.prototype.slice.call(svg.querySelectorAll('textPath')).forEach(setupPath);
+      try { svg.setCurrentTime(0); } catch (e) {}
+      if (reduceMotion) { try { svg.setCurrentTime(6); svg.pauseAnimations(); } catch (e) {} }
+    }
+    function initFlow() { flowSvgs.forEach(initOneFlow); }
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(initFlow);
+      setTimeout(initFlow, 1200);
+    } else {
+      setTimeout(initFlow, 300);
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (reduceMotion) return;
+      flowSvgs.forEach(function (svg) {
+        try { document.hidden ? svg.pauseAnimations() : svg.unpauseAnimations(); } catch (e) {}
+      });
+    });
+  }
+
+  /* language chip above the flow-band icon: cycles source + target (not always English) */
+  Array.prototype.slice.call(document.querySelectorAll('.flow-chip')).forEach(function (chip) {
+    var fcSrc = chip.querySelector('.fc-src');
+    var fcTgt = chip.querySelector('.fc-tgt');
+    if (!fcSrc || !fcTgt || reduceMotion) return;
+    var fcPairs = [
+      { src: '日本語',   tgt: 'English' },
+      { src: '한국어',   tgt: 'ไทย' },
+      { src: '中文',     tgt: 'Español' },
+      { src: 'Español',  tgt: '日本語' }
+    ];
+    var fcIdx = 0;
+    setInterval(function () {
+      if (document.hidden) return;
+      fcIdx = (fcIdx + 1) % fcPairs.length;
+      fcSrc.classList.add('fade');
+      fcTgt.classList.add('fade');
+      setTimeout(function () {
+        fcSrc.textContent = fcPairs[fcIdx].src;
+        fcTgt.textContent = fcPairs[fcIdx].tgt;
+        fcSrc.classList.remove('fade');
+        fcTgt.classList.remove('fade');
+      }, 300);
+    }, 3600);
+  });
+})();
+</script>
+<!-- GoatCounter — privacy-friendly analytics (page views + download/coffee clicks) -->
+<script data-goatcounter="https://nabhak.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script>
+  /* count Download + "buy a coffee" button clicks as GoatCounter events */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[href*="releases/latest/download"], a[href*="buymeacoffee"]') : null;
+    if (!a || !window.goatcounter || !window.goatcounter.count) return;
+    var coffee = a.href.indexOf('buymeacoffee') > -1;
+    var mcpb = a.href.indexOf('.mcpb') > -1;   /* the Claude Desktop connector, counted separately from app downloads */
+    var page = (location.pathname.split('/').pop() || 'index').replace('.html', '') || 'index';
+    window.goatcounter.count({
+      path: (coffee ? 'coffee-' : mcpb ? 'mcpb-' : 'download-') + page,
+      title: coffee ? 'Buy a coffee click' : mcpb ? 'Add to Claude Desktop click' : 'Download click',
+      event: true
+    });
+  });
+</script>
+<script src="mac-gate.js" defer></script>
+</body>
+</html>
